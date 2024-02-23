@@ -1,0 +1,15 @@
+{
+  "name": "youtube-downloader",
+  "version": "1.0.0",
+  "description": "downloads video and audio stream of a youbtube video and uses FFmpeg to smush them into some ad free output",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "osistlk",
+  "license": "MIT",
+  "dependencies": {
+    "@distube/ytdl-core": "^4.13.3",
+    "fluent-ffmpeg": "^2.1.2"
+  }
+}
