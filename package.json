@@ -4,12 +4,19 @@
   "description": "downloads video and audio stream of a youbtube video and uses FFmpeg to smush them into some ad free output",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
   },
   "author": "osistlk",
   "license": "MIT",
   "dependencies": {
     "@distube/ytdl-core": "^4.13.3",
-    "fluent-ffmpeg": "^2.1.2"
+    "fluent-ffmpeg": "^2.1.2",
+    "ytpl": "^2.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
   }
 }
