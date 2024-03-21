@@ -161,7 +161,6 @@ async function downloadAudio(url) {
 }
 
 function processWithFFmpeg(videoPath, audioPath) {
-    console.log('paths:', videoPath, audioPath)
     const outputPath = videoPath.replace('.mp4', '_output.mp4');
 
     return new Promise((resolve, reject) => {
