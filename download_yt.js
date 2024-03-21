@@ -161,7 +161,8 @@ async function downloadAudio(url) {
 }
 
 async function processWithFFmpeg(videoPath, audioPath) {
-    const outputPath = videoPath.replace('.mp4', '_output.mp4');
+    const videoId = path.basename(videoPath, '.mp4');
+    const outputPath = path.join('output', `${videoId}_output.mp4`);
 
     return new Promise((resolve, reject) => {
         ffmpeg()
@@ -178,6 +179,5 @@ async function processWithFFmpeg(videoPath, audioPath) {
             .on('error', reject);
     });
 }
-
 // Add this at the end of your script file
 module.exports = { downloadAndMergeVideo, downloadVideo, downloadAudio, processWithFFmpeg };
