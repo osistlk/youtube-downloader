@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 const { performance } = require('perf_hooks');
 const ytdl = require('@distube/ytdl-core');
@@ -138,7 +138,7 @@ async function downloadAndMergeVideo(url) {
 
 async function downloadVideo(url) {
     const videoId = ytdl.getURLVideoID(url);
-    const videoPath = `${videoId}.mp4`;
+    const videoPath = path.join('temp', `${videoId}.mp4`);
 
     return new Promise((resolve, reject) => {
         ytdl(url, { quality: 'highestvideo' })
@@ -150,7 +150,7 @@ async function downloadVideo(url) {
 
 async function downloadAudio(url) {
     const videoId = ytdl.getURLVideoID(url);
-    const audioPath = `${videoId}.mp3`;
+    const audioPath = path.join('temp', `${videoId}.mp3`);
 
     return new Promise((resolve, reject) => {
         ytdl(url, { quality: 'highestaudio' })
@@ -160,7 +160,7 @@ async function downloadAudio(url) {
     });
 }
 
-function processWithFFmpeg(videoPath, audioPath) {
+async function processWithFFmpeg(videoPath, audioPath) {
     const outputPath = videoPath.replace('.mp4', '_output.mp4');
 
     return new Promise((resolve, reject) => {
@@ -170,7 +170,11 @@ function processWithFFmpeg(videoPath, audioPath) {
             .input(audioPath)
             .audioCodec('copy')
             .save(outputPath)
-            .on('end', () => resolve(outputPath))
+            .on('end', async () => {
+                await fs.remove(videoPath);
+                await fs.remove(audioPath);
+                resolve(outputPath);
+            })
             .on('error', reject);
     });
 }
