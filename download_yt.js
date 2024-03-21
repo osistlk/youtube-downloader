@@ -136,5 +136,45 @@ async function downloadAndMergeVideo(url) {
     }
 }
 
+async function downloadVideo(url) {
+    const videoId = ytdl.getURLVideoID(url);
+    const videoPath = `${videoId}.mp4`;
+
+    return new Promise((resolve, reject) => {
+        ytdl(url, { quality: 'highestvideo' })
+            .pipe(fs.createWriteStream(videoPath))
+            .on('finish', () => resolve(videoPath))
+            .on('error', reject);
+    });
+}
+
+async function downloadAudio(url) {
+    const videoId = ytdl.getURLVideoID(url);
+    const audioPath = `${videoId}.mp3`;
+
+    return new Promise((resolve, reject) => {
+        ytdl(url, { quality: 'highestaudio' })
+            .pipe(fs.createWriteStream(audioPath))
+            .on('finish', () => resolve(audioPath))
+            .on('error', reject);
+    });
+}
+
+function processWithFFmpeg(videoPath, audioPath) {
+    console.log('paths:', videoPath, audioPath)
+    const outputPath = videoPath.replace('.mp4', '_output.mp4');
+
+    return new Promise((resolve, reject) => {
+        ffmpeg()
+            .input(videoPath)
+            .videoCodec('copy')
+            .input(audioPath)
+            .audioCodec('copy')
+            .save(outputPath)
+            .on('end', () => resolve(outputPath))
+            .on('error', reject);
+    });
+}
+
 // Add this at the end of your script file
-module.exports.downloadAndMergeVideo = downloadAndMergeVideo;
+module.exports = { downloadAndMergeVideo, downloadVideo, downloadAudio, processWithFFmpeg };
