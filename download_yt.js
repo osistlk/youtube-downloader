@@ -104,11 +104,11 @@ async function downloadAndMergeVideo(url) {
             })
             .on('progress', (progress) => {
                 console.clear();
-                let currentTime = progress.timemark.split(':').reduce((acc, time) => (60 * acc) + +time);
+                let currentTime = progress.timemark.split(':').reduce((acc, time) => 60 * acc + +time);
                 let percentage = (currentTime / videoDurationInSeconds * 100).toFixed(2);
 
                 if (percentage >= 0) {
-                    let elapsedTime = ((performance.now() - startTime) / 1000);
+                    let elapsedTime = (performance.now() - startTime) / 1000;
                     let formattedTime;
 
                     if (elapsedTime < 60) {

@@ -1,9 +1,9 @@
-const ytpl = require('ytpl');
-const { downloadVideo, downloadAudio, processWithFFmpeg } = require("./download_yt");
+const ytpl = require('ytpl')
+const { downloadVideo, downloadAudio, processWithFFmpeg } = require("./download_yt")
 
 async function downloadAndProcessVideos(ytVideoUrls) {
-    let videoPromises = [];
-    let audioPromises = [];
+    let videoPromises = []
+    let audioPromises = []
 
     for (const videoUrl of ytVideoUrls) {
         console.log('Download starting...');
