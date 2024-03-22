@@ -146,7 +146,7 @@ async function downloadVideo(url) {
 
         videoStream.on('response', (res) => {
             const len = parseInt(res.headers['content-length'], 10);
-            const bar = new ProgressBar(`Downloading video ${videoId} [:bar] :percent :etas`, {
+            const bar = new ProgressBar(`Downloading video ${videoId} [:bar] :percent :etas elapsed: :elapseds`, {
                 complete: '=',
                 incomplete: ' ',
                 width: 20,
@@ -170,7 +170,7 @@ async function downloadAudio(url) {
 
         audioStream.on('response', (res) => {
             const len = parseInt(res.headers['content-length'], 10);
-            const bar = new ProgressBar(`Downloading audio ${videoId} [:bar] :percent :etas`, {
+            const bar = new ProgressBar(`Downloading audio ${videoId} [:bar] :percent :etas elapsed: :elapseds`, {
                 complete: '=',
                 incomplete: ' ',
                 width: 20,
