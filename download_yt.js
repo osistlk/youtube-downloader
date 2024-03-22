@@ -138,32 +138,36 @@ async function downloadAndMergeVideo(url) {
 
 async function downloadVideo(url) {
     const videoInfo = await ytdl.getInfo(url);
+    const videoId = videoInfo.videoDetails.videoId;
     const videoTitle = sanitizeFilename(videoInfo.videoDetails.title);
     const videoPath = path.join('temp', `${videoTitle}.mp4`)
+    const video = { id: videoId, title: videoTitle, path: videoPath }
 
     return new Promise((resolve, reject) => {
         ytdl(url, { quality: 'highestvideo', filter: 'videoonly' })
             .pipe(fs.createWriteStream(videoPath))
-            .on('finish', () => resolve(videoPath))
+            .on('finish', () => resolve(video))
             .on('error', reject)
     })
 }
 
 async function downloadAudio(url) {
     const videoInfo = await ytdl.getInfo(url);
+    const videoId = videoInfo.videoDetails.videoId;
     const videoTitle = sanitizeFilename(videoInfo.videoDetails.title);
     const audioPath = path.join('temp', `${videoTitle}.mp3`)
+    const audio = { id: videoId, title: videoTitle, path: audioPath }
 
     return new Promise((resolve, reject) => {
         ytdl(url, { quality: 'highestaudio', filter: 'audioonly' })
             .pipe(fs.createWriteStream(audioPath))
-            .on('finish', () => resolve(audioPath))
+            .on('finish', () => resolve(audio))
             .on('error', reject)
     })
 }
 
-async function processWithFFmpeg(videoPath, audioPath) {
-    const outputPath = path.join('output', `${videoPath}.mp4`)
+async function processWithFFmpeg(videoPath, audioPath, videoTitle = videoPath) {
+    const outputPath = path.join('output', `${sanitizeFilename(videoTitle)}.mp4`)
 
     return new Promise((resolve, reject) => {
         ffmpeg()
