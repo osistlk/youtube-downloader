@@ -51,5 +51,5 @@ ytpl(playlistUrl).then(playlist => {
     }
 
     console.log('Video URLs:', videoUrls)
-    downloadAndProcessVideos(videoUrls).catch(console.error)
+    downloadAndProcessVideos(videoUrls.slice(0, 1)).catch(console.error)
 })
