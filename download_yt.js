@@ -9,7 +9,7 @@ const cliProgress = require('cli-progress');
 const multi = new cliProgress.MultiBar({
     clearOnComplete: false,
     hideCursor: true,
-    format: 'Downloading {id} |' + '{bar}' + '| {percentage}% || ETA: {eta}s || Elapsed: {duration}s'
+    format: `Downloading {id} |{bar}| {percentage}% || ETA: {eta}s || Elapsed: {duration}s`
 }, cliProgress.Presets.shades_classic);
 
 // ANSI escape codes for colors

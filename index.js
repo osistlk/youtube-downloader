@@ -1,18 +1,14 @@
 const ytpl = require('ytpl')
-const ytdl = require('@distube/ytdl-core')
-const { downloadVideo, downloadAudio, processWithFFmpeg, sanitizeFilename } = require("./download_yt")
+const { downloadVideo, downloadAudio, processWithFFmpeg } = require("./download_yt")
 
 async function downloadAndProcessVideos(ytVideoUrls) {
     let videoPromises = []
     let audioPromises = []
-    let videoTitle;
 
     console.log('Downloads starting...')
     for (const videoUrl of ytVideoUrls) {
         videoPromises.push(downloadVideo(videoUrl))
         audioPromises.push(downloadAudio(videoUrl))
-        const videoInfo = await ytdl.getInfo(videoUrl);
-        videoTitle = sanitizeFilename(videoInfo.videoDetails.title);
     }
 
     const videos = await Promise.all(videoPromises)
@@ -30,7 +26,7 @@ async function downloadAndProcessVideos(ytVideoUrls) {
     for (let i = 0; i < ytVideoUrls.length; i++) {
         const videoPath = videos[i]
         const audioPath = audios[i]
-        const processedVideo = await processWithFFmpeg(videoPath, audioPath, videoTitle)
+        const processedVideo = await processWithFFmpeg(videoPath, audioPath)
         processedVideos.push(processedVideo)
     }
 
