@@ -3,7 +3,7 @@ const path = require('path')
 const { performance } = require('perf_hooks')
 const ytdl = require('@distube/ytdl-core')
 const ffmpeg = require('fluent-ffmpeg')
-const progress = require('progress-stream')
+const ProgressBar = require('progress');
 
 // ANSI escape codes for colors
 const colors = {
@@ -145,18 +145,16 @@ async function downloadVideo(url) {
         const videoStream = ytdl(url, { quality: 'highestvideo' });
 
         videoStream.on('response', (res) => {
-            const str = progress({
-                length: res.headers['content-length'],
-                time: 1000
+            const len = parseInt(res.headers['content-length'], 10);
+            const bar = new ProgressBar(`Downloading video ${videoId} [:bar] :percent :etas`, {
+                complete: '=',
+                incomplete: ' ',
+                width: 20,
+                total: len
             });
 
-            str.on('progress', p => {
-                console.log(`Video ${videoId} progress: ${p.percentage.toFixed(2)}%`);
-            });
-
-            videoStream
-                .pipe(str)
-                .pipe(fs.createWriteStream(videoPath))
+            res.on('data', chunk => bar.tick(chunk.length));
+            res.pipe(fs.createWriteStream(videoPath))
                 .on('finish', () => resolve(videoPath))
                 .on('error', reject);
         });
@@ -171,18 +169,16 @@ async function downloadAudio(url) {
         const audioStream = ytdl(url, { quality: 'highestaudio' });
 
         audioStream.on('response', (res) => {
-            const str = progress({
-                length: res.headers['content-length'],
-                time: 1000
+            const len = parseInt(res.headers['content-length'], 10);
+            const bar = new ProgressBar(`Downloading audio ${videoId} [:bar] :percent :etas`, {
+                complete: '=',
+                incomplete: ' ',
+                width: 20,
+                total: len
             });
 
-            str.on('progress', p => {
-                console.log(`Audio ${videoId} progress: ${p.percentage.toFixed(2)}%`);
-            });
-
-            audioStream
-                .pipe(str)
-                .pipe(fs.createWriteStream(audioPath))
+            res.on('data', chunk => bar.tick(chunk.length));
+            res.pipe(fs.createWriteStream(audioPath))
                 .on('finish', () => resolve(audioPath))
                 .on('error', reject);
         });
