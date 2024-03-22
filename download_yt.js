@@ -145,51 +145,38 @@ async function downloadAndMergeVideo(url) {
 }
 
 async function downloadVideo(url) {
-    const videoId = ytdl.getURLVideoID(url);
-    const videoPath = path.join('temp', `${videoId}.mp4`);
+    const videoInfo = await ytdl.getInfo(url);
+    const videoId = videoInfo.videoDetails.videoId;
+    const videoTitle = sanitizeFilename(videoInfo.videoDetails.title);
+    const videoPath = path.join('temp', `${videoTitle}.mp4`)
+    const video = { id: videoId, title: videoTitle, path: videoPath }
 
     return new Promise((resolve, reject) => {
-        const videoStream = ytdl(url, { quality: 'highestvideo' });
-
-        videoStream.on('response', (res) => {
-            const len = parseInt(res.headers['content-length'], 10);
-            const bar = multi.create(len, 0, { id: `Video ${videoId}` });
-
-            res.on('data', chunk => bar.increment(chunk.length));
-            res.pipe(fs.createWriteStream(videoPath))
-                .on('finish', () => {
-                    bar.stop();
-                    resolve(videoPath);
-                })
-                .on('error', reject);
-        });
-    });
+        ytdl(url, { quality: 'highestvideo', filter: 'videoonly' })
+            .pipe(fs.createWriteStream(videoPath))
+            .on('finish', () => resolve(video))
+            .on('error', reject)
+    })
 }
 
 async function downloadAudio(url) {
-    const videoId = ytdl.getURLVideoID(url);
-    const audioPath = path.join('temp', `${videoId}.mp3`);
+    const videoInfo = await ytdl.getInfo(url);
+    const videoId = videoInfo.videoDetails.videoId;
+    const videoTitle = sanitizeFilename(videoInfo.videoDetails.title);
+    const audioPath = path.join('temp', `${videoTitle}.mp3`)
+    const audio = { id: videoId, title: videoTitle, path: audioPath }
 
     return new Promise((resolve, reject) => {
-        const audioStream = ytdl(url, { quality: 'highestaudio' });
-
-        audioStream.on('response', (res) => {
-            const len = parseInt(res.headers['content-length'], 10);
-            const bar = multi.create(len, 0, { id: `Audio ${videoId}` });
-
-            res.on('data', chunk => bar.increment(chunk.length));
-            res.pipe(fs.createWriteStream(audioPath))
-                .on('finish', () => {
-                    bar.stop();
-                    resolve(audioPath);
-                })
-                .on('error', reject);
-        });
-    });
+        ytdl(url, { quality: 'highestaudio', filter: 'audioonly' })
+            .pipe(fs.createWriteStream(audioPath))
+            .on('finish', () => resolve(audio))
+            .on('error', reject)
+    })
 }
 
 async function processWithFFmpeg(videoPath, audioPath, videoTitle = videoPath) {
-    const outputPath = path.join('output', `${videoTitle}.mp4`)
+    const outputPath = path.join('output', `${sanitizeFilename(videoTitle)}.mp4`)
+
     return new Promise((resolve, reject) => {
         ffmpeg()
             .input(videoPath)

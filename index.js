@@ -24,9 +24,10 @@ async function downloadAndProcessVideos(ytVideoUrls) {
 
     const processedVideos = []
     for (let i = 0; i < ytVideoUrls.length; i++) {
-        const videoPath = videos[i]
-        const audioPath = audios[i]
-        const processedVideo = await processWithFFmpeg(videoPath, audioPath)
+        const videoPath = videos[i].path
+        const audioPath = audios[i].path
+        const videoTitle = videos[i].title
+        const processedVideo = await processWithFFmpeg(videoPath, audioPath, videoTitle)
         processedVideos.push(processedVideo)
     }
 
