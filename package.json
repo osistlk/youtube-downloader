@@ -15,6 +15,7 @@
     "@distube/ytdl-core": "^4.13.3",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^11.2.0",
+    "progress-stream": "^2.0.0",
     "ytpl": "^2.3.0"
   },
   "devDependencies": {
