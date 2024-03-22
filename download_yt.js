@@ -137,9 +137,8 @@ async function downloadAndMergeVideo(url) {
 }
 
 async function downloadVideo(url) {
-    const videoInfo = await ytdl.getInfo(url);
-    const videoTitle = sanitizeFilename(videoInfo.videoDetails.title);
-    const videoPath = path.join('temp', `${videoTitle}.mp4`)
+    const videoId = ytdl.getURLVideoID(url)
+    const videoPath = path.join('temp', `${videoId}.mp4`)
 
     return new Promise((resolve, reject) => {
         ytdl(url, { quality: 'highestvideo', filter: 'videoonly' })
