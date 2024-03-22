@@ -150,9 +150,8 @@ async function downloadVideo(url) {
 }
 
 async function downloadAudio(url) {
-    const videoInfo = await ytdl.getInfo(url);
-    const videoTitle = sanitizeFilename(videoInfo.videoDetails.title);
-    const audioPath = path.join('temp', `${videoTitle}.mp3`)
+    const videoId = ytdl.getURLVideoID(url)
+    const audioPath = path.join('temp', `${videoId}.mp3`)
 
     return new Promise((resolve, reject) => {
         ytdl(url, { quality: 'highestaudio', filter: 'audioonly' })
