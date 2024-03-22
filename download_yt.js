@@ -3,7 +3,14 @@ const path = require('path')
 const { performance } = require('perf_hooks')
 const ytdl = require('@distube/ytdl-core')
 const ffmpeg = require('fluent-ffmpeg')
-const ProgressBar = require('progress');
+const cliProgress = require('cli-progress');
+
+// create new progress bar container
+const multi = new cliProgress.MultiBar({
+    clearOnComplete: false,
+    hideCursor: true,
+    format: 'Downloading {id} |' + '{bar}' + '| {percentage}% || ETA: {eta}s || Elapsed: {duration}s'
+}, cliProgress.Presets.shades_classic);
 
 // ANSI escape codes for colors
 const colors = {
@@ -146,16 +153,14 @@ async function downloadVideo(url) {
 
         videoStream.on('response', (res) => {
             const len = parseInt(res.headers['content-length'], 10);
-            const bar = new ProgressBar(`Downloading video ${videoId} [:bar] :percent :etas elapsed: :elapseds`, {
-                complete: '=',
-                incomplete: ' ',
-                width: 20,
-                total: len
-            });
+            const bar = multi.create(len, 0, { id: `Video ${videoId}` });
 
-            res.on('data', chunk => bar.tick(chunk.length));
+            res.on('data', chunk => bar.increment(chunk.length));
             res.pipe(fs.createWriteStream(videoPath))
-                .on('finish', () => resolve(videoPath))
+                .on('finish', () => {
+                    bar.stop();
+                    resolve(videoPath);
+                })
                 .on('error', reject);
         });
     });
@@ -170,16 +175,14 @@ async function downloadAudio(url) {
 
         audioStream.on('response', (res) => {
             const len = parseInt(res.headers['content-length'], 10);
-            const bar = new ProgressBar(`Downloading audio ${videoId} [:bar] :percent :etas elapsed: :elapseds`, {
-                complete: '=',
-                incomplete: ' ',
-                width: 20,
-                total: len
-            });
+            const bar = multi.create(len, 0, { id: `Audio ${videoId}` });
 
-            res.on('data', chunk => bar.tick(chunk.length));
+            res.on('data', chunk => bar.increment(chunk.length));
             res.pipe(fs.createWriteStream(audioPath))
-                .on('finish', () => resolve(audioPath))
+                .on('finish', () => {
+                    bar.stop();
+                    resolve(audioPath);
+                })
                 .on('error', reject);
         });
     });
