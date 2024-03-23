@@ -31,11 +31,11 @@ ytpl(playlistUrl).then(playlist => {
             };
 
             // Get audio and video streams
-            const audio = ytdl(videoUrl, { quality: 'highestaudio' })
+            const audio = ytdl(videoUrl, { quality: 'highestaudio', filter: 'audioonly' })
                 .on('progress', (_, downloaded, total) => {
                     tracker.audio = { downloaded, total };
                 });
-            const video = ytdl(videoUrl, { quality: 'highestvideo' })
+            const video = ytdl(videoUrl, { quality: 'highestvideo', filter: 'videoonly' })
                 .on('progress', (_, downloaded, total) => {
                     tracker.video = { downloaded, total };
                 });
