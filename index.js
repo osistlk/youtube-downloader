@@ -37,7 +37,7 @@ async function downloadAndProcessVideos(ytVideoUrls) {
 
 let videoUrls = []
 
-const playlistUrl = 'https://www.youtube.com/playlist?list=PLRWvNQVqAeWIcz0Ky6pnrKkqsp3MA7o_n'
+const playlistUrl = 'https://www.youtube.com/playlist?list=PLOUuFeCTxO5jVOsKtY3q2Otl33vXHyd-H'
 ytpl(playlistUrl).then(playlist => {
     videoUrls = playlist.items.map(item => item.url)
 
@@ -51,5 +51,5 @@ ytpl(playlistUrl).then(playlist => {
     }
 
     console.log('Video URLs:', videoUrls)
-    downloadAndProcessVideos(videoUrls.slice(0, 3)).catch(console.error)
+    downloadAndProcessVideos(videoUrls).catch(console.error)
 })
