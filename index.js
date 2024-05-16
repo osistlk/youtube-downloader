@@ -1,4 +1,3 @@
-const ytpl = require('ytpl')
 const { downloadVideo, downloadAudio, processWithFFmpeg } = require("./download_yt")
 
 async function downloadAndProcessVideos(ytVideoUrls) {
@@ -35,21 +34,10 @@ async function downloadAndProcessVideos(ytVideoUrls) {
     console.log('All done.')
 }
 
-let videoUrls = []
+let videoUrls = [
+    'https://www.youtube.com/watch?v=fh3-FlD8SxU',
+    'https://www.youtube.com/watch?v=ByIgWZBZM-w'
+];
 
-const playlistUrl = 'https://www.youtube.com/playlist?list=PLOUuFeCTxO5jVOsKtY3q2Otl33vXHyd-H'
-ytpl(playlistUrl).then(playlist => {
-    videoUrls = playlist.items.map(item => item.url)
-
-    if (!playlistUrl && videoUrls.length === 0) {
-        // If not using a playlist, you can manually add video URLs
-        videoUrls = [
-            'https://www.youtube.com/watch?v=nm28m4gEOkI',
-            'https://www.youtube.com/watch?v=kx8yLdUJbqs',
-            'https://www.youtube.com/watch?v=xwU_MpVXpM4'
-        ]
-    }
-
-    console.log('Video URLs:', videoUrls)
-    downloadAndProcessVideos(videoUrls).catch(console.error)
-})
+console.log('Video URLs:', videoUrls)
+downloadAndProcessVideos(videoUrls).catch(console.error);
