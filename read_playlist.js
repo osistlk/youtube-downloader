@@ -12,12 +12,12 @@ async function fetchPlaylistShortURLs(playlistUrl) {
         // Extract only the shortened URLs, ignoring other metadata about individual videos
         const urlsArray = parsedPlaylist.items.map(video => video.shortUrl);
 
-        // Log all extracted short URLs to the console
-        console.log(urlsArray);
+        return urlsArray
     } catch (error) {
         // Handle any errors that may occur during parsing or processing
         console.error(`An error occurred while fetching playlist data: ${error}`);
+        return []
     }
 }
 
-fetchPlaylistShortURLs('https://www.youtube.com/playlist?list=PLRWvNQVqAeWIcz0Ky6pnrKkqsp3MA7o_n');
+module.exports = { fetchPlaylistShortURLs }
