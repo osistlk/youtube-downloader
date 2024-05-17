@@ -1,4 +1,5 @@
 const { downloadVideo, downloadAudio, processWithFFmpeg } = require("./download_yt")
+const { fetchPlaylistShortURLs } = require("./read_playlist")
 
 async function downloadAndProcessVideos(ytVideoUrls) {
     let videoPromises = []
@@ -34,10 +35,12 @@ async function downloadAndProcessVideos(ytVideoUrls) {
     console.log('All done.')
 }
 
-let videoUrls = [
-    'https://www.youtube.com/watch?v=fh3-FlD8SxU',
-    'https://www.youtube.com/watch?v=ByIgWZBZM-w'
-];
+async function main() {
+    const playlistUrl = 'https://www.youtube.com/playlist?list=PLRWvNQVqAeWLPYrIW3bUWik62khdhk2Ro'
+    const videoUrls = await fetchPlaylistShortURLs(playlistUrl)
 
-console.log('Video URLs:', videoUrls)
-downloadAndProcessVideos(videoUrls).catch(console.error);
+    console.log('Video URLs:', videoUrls)
+    await downloadAndProcessVideos(videoUrls)
+}
+
+main()
