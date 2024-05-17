@@ -207,7 +207,13 @@ async function processWithFFmpeg(videoPath, audioPath, videoTitle = videoPath) {
   return new Promise((resolve, reject) => {
     ffmpeg()
       .input(videoPath)
-      .videoCodec("h264")
+      .inputOption([
+        "-vsync 0",
+        "-hwaccel cuvid",
+        "-hwaccel_device 0",
+        "-c:v h264_cuvid",
+      ])
+      .videoCodec("h264_nvenc")
       .input(audioPath)
       .audioCodec("aac")
       .save(outputPath)

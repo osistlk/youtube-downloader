@@ -49,7 +49,7 @@ async function main() {
   const videoUrls = await fetchPlaylistShortURLs(playlistUrl);
 
   console.log("Video URLs:", videoUrls);
-  await downloadAndProcessVideos(videoUrls);
+  await downloadAndProcessVideos(videoUrls.slice(0, 1));
 }
 
 main();
