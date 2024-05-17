@@ -5,51 +5,48 @@ const {
 } = require("./download_yt");
 const { fetchPlaylistShortURLs } = require("./read_playlist");
 
+async function downloadAndProcessVideo(videoUrl) {
+  try {
+    const [video, audio] = await Promise.all([
+      downloadVideo(videoUrl),
+      downloadAudio(videoUrl),
+    ]);
+
+    if (!video || !audio) {
+      throw new Error(`Failed to download video or audio for ${videoUrl}`);
+    }
+
+    return processWithFFmpeg(video.path, audio.path, video.title);
+  } catch (error) {
+    console.error(`Error processing ${videoUrl}:`, error);
+    throw error;
+  }
+}
+
 async function downloadAndProcessVideos(ytVideoUrls) {
-  let videoPromises = [];
-  let audioPromises = [];
-
   console.log("Downloads starting...");
-  for (const videoUrl of ytVideoUrls) {
-    videoPromises.push(downloadVideo(videoUrl));
-    audioPromises.push(downloadAudio(videoUrl));
-  }
 
-  const videos = await Promise.all(videoPromises);
-  const audios = await Promise.all(audioPromises);
-  console.log("Downloads completed.");
+  const processedVideos = await Promise.all(
+    ytVideoUrls.map((videoUrl) => downloadAndProcessVideo(videoUrl)),
+  );
 
-  // if videos and audios are not equal in length, something went wrong
-  if (ytVideoUrls.length !== audios.length) {
-    throw new Error("Mismatch in video and audio downloads.");
-  }
-
-  console.log("Processing with FFmpeg...");
-
-  const processedVideos = [];
-  for (let i = 0; i < ytVideoUrls.length; i++) {
-    const videoPath = videos[i].path;
-    const audioPath = audios[i].path;
-    const videoTitle = videos[i].title;
-    const processedVideo = await processWithFFmpeg(
-      videoPath,
-      audioPath,
-      videoTitle,
-    );
-    processedVideos.push(processedVideo);
-  }
-
-  console.log("Processing completed.");
+  console.log("Downloads and processing completed.");
   console.log("All done.");
+
+  return processedVideos;
 }
 
 async function main() {
-  const playlistUrl =
-    "https://www.youtube.com/playlist?list=PLRWvNQVqAeWLPYrIW3bUWik62khdhk2Ro";
-  const videoUrls = await fetchPlaylistShortURLs(playlistUrl);
+  try {
+    const playlistUrl =
+      "https://www.youtube.com/playlist?list=PLRWvNQVqAeWLPYrIW3bUWik62khdhk2Ro";
+    const videoUrls = await fetchPlaylistShortURLs(playlistUrl);
 
-  console.log("Video URLs:", videoUrls);
-  await downloadAndProcessVideos(videoUrls);
+    console.log("Video URLs:", videoUrls);
+    await downloadAndProcessVideos(videoUrls);
+  } catch (error) {
+    console.error("Error in main function:", error);
+  }
 }
 
 main();
