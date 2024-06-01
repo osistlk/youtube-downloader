@@ -128,7 +128,18 @@ async function downloadAndMergeVideo(url) {
 
     ffmpeg()
       .input(videoOutput)
+      .inputOptions(
+        "-y",
+        "-vsync",
+        "0",
+        "-hwaccel",
+        "cuda",
+        "-hwaccel_output_format",
+        "cuda",
+      )
+      .videoCodec("h264_nvenc")
       .input(audioOutput)
+      .audioCodec("aac")
       .on("error", (err) => {
         console.error("Error during merging:", err);
       })
@@ -190,7 +201,7 @@ async function downloadAudio(url) {
   const videoInfo = await ytdl.getInfo(url);
   const videoId = videoInfo.videoDetails.videoId;
   const videoTitle = sanitizeFilename(videoInfo.videoDetails.title);
-  const audioPath = path.join("temp", `${videoTitle}.mp3`);
+  const audioPath = path.join("temp", `${videoTitle}.mp4a`);
   const audio = { id: videoId, title: videoTitle, path: audioPath };
 
   return new Promise((resolve, reject) => {
@@ -207,7 +218,16 @@ async function processWithFFmpeg(videoPath, audioPath, videoTitle = videoPath) {
   return new Promise((resolve, reject) => {
     ffmpeg()
       .input(videoPath)
-      .videoCodec("libx264")
+      .inputOptions(
+        "-y",
+        "-vsync",
+        "0",
+        "-hwaccel",
+        "cuda",
+        "-hwaccel_output_format",
+        "cuda",
+      )
+      .videoCodec("h264_nvenc")
       .input(audioPath)
       .audioCodec("aac")
       .save(outputPath)
