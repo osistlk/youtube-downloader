@@ -23,12 +23,22 @@ async function downloadAndProcessVideo(videoUrl) {
   }
 }
 
-async function downloadAndProcessVideos(ytVideoUrls) {
+async function downloadAndProcessVideos(ytVideoUrls, batchSize = 2) {
   console.log("Downloads starting...");
 
-  const processedVideos = await Promise.all(
-    ytVideoUrls.map((videoUrl) => downloadAndProcessVideo(videoUrl)),
-  );
+  const processedVideos = [];
+  let batchCount = 0;
+
+  for (const videoUrl of ytVideoUrls) {
+    const processedVideo = await downloadAndProcessVideo(videoUrl);
+    processedVideos.push(processedVideo);
+    batchCount++;
+
+    if (batchCount === batchSize) {
+      console.log(`Batch of ${batchSize} videos processed.`);
+      batchCount = 0;
+    }
+  }
 
   console.log("Downloads and processing completed.");
   console.log("All done.");
@@ -38,15 +48,19 @@ async function downloadAndProcessVideos(ytVideoUrls) {
 
 async function main() {
   try {
-    // const playlistUrl =
-    //   "https://www.youtube.com/playlist?list=PLRWvNQVqAeWLPYrIW3bUWik62khdhk2Ro";
-    // const videoUrls = await fetchPlaylistShortURLs(playlistUrl);
-
-    // console.log("Video URLs:", videoUrls);
-    await downloadAndProcessVideos(['https://www.youtube.com/watch?v=Bd7eaxP8xEE']);
+    const playlistUrl =
+      "https://www.youtube.com/watch?v=5PmmtbBgNLI&list=PLRWvNQVqAeWJdepCh2Etmib0drGAHWxAy";
+    const videoUrls = await fetchPlaylistShortURLs(playlistUrl);
+    console.log("Video URLs:", videoUrls);
+    await downloadAndProcessVideos(videoUrls);
   } catch (error) {
     console.error("Error in main function:", error);
   }
 }
 
-main();
+(async () => {
+  console.time("codeDuration");
+  await main();
+  console.timeEnd("codeDuration");
+  return 0;
+})();
