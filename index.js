@@ -49,10 +49,13 @@ async function downloadAndProcessVideos(ytVideoUrls, batchSize = 2) {
 async function main() {
   try {
     const playlistUrl =
-      "https://www.youtube.com/watch?v=5PmmtbBgNLI&list=PLRWvNQVqAeWJdepCh2Etmib0drGAHWxAy";
+      "https://www.youtube.com/playlist?list=PLrmcEs6uCjxHIXxigmUz13dV0wJRnKQ-I";
     const videoUrls = await fetchPlaylistShortURLs(playlistUrl);
     console.log("Video URLs:", videoUrls);
     await downloadAndProcessVideos(videoUrls);
+    // await downloadAndProcessVideo(
+    //   "https://www.youtube.com/watch?v=wuz8qnnCC5g"
+    // );
   } catch (error) {
     console.error("Error in main function:", error);
   }
