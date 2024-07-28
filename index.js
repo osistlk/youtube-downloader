@@ -23,7 +23,7 @@ async function downloadAndProcessVideo(videoUrl) {
   }
 }
 
-async function downloadAndProcessVideos(ytVideoUrls, batchSize = 2) {
+async function downloadAndProcessVideos(ytVideoUrls, batchSize = 5) {
   console.log("Downloads starting...");
 
   const processedVideos = [];
