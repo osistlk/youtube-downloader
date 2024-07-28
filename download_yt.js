@@ -103,7 +103,7 @@ async function downloadAndMergeVideo(url) {
     }
 
     const videoOutput = path.join(TEMP_DIR, `${title}_video.mp4`);
-    const audioOutput = path.join(TEMP_DIR, `${title}_audio.webm`);
+    const audioOutput = path.join(TEMP_DIR, `${title}_audio.mp4a`);
     const finalOutput = path.join(OUTPUT_DIR, `${title}.mp4`);
 
     const videoStream = ytdl
