@@ -148,7 +148,7 @@ async function downloadAndMergeVideo(url) {
         let currentTime = progress.timemark
           .split(":")
           .reduce((acc, time) => 60 * acc + +time);
-        let percentage = ((currentTime / videoDurationInSeconds) * 100).toFixed(
+        let percentage = (currentTime / videoDurationInSeconds * 100).toFixed(
           2,
         );
 
