@@ -188,11 +188,13 @@ async function downloadVideo(url) {
   const videoTitle = sanitizeFilename(videoInfo.videoDetails.title);
   const videoPath = path.join("temp", `${videoTitle}.mp4`);
   const video = { id: videoId, title: videoTitle, path: videoPath };
+  const videoQualities = ["1440p", "1080p"];
 
   return new Promise((resolve, reject) => {
     ytdl(url, {
       filter: (format) =>
-        format.container === "mp4" && format.qualityLabel === "1440p",
+        format.container === "mp4" &&
+        videoQualities.includes(format.qualityLabel),
     })
       .pipe(fs.createWriteStream(videoPath))
       .on("finish", () => resolve(video))
