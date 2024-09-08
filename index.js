@@ -55,6 +55,7 @@ async function main() {
     console.error("Error in main function:", error);
   }
 }
+
 (async () => {
   console.time("codeDuration");
   await main();
