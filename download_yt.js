@@ -148,7 +148,7 @@ async function downloadAndMergeVideo(url) {
         let currentTime = progress.timemark
           .split(":")
           .reduce((acc, time) => 60 * acc + +time);
-        let percentage = (currentTime / videoDurationInSeconds * 100).toFixed(
+        let percentage = ((currentTime / videoDurationInSeconds) * 100).toFixed(
           2,
         );
 
@@ -190,7 +190,10 @@ async function downloadVideo(url) {
   const video = { id: videoId, title: videoTitle, path: videoPath };
 
   return new Promise((resolve, reject) => {
-    ytdl(url, { quality: "highestvideo", filter: "videoonly" })
+    ytdl(url, {
+      filter: (format) =>
+        format.container === "mp4" && format.qualityLabel === "1440p",
+    })
       .pipe(fs.createWriteStream(videoPath))
       .on("finish", () => resolve(video))
       .on("error", reject);
@@ -205,7 +208,10 @@ async function downloadAudio(url) {
   const audio = { id: videoId, title: videoTitle, path: audioPath };
 
   return new Promise((resolve, reject) => {
-    ytdl(url, { quality: "highestaudio", filter: "audioonly" })
+    ytdl(url, {
+      quality: "highestaudio",
+      filter: (format) => format.container === "mp4",
+    })
       .pipe(fs.createWriteStream(audioPath))
       .on("finish", () => resolve(audio))
       .on("error", reject);
