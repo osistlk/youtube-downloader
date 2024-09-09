@@ -1,6 +1,7 @@
 /* eslint-disable no-case-declarations */
-const { Select, Input } = require("enquirer");
+const { Select, Input, Confirm } = require("enquirer");
 const ytdl = require("@distube/ytdl-core");
+const ffmpeg = require("fluent-ffmpeg");
 const path = require("path");
 const fs = require("fs");
 
@@ -103,10 +104,17 @@ if (!fs.existsSync(OUTPUT_DIR)) {
           choices: audioContainers,
         });
 
+        const useHardwareAccelerationPrompt = new Confirm({
+          name: "hw",
+          message: "Enable hardware acceleration (for FFmpeg)?",
+        });
+
         const videoQualityAnswer = await videoQualityPrompt.run();
         const videoContainerAnswer = await videoContainerPrompt.run();
         const audioBitrateAnswer = await audioBitratePrompt.run();
         const audioContainerAnswer = await audioContainerPrompt.run();
+        const useHardwareAccelerationAnswer =
+          await useHardwareAccelerationPrompt.run();
 
         const videoOutput = path.join(
           TEMP_DIR,
@@ -114,18 +122,18 @@ if (!fs.existsSync(OUTPUT_DIR)) {
         );
         const audioOutput = path.join(
           TEMP_DIR,
-          `${title}_audio.${audioContainerAnswer}`,
+          `${title}_audio.${audioContainerAnswer}a`,
         );
         const finalOutput = path.join(
           OUTPUT_DIR,
           `${title}.${videoContainerAnswer}`,
         );
 
-        let videoFormat = ytdl.chooseFormat(info.formats, {
+        let videoFormat = ytdl.chooseFormat(videoFormats, {
           qualityLabel: videoQualityAnswer,
           container: videoContainerAnswer,
         });
-        let audioFormat = ytdl.chooseFormat(info.formats, {
+        let audioFormat = ytdl.chooseFormat(audioFormats, {
           audioBitrate: audioBitrateAnswer,
           container: audioContainerAnswer,
         });
@@ -150,6 +158,29 @@ if (!fs.existsSync(OUTPUT_DIR)) {
           }),
         ]);
         console.timeEnd("Download time");
+
+        if (useHardwareAccelerationAnswer) {
+          const ffmpegCommand = await ffmpeg()
+            .input(videoOutput)
+            .inputOptions(
+              "-y",
+              "-vsync",
+              "0",
+              "-hwaccel",
+              "cuda",
+              "-hwaccel_output_format",
+              "cuda",
+            )
+            .videoCodec("h264_nvenc")
+            .input(audioOutput)
+            .audioCodec("aac")
+            .output(finalOutput)
+            .on("end", () => {
+              fs.unlinkSync(videoOutput);
+              fs.unlinkSync(audioOutput);
+            });
+          ffmpegCommand.run();
+        }
 
         break;
       case "playlist":
