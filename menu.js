@@ -66,42 +66,64 @@ if (!fs.existsSync(OUTPUT_DIR)) {
                     (format) => format.hasAudio && !format.hasVideo,
                 );
 
-                const videoQualities = Array.from(
-                    new Set(videoFormats.map((format) => format.qualityLabel)),
-                ).sort((a, b) => {
-                    const na = Number(a.replace("p", ""));
-                    const nb = Number(b.replace("p", ""));
-                    return na > nb ? -1 : na < nb ? 1 : 0;
+                const videos = videoFormats.map((format) => {
+                    return {
+                        itag: format.itag,
+                        qualityLabel: format.qualityLabel,
+                        fps: format.fps,
+                        container: format.container,
+                    };
                 });
-                const videoContainers = Array.from(
-                    new Set(videoFormats.map((format) => format.container)),
-                ).sort();
-                const audioBitrates = Array.from(
-                    new Set(audioFormats.map((format) => format.audioBitrate)),
-                ).sort((a, b) => (a > b ? -1 : a < b ? 1 : 0));
-                const audioContainers = Array.from(
-                    new Set(audioFormats.map((format) => format.container)),
-                ).sort();
 
-                const videoQualityPrompt = new Select({
-                    name: "video format",
-                    message: "Select a video quality (higher is better/larger)",
-                    choices: videoQualities,
+                const videoItags = new Set(
+                    videos
+                        .map(video => video.itag)
+                )
+                const uniqueVideos = Array
+                    .from(videoItags)
+                    .map(itag => videos
+                        .find(video => video.itag === itag))
+                    .sort()
+
+                const audios = audioFormats.map((format) => {
+                    return {
+                        itag: format.itag,
+                        audioBitrate: format.audioBitrate,
+                        container: format.container,
+                    };
                 });
-                const videoContainerPrompt = new Select({
+
+                const audioItags = new Set(
+                    audios
+                        .map(audio => audio.itag)
+                )
+                const uniqueAudios = Array
+                    .from(audioItags)
+                    .map(itag => audios
+                        .find(audio => audio.itag === itag))
+                    .sort()
+
+                const videoChoices = uniqueVideos.map(video => {
+                    return {
+                        message: `${video.qualityLabel}${video.fps ? `@${video.fps}` : ''} - ${video.container}`,
+                        name: video.itag
+                    }
+                });
+                const videoPrompt = new Select({
                     name: "video container",
                     message: "Select a video container (I prefer mp4/h264)",
-                    choices: videoContainers,
+                    choices: videoChoices,
                 });
-                const audioBitratePrompt = new Select({
-                    name: "audio bitrate",
-                    message: "Select a audio bitrate (higher is better/larger)",
-                    choices: audioBitrates.map((bitrate) => "" + bitrate),
+                const audioChoices = uniqueAudios.map(audio => {
+                    return {
+                        message: `${audio.audioBitrate} bitrate - ${audio.container}`,
+                        name: audio.itag
+                    }
                 });
-                const audioContainerPrompt = new Select({
+                const audioPrompt = new Select({
                     name: "audio container",
                     message: "Select a audio container (I prefer mp4a/aac",
-                    choices: audioContainers,
+                    choices: audioChoices,
                 });
 
                 const useHardwareAccelerationPrompt = new Confirm({
@@ -109,33 +131,26 @@ if (!fs.existsSync(OUTPUT_DIR)) {
                     message: "Enable hardware acceleration (for FFmpeg)?",
                 });
 
-                const videoQualityAnswer = await videoQualityPrompt.run();
-                const videoContainerAnswer = await videoContainerPrompt.run();
-                const audioBitrateAnswer = await audioBitratePrompt.run();
-                const audioContainerAnswer = await audioContainerPrompt.run();
+                const videoAnswer = await videoPrompt.run();
+                const audioAnswer = await audioPrompt.run();
                 const useHardwareAccelerationAnswer =
                     await useHardwareAccelerationPrompt.run();
 
                 const videoOutput = path.join(
                     TEMP_DIR,
-                    `${title}_video.${videoContainerAnswer}`,
+                    `${title}_video.${videos.find(video => video.itag === videoAnswer).container}`,
                 );
                 const audioOutput = path.join(
                     TEMP_DIR,
-                    `${title}_audio.${audioContainerAnswer}a`,
+                    `${title}_audio.${audios.find(audio => audio.itag === audioAnswer).container}`,
                 );
-                const finalOutput = path.join(
-                    OUTPUT_DIR,
-                    `${title}.${videoContainerAnswer}`,
-                );
+                const finalOutput = path.join(OUTPUT_DIR, `${title}.${videos.find(video => video.itag === videoAnswer).container}`);
 
                 let videoFormat = ytdl.chooseFormat(videoFormats, {
-                    qualityLabel: videoQualityAnswer,
-                    container: videoContainerAnswer,
+                    itag: videoAnswer,
                 });
                 let audioFormat = ytdl.chooseFormat(audioFormats, {
-                    audioBitrate: audioBitrateAnswer,
-                    container: audioContainerAnswer,
+                    itag: audioAnswer,
                 });
 
                 const videoStream = ytdl
