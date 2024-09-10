@@ -203,7 +203,7 @@ async function handleVideoMenuSelection() {
   console.timeEnd("Download time");
 
   if (useHardwareAccelerationAnswer) {
-    const ffmpegCommand = await ffmpeg()
+    const ffmpegCommand = ffmpeg()
       .input(videoOutput)
       .inputOptions(
         "-y",
@@ -212,7 +212,7 @@ async function handleVideoMenuSelection() {
         "-hwaccel",
         "cuda",
         "-hwaccel_output_format",
-        "cuda",
+        "cuda"
       )
       .videoCodec("h264_nvenc")
       .input(audioOutput)
