@@ -13,4 +13,13 @@ if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR);
 }
 
-module.exports = { TEMP_DIR, OUTPUT_DIR };
+const GREETING = `
+  *******************************
+  *  Youtube Downloader  *
+  *******************************
+  `;
+const greet = () => {
+  console.log(GREETING);
+};
+
+module.exports = { TEMP_DIR, OUTPUT_DIR, greet };

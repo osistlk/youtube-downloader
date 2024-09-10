@@ -1,14 +1,10 @@
 const { Select } = require("enquirer");
 const fs = require("fs");
-const { TEMP_DIR } = require("./constants");
+const { TEMP_DIR, greet } = require("./constants");
 const { handleVideoMenuSelection } = require("./module");
 
 (async () => {
-  console.log(`
-    *******************************
-    *  Youtube Downloader  *
-    *******************************
-    `);
+  greet();
 
   let run = true;
 
