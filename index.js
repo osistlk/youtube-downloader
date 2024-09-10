@@ -31,8 +31,7 @@ const { handleVideoMenuSelection } = require("./module");
         console.log("\nGoodbye!");
         break;
       case "clean":
-        if (fs.existsSync(TEMP_DIR))
-          fs.rmdirSync(TEMP_DIR, { recursive: true, force: true });
+        if (fs.existsSync(TEMP_DIR)) fs.rmSync(TEMP_DIR, { recursive: true });
         break;
       case "video":
         await handleVideoMenuSelection();
