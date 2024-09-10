@@ -32,6 +32,7 @@ if (!fs.existsSync(OUTPUT_DIR)) {
       choices: [
         { message: "Download video", name: "video", value: "#00FF00" },
         { message: "Download playlist", name: "playlist", value: "#FFFF00" },
+        { message: "Clean cache", name: "clean" },
         { message: "Exit", value: "exit" },
       ],
     });
@@ -42,10 +43,14 @@ if (!fs.existsSync(OUTPUT_DIR)) {
         run = false;
         console.log("\nGoodbye!");
         break;
+      case "clean":
+        if (fs.existsSync(TEMP_DIR))
+          fs.rmdirSync(TEMP_DIR, { recursive: true, force: true });
+        break;
       case "video":
         await handleVideoMenuSelection();
         break;
-      case "playlist":
+      case "playlist": // TODO handle playlist URL
         console.log(2);
         break;
 
