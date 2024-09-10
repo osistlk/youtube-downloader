@@ -75,9 +75,26 @@ if (!fs.existsSync(OUTPUT_DIR)) {
           };
         });
 
+        const useHardwareAccelerationPrompt = new Confirm({
+          name: "hw",
+          message:
+            "Enable hardware acceleration for FFmpeg (only supports CUDA & mp4)?",
+        });
+
+        const useHardwareAccelerationAnswer =
+          await useHardwareAccelerationPrompt.run();
+
         const videoItags = new Set(videos.map((video) => video.itag));
         const uniqueVideos = Array.from(videoItags)
-          .map((itag) => videos.find((video) => video.itag === itag))
+          .map((itag) =>
+            videos.find((video) => {
+              if (useHardwareAccelerationAnswer) {
+                return video.itag === itag && video.container === "mp4";
+              }
+              return video.itag === itag;
+            }),
+          )
+          .filter((video) => !!video)
           .sort();
 
         const audios = audioFormats.map((format) => {
@@ -90,7 +107,15 @@ if (!fs.existsSync(OUTPUT_DIR)) {
 
         const audioItags = new Set(audios.map((audio) => audio.itag));
         const uniqueAudios = Array.from(audioItags)
-          .map((itag) => audios.find((audio) => audio.itag === itag))
+          .map((itag) =>
+            audios.find((audio) => {
+              if (useHardwareAccelerationAnswer) {
+                return audio.itag === itag && audio.container === "mp4";
+              }
+              return audio.itag === itag;
+            }),
+          )
+          .filter((audio) => !!audio)
           .sort();
 
         const videoChoices = uniqueVideos.map((video) => {
@@ -99,32 +124,28 @@ if (!fs.existsSync(OUTPUT_DIR)) {
             name: video.itag,
           };
         });
+
         const videoPrompt = new Select({
           name: "video container",
-          message: "Select a video container (I prefer mp4/h264)",
+          message: "Select a video format (I prefer mp4/h264)",
           choices: videoChoices,
         });
+
         const audioChoices = uniqueAudios.map((audio) => {
           return {
             message: `${audio.audioBitrate} bitrate - ${audio.container}`,
             name: audio.itag,
           };
         });
+
         const audioPrompt = new Select({
           name: "audio container",
-          message: "Select a audio container (I prefer mp4a/aac",
+          message: "Select a audio format (I prefer mp4/aac",
           choices: audioChoices,
-        });
-
-        const useHardwareAccelerationPrompt = new Confirm({
-          name: "hw",
-          message: "Enable hardware acceleration (for FFmpeg)?",
         });
 
         const videoAnswer = await videoPrompt.run();
         const audioAnswer = await audioPrompt.run();
-        const useHardwareAccelerationAnswer =
-          await useHardwareAccelerationPrompt.run();
 
         const videoOutput = path.join(
           TEMP_DIR,
