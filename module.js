@@ -1,5 +1,6 @@
 const { Select, Input, Confirm } = require("enquirer");
 const ytdl = require("@distube/ytdl-core");
+const ytpl = require("ytpl");
 const ffmpeg = require("fluent-ffmpeg");
 const path = require("path");
 const fs = require("fs");
@@ -177,9 +178,9 @@ async function handlePlaylistMenuSelection() {
   });
   const answer = await prompt.run();
 
-  const id = ytdl.getURLVideoID(answer);
-  const info = await ytdl.getInfo(id);
-  const title = info.videoDetails.title;
+  const id = await ytpl.getPlaylistID(answer);
+  const playlist = await ytpl(id);
+  const videos = playlist.items;
 }
 
 module.exports = { handleVideoMenuSelection, handlePlaylistMenuSelection };
