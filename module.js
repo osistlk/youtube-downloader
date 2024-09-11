@@ -4,15 +4,10 @@ const ytpl = require("ytpl");
 const ffmpeg = require("fluent-ffmpeg");
 const path = require("path");
 const fs = require("fs");
-const { TEMP_DIR, OUTPUT_DIR } = require("constants");
+const { TEMP_DIR, OUTPUT_DIR } = require("./constants");
 
-async function handleVideoMenuSelection() {
-  const prompt = new Input({
-    message: "Video URL:",
-  });
-  const answer = await prompt.run();
-
-  const id = ytdl.getURLVideoID(answer);
+async function handleURL(youtubeVideoUrl) {
+  const id = ytdl.getURLVideoID(youtubeVideoUrl);
   const info = await ytdl.getInfo(id);
   const title = info.videoDetails.title;
 
@@ -172,6 +167,14 @@ async function handleVideoMenuSelection() {
   }
 }
 
+async function handleVideoMenuSelection() {
+  const prompt = new Input({
+    message: "Video URL:",
+  });
+  const answer = await prompt.run();
+  await handleURL(answer);
+}
+
 async function handlePlaylistMenuSelection() {
   const prompt = new Input({
     message: "Playlist URL:",
@@ -181,6 +184,9 @@ async function handlePlaylistMenuSelection() {
   const id = await ytpl.getPlaylistID(answer);
   const playlist = await ytpl(id);
   const videos = playlist.items;
+  for (const video of videos) {
+    await handleURL(video.url);
+  }
 }
 
 module.exports = { handleVideoMenuSelection, handlePlaylistMenuSelection };
