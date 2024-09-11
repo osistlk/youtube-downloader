@@ -171,4 +171,15 @@ async function handleVideoMenuSelection() {
   }
 }
 
-module.exports = { handleVideoMenuSelection };
+async function handlePlaylistMenuSelection() {
+  const prompt = new Input({
+    message: "Playlist URL:",
+  });
+  const answer = await prompt.run();
+
+  const id = ytdl.getURLVideoID(answer);
+  const info = await ytdl.getInfo(id);
+  const title = info.videoDetails.title;
+}
+
+module.exports = { handleVideoMenuSelection, handlePlaylistMenuSelection };

@@ -1,27 +1,17 @@
-const { Select } = require("enquirer");
 const fs = require("fs");
-const { TEMP_DIR, greet } = require("./constants");
-const { handleVideoMenuSelection } = require("./module");
+const { TEMP_DIR, greet, mainMenuPrompt } = require("./constants");
+const {
+  handleVideoMenuSelection,
+  handlePlaylistMenuSelection,
+} = require("./module");
 
 (async () => {
   greet();
-
   let run = true;
-
   while (run) {
-    const prompt = new Select({
-      name: "action",
-      message: "Choose an option",
-      choices: [
-        { message: "Download video", name: "video", value: "#00FF00" },
-        { message: "Download playlist", name: "playlist", value: "#FFFF00" },
-        { message: "Clean cache", name: "clean" },
-        { message: "Exit", value: "exit" },
-      ],
-    });
-    const answer = await prompt.run();
+    const mainMenuAnswer = await mainMenuPrompt.run();
 
-    switch (answer) {
+    switch (mainMenuAnswer) {
       case "exit":
         run = false;
         console.log("\nGoodbye!");
@@ -32,8 +22,8 @@ const { handleVideoMenuSelection } = require("./module");
       case "video":
         await handleVideoMenuSelection();
         break;
-      case "playlist": // TODO handle playlist URL
-        console.log(2);
+      case "playlist":
+        await handlePlaylistMenuSelection();
         break;
 
       default:
