@@ -178,6 +178,7 @@ async function handleURL(youtubeVideoUrl) {
       audioStream.on("error", reject);
     }),
   ]);
+  console.log();
   console.timeEnd("Download time");
 
   if (useHardwareAccelerationAnswer) {
@@ -200,7 +201,7 @@ async function handleURL(youtubeVideoUrl) {
         const percent = Math.floor(Number(progress.percent));
         process.stdout.clearLine(0);
         process.stdout.cursorTo(0);
-        process.stdout.write(`FFmpeg progress: ${percent}%`);
+        process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent : 0}%`);
       })
       .run();
     await new Promise(
