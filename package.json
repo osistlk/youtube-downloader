@@ -19,6 +19,7 @@
     "enquirer": "^2.4.1",
     "fluent-ffmpeg": "^2.1.2",
     "progress": "^2.0.3",
+    "sanitize-filename": "^1.6.3",
     "ytpl": "^2.3.0"
   },
   "devDependencies": {

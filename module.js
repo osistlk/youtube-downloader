@@ -5,6 +5,7 @@ const ffmpeg = require("fluent-ffmpeg");
 const path = require("path");
 const fs = require("fs");
 const { TEMP_DIR, OUTPUT_DIR } = require("./constants");
+const sanitize = require("sanitize-filename");
 
 async function handleURL(youtubeVideoUrl) {
   const id = ytdl.getURLVideoID(youtubeVideoUrl);
@@ -102,18 +103,19 @@ async function handleURL(youtubeVideoUrl) {
   const videoAnswer = await videoPrompt.run();
   const audioAnswer = await audioPrompt.run();
 
-  const videoOutput = path.join(
-    TEMP_DIR,
+  const videoFilePath = sanitize(
     `${title}_video.${videos.find((video) => video.itag === videoAnswer).container}`,
   );
-  const audioOutput = path.join(
-    TEMP_DIR,
+  const audioFilePath = sanitize(
     `${title}_audio.${audios.find((audio) => audio.itag === audioAnswer).container}`,
   );
-  const finalOutput = path.join(
-    OUTPUT_DIR,
+  const outputFilePath = sanitize(
     `${title}.${videos.find((video) => video.itag === videoAnswer).container}`,
   );
+
+  const videoOutput = path.join(TEMP_DIR, videoFilePath);
+  const audioOutput = path.join(TEMP_DIR, audioFilePath);
+  const finalOutput = path.join(OUTPUT_DIR, outputFilePath);
 
   let videoFormat = ytdl.chooseFormat(videoFormats, {
     itag: videoAnswer,
