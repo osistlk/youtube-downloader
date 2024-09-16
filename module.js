@@ -168,13 +168,23 @@ async function handleURL(youtubeVideoUrl) {
         process.stdout.write(`FFmpeg progress: ${percent}%`);
       })
       .run();
-    await new Promise((resolve) => {
-      ffmpegCommand.once("end", () => {
-        fs.unlinkSync(videoOutput);
-        fs.unlinkSync(audioOutput);
-        resolve();
-      });
-    });
+    await new Promise(
+      (resolve) => {
+        ffmpegCommand.on("end", () => {
+          fs.unlinkSync(videoOutput);
+          fs.unlinkSync(audioOutput);
+          resolve();
+        });
+      },
+      (reject) => {
+        ffmpegCommand.on("error", () => {
+          console.error("Error with FFmpeg command.");
+          fs.unlinkSync(videoOutput);
+          fs.unlinkSync(audioOutput);
+          reject();
+        });
+      },
+    );
   }
 }
 
