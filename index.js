@@ -10,7 +10,6 @@ const {
   let run = true;
   while (run) {
     const mainMenuAnswer = await mainMenuPrompt.run();
-
     switch (mainMenuAnswer) {
       case "exit":
         run = false;
@@ -25,7 +24,6 @@ const {
       case "playlist":
         await handlePlaylistMenuSelection();
         break;
-
       default:
         break;
     }

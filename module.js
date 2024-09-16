@@ -124,11 +124,46 @@ async function handleURL(youtubeVideoUrl) {
     itag: audioAnswer,
   });
 
+  const clockEmojis = [
+    "🕛",
+    "🕐",
+    "🕑",
+    "🕒",
+    "🕓",
+    "🕔",
+    "🕕",
+    "🕖",
+    "🕗",
+    "🕘",
+    "🕙",
+    "🕚",
+  ];
+  let clockIndex = 0;
   const videoStream = ytdl
     .downloadFromInfo(info, { format: videoFormat })
+    .on("data", (chunk) => {
+      // Cycle through the clock emojis
+      const clock = clockEmojis[clockIndex];
+      clockIndex = (clockIndex + 1) % clockEmojis.length; // Loop back to the start
+
+      // Update console with the rotating clock
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+      process.stdout.write(`${clock}`);
+    })
     .pipe(fs.createWriteStream(videoOutput));
   const audioStream = ytdl
     .downloadFromInfo(info, { format: audioFormat })
+    .on("data", (chunk) => {
+      // Cycle through the clock emojis
+      const clock = clockEmojis[clockIndex];
+      clockIndex = (clockIndex + 1) % clockEmojis.length; // Loop back to the start
+
+      // Update console with the rotating clock
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+      process.stdout.write(`${clock}`);
+    })
     .pipe(fs.createWriteStream(audioOutput));
 
   console.log("Downloading...");
