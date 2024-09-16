@@ -221,6 +221,38 @@ async function handleURL(youtubeVideoUrl) {
         });
       },
     );
+  } else {
+    const ffmpegCommand = ffmpeg()
+      .input(videoOutput)
+      .inputOptions("-y")
+      .videoCodec("libx264")
+      .input(audioOutput)
+      .audioCodec("aac")
+      .output(finalOutput)
+      .on("progress", (progress) => {
+        const percent = Math.floor(Number(progress.percent));
+        process.stdout.clearLine(0);
+        process.stdout.cursorTo(0);
+        process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent : 0}%`);
+      })
+      .run();
+    await new Promise(
+      (resolve) => {
+        ffmpegCommand.on("end", () => {
+          fs.unlinkSync(videoOutput);
+          fs.unlinkSync(audioOutput);
+          resolve();
+        });
+      },
+      (reject) => {
+        ffmpegCommand.on("error", () => {
+          console.error("Error with FFmpeg command.");
+          fs.unlinkSync(videoOutput);
+          fs.unlinkSync(audioOutput);
+          reject();
+        });
+      },
+    );
   }
 }
 
