@@ -161,11 +161,20 @@ async function handleURL(youtubeVideoUrl) {
       .input(audioOutput)
       .audioCodec("aac")
       .output(finalOutput)
-      .on("end", () => {
+      .on("progress", (progress) => {
+        const percent = Math.floor(Number(progress.percent));
+        process.stdout.clearLine(0);
+        process.stdout.cursorTo(0);
+        process.stdout.write(`FFmpeg progress: ${percent}%`);
+      })
+      .run();
+    await new Promise((resolve) => {
+      ffmpegCommand.once("end", () => {
         fs.unlinkSync(videoOutput);
         fs.unlinkSync(audioOutput);
+        resolve();
       });
-    ffmpegCommand.run();
+    });
   }
 }
 
