@@ -181,6 +181,7 @@ async function handleURL(youtubeVideoUrl) {
   console.log();
   console.timeEnd("Download time");
 
+  console.time("FFmpeg time");
   if (useHardwareAccelerationAnswer) {
     const ffmpegCommand = ffmpeg()
       .input(videoOutput)
@@ -254,6 +255,7 @@ async function handleURL(youtubeVideoUrl) {
       },
     );
   }
+  console.timeEnd("FFmpeg time");
 }
 
 async function handleVideoMenuSelection() {
