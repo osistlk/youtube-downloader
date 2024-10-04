@@ -47,7 +47,7 @@ def upscale_image(image_name, upscale_factor=2):
     return True  # Return True for successful processing
 
 # Function to monitor available VRAM and dynamically adjust workers
-def get_max_workers(vram_buffer=1000):
+def get_max_workers(vram_buffer=128):  # Reduced buffer to 512MB for more aggressive VRAM usage
     gpus = GPUtil.getGPUs()
     if gpus:
         gpu = gpus[0]  # Assume we are using the first GPU (adjust if needed)
@@ -61,7 +61,7 @@ def get_max_workers(vram_buffer=1000):
             return 1  # Minimum one worker to avoid overloading the GPU
 
         # Assume each worker takes ~600MiB VRAM based on your current usage pattern
-        worker_vram_usage = 600
+        worker_vram_usage = 100  # Lower the assumed VRAM usage per worker to fit more workers
         max_workers = max(1, int(available_for_use // worker_vram_usage))  # Ensure max_workers is an integer
 
         return max_workers
@@ -74,7 +74,7 @@ def process_images_in_parallel(image_names):
 
     with tqdm(total=total_images, desc="Upscaling Images", unit="image", dynamic_ncols=True) as pbar:
         while image_names:
-            max_workers = get_max_workers(vram_buffer=1000)  # 1GB buffer, utilize the rest
+            max_workers = get_max_workers(vram_buffer=128)  # Lowered buffer to 512MB for better VRAM use
             batch_size = min(len(image_names), max_workers)  # Process a batch that fits within VRAM
             batch = image_names[:batch_size]
             image_names = image_names[batch_size:]
