@@ -19,8 +19,8 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model = model.to(device)
 
 # Define your image paths
-input_folder = "path/to/pngs"
-output_folder = "path/to/upscaled/pngs"
+input_folder = "input"
+output_folder = "output"
 
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
