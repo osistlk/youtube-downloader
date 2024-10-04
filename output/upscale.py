@@ -22,10 +22,6 @@ output_folder = "output"
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
-# Define a function to clear the console
-def clear_console():
-    os.system('cls' if os.name == 'nt' else 'clear')
-
 # Define a function to upscale images
 def upscale_image(image_name, upscale_factor=2):
     image_path = os.path.join(input_folder, image_name)
@@ -78,8 +74,7 @@ def process_images_in_parallel(image_names):
 
     with tqdm(total=total_images, desc="Upscaling Images", unit="image", dynamic_ncols=True) as pbar:
         while image_names:
-            clear_console()  # Clear the console at each iteration
-            max_workers = get_max_workers()  # Dynamically adjust the workers
+            max_workers = get_max_workers(vram_buffer=1000)  # 1GB buffer, utilize the rest
             batch_size = min(len(image_names), max_workers)  # Process a batch that fits within VRAM
             batch = image_names[:batch_size]
             image_names = image_names[batch_size:]
