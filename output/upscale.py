@@ -68,6 +68,33 @@ def get_max_workers(vram_buffer=1000):
         # Assume each worker takes ~600MiB VRAM based on your current usage pattern
         worker_vram_usage = 600
         max_workers = max(
+            1, int(available_for_use // worker_vram_usage)
+        )  # Ensure max_workers is an integer
+
+        print(f"Adjusting to {max_workers} workers based on available VRAM.")
+        return max_workers
+    else:
+        print("No GPU found, defaulting to single worker.")
+        return 1  # Fallback to single worker if no GPU is detected
+
+    gpus = GPUtil.getGPUs()
+    if gpus:
+        gpu = gpus[0]  # Assume we are using the first GPU (adjust if needed)
+        available_vram = gpu.memoryFree  # Free VRAM in MiB
+        used_vram = gpu.memoryUsed  # Used VRAM in MiB
+        total_vram = gpu.memoryTotal  # Total VRAM in MiB
+        print(
+            f"GPU total VRAM: {total_vram} MiB, free VRAM: {available_vram} MiB, used VRAM: {used_vram} MiB"
+        )
+
+        # Calculate available VRAM minus the buffer
+        available_for_use = available_vram - vram_buffer
+        if available_for_use <= 0:
+            return 1  # Minimum one worker to avoid overloading the GPU
+
+        # Assume each worker takes ~600MiB VRAM based on your current usage pattern
+        worker_vram_usage = 600
+        max_workers = max(
             1, available_for_use // worker_vram_usage
         )  # At least 1 worker
 
