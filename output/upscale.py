@@ -5,30 +5,32 @@ from transformers import ViTFeatureExtractor, ViTModel
 from PIL import Image
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from torchvision.transforms import Resize
+from tqdm import tqdm
 import time
 
 # Load the pre-trained ViT model and feature extractor
-feature_extractor = ViTFeatureExtractor.from_pretrained(
-    "google/vit-base-patch16-224-in21k"
-)
-model = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k")
+feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224-in21k')
+model = ViTModel.from_pretrained('google/vit-base-patch16-224-in21k')
 
 # Move the model to GPU if available
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model = model.to(device)
 
 # Define your image paths
-input_folder = "input"
-output_folder = "output"
+input_folder = "path/to/pngs"
+output_folder = "path/to/upscaled/pngs"
 
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
-
 
 # Define a function to upscale images
 def upscale_image(image_name, upscale_factor=2):
     image_path = os.path.join(input_folder, image_name)
     output_path = os.path.join(output_folder, image_name)
+
+    # Check if image already exists in output to skip it
+    if os.path.exists(output_path):
+        return f"{image_name} already upscaled, skipping."
 
     image = Image.open(image_path).convert("RGB")
 
@@ -46,7 +48,7 @@ def upscale_image(image_name, upscale_factor=2):
 
     # Save the upscaled image
     upscaled_image.save(output_path)
-
+    return f"Upscaled {image_name}"
 
 # Function to monitor available VRAM and dynamically adjust workers
 def get_max_workers(vram_buffer=1000):
@@ -54,11 +56,9 @@ def get_max_workers(vram_buffer=1000):
     if gpus:
         gpu = gpus[0]  # Assume we are using the first GPU (adjust if needed)
         available_vram = gpu.memoryFree  # Free VRAM in MiB
-        used_vram = gpu.memoryUsed  # Used VRAM in MiB
-        total_vram = gpu.memoryTotal  # Total VRAM in MiB
-        print(
-            f"GPU total VRAM: {total_vram} MiB, free VRAM: {available_vram} MiB, used VRAM: {used_vram} MiB"
-        )
+        used_vram = gpu.memoryUsed       # Used VRAM in MiB
+        total_vram = gpu.memoryTotal     # Total VRAM in MiB
+        print(f"GPU total VRAM: {total_vram} MiB, free VRAM: {available_vram} MiB, used VRAM: {used_vram} MiB")
 
         # Calculate available VRAM minus the buffer
         available_for_use = available_vram - vram_buffer
@@ -67,9 +67,7 @@ def get_max_workers(vram_buffer=1000):
 
         # Assume each worker takes ~600MiB VRAM based on your current usage pattern
         worker_vram_usage = 600
-        max_workers = max(
-            1, int(available_for_use // worker_vram_usage)
-        )  # Ensure max_workers is an integer
+        max_workers = max(1, int(available_for_use // worker_vram_usage))  # Ensure max_workers is an integer
 
         print(f"Adjusting to {max_workers} workers based on available VRAM.")
         return max_workers
@@ -77,59 +75,29 @@ def get_max_workers(vram_buffer=1000):
         print("No GPU found, defaulting to single worker.")
         return 1  # Fallback to single worker if no GPU is detected
 
-    gpus = GPUtil.getGPUs()
-    if gpus:
-        gpu = gpus[0]  # Assume we are using the first GPU (adjust if needed)
-        available_vram = gpu.memoryFree  # Free VRAM in MiB
-        used_vram = gpu.memoryUsed  # Used VRAM in MiB
-        total_vram = gpu.memoryTotal  # Total VRAM in MiB
-        print(
-            f"GPU total VRAM: {total_vram} MiB, free VRAM: {available_vram} MiB, used VRAM: {used_vram} MiB"
-        )
-
-        # Calculate available VRAM minus the buffer
-        available_for_use = available_vram - vram_buffer
-        if available_for_use <= 0:
-            return 1  # Minimum one worker to avoid overloading the GPU
-
-        # Assume each worker takes ~600MiB VRAM based on your current usage pattern
-        worker_vram_usage = 600
-        max_workers = max(
-            1, available_for_use // worker_vram_usage
-        )  # At least 1 worker
-
-        print(f"Adjusting to {max_workers} workers based on available VRAM.")
-        return max_workers
-    else:
-        print("No GPU found, defaulting to single worker.")
-        return 1  # Fallback to single worker if no GPU is detected
-
-
-# Parallel processing of images with dynamic worker adjustment
+# Parallel processing of images with dynamic worker adjustment and progress bar
 def process_images_in_parallel(image_names):
-    while image_names:
-        max_workers = get_max_workers()  # Dynamically adjust the workers
-        batch_size = min(
-            len(image_names), max_workers
-        )  # Process a batch that fits within VRAM
-        batch = image_names[:batch_size]
-        image_names = image_names[batch_size:]
+    total_images = len(image_names)
 
-        with ThreadPoolExecutor(max_workers=batch_size) as executor:
-            futures = {
-                executor.submit(upscale_image, image_name): image_name
-                for image_name in batch
-            }
-            for future in as_completed(futures):
-                image_name = futures[future]
-                try:
-                    future.result()
-                    print(f"Upscaled {image_name}")
-                except Exception as exc:
-                    print(f"{image_name} generated an exception: {exc}")
+    with tqdm(total=total_images, desc="Upscaling Images", unit="image") as pbar:
+        while image_names:
+            max_workers = get_max_workers()  # Dynamically adjust the workers
+            batch_size = min(len(image_names), max_workers)  # Process a batch that fits within VRAM
+            batch = image_names[:batch_size]
+            image_names = image_names[batch_size:]
 
-        time.sleep(1)  # Small delay to allow VRAM to free up if necessary
+            with ThreadPoolExecutor(max_workers=batch_size) as executor:
+                futures = {executor.submit(upscale_image, image_name): image_name for image_name in batch}
+                for future in as_completed(futures):
+                    image_name = futures[future]
+                    try:
+                        result = future.result()
+                        print(result)
+                    except Exception as exc:
+                        print(f"{image_name} generated an exception: {exc}")
+                    pbar.update(1)  # Update the progress bar for each completed task
 
+            time.sleep(1)  # Small delay to allow VRAM to free up if necessary
 
 # Get list of images
 image_names = [img for img in os.listdir(input_folder) if img.endswith(".png")]
