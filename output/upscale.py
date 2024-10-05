@@ -6,7 +6,7 @@ from PIL import Image
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 import time
-import numpy as np  # For calculating averages
+import numpy as np
 
 # Load the pre-trained ViT model and feature extractor
 feature_extractor = ViTFeatureExtractor.from_pretrained(
@@ -29,22 +29,19 @@ if not os.path.exists(output_folder):
 # Function to measure VRAM usage
 def measure_vram_usage():
     gpu = GPUtil.getGPUs()[0]
-    return gpu.memoryUsed
+    return gpu.memoryFree, gpu.memoryUsed
 
 
-# Define a function to upscale images and measure VRAM per worker
-def upscale_image_and_measure(image_name, upscale_factor=2):
+# Define a function to upscale images
+def upscale_image(image_name, upscale_factor=2):
     image_path = os.path.join(input_folder, image_name)
     output_path = os.path.join(output_folder, image_name)
 
     # Check if image already exists in output to skip it
     if os.path.exists(output_path):
-        return False, 0  # Return False for skipping the image and 0 VRAM usage
+        return False
 
     image = Image.open(image_path).convert("RGB")
-
-    # Measure VRAM before processing
-    vram_before = measure_vram_usage()
 
     # Extract features using ViT
     inputs = feature_extractor(images=image, return_tensors="pt").to(device)
@@ -57,112 +54,88 @@ def upscale_image_and_measure(image_name, upscale_factor=2):
 
     # Save the upscaled image
     upscaled_image.save(output_path)
-
-    # Measure VRAM after processing
-    vram_after = measure_vram_usage()
-
-    # Calculate the VRAM used by this worker
-    vram_used = vram_after - vram_before
-
-    return True, vram_used
+    return True
 
 
-# Function to run one worker multiple times and calculate average VRAM usage
-def calculate_average_vram_usage(samples=10):
-    vram_usages = []
-    for image_name in image_names[:samples]:  # Use the first few images for measurement
-        _, vram_used = upscale_image_and_measure(image_name)
-        if vram_used > 0:
-            vram_usages.append(vram_used)
+# Function to adjust the number of workers based on VRAM usage and increment rate
+def adjust_worker_count(current_workers, avg_vram_per_worker, vram_buffer=1024):
+    free_vram, used_vram = measure_vram_usage()
 
-    if vram_usages:
-        avg_vram_usage = np.mean(vram_usages)
-        print(f"Initial average VRAM usage per worker: {avg_vram_usage:.2f} MiB")
-        return avg_vram_usage
+    # Calculate how many workers we can add based on available VRAM and buffer
+    available_for_use = free_vram - vram_buffer
+    if available_for_use > avg_vram_per_worker:
+        return current_workers + 1  # Increment workers
+    elif available_for_use <= 0:
+        # If we exceeded the buffer, reduce workers and delay
+        print(f"Buffer limit exceeded. Reducing workers by 2 and delaying.")
+        return max(
+            1, current_workers - 2
+        )  # Reduce workers by 2, ensure we have at least 1 worker
     else:
-        print("Unable to measure VRAM usage.")
-        return 600  # Default if measurements fail
+        return current_workers  # Maintain current worker count
 
 
-# Function to monitor available VRAM and dynamically adjust workers
-def get_max_workers(
-    avg_vram_per_worker, vram_buffer=1024
-):  # Increased buffer to 1024MB (1GB)
-    gpus = GPUtil.getGPUs()
-    if gpus:
-        gpu = gpus[0]  # Assume we are using the first GPU (adjust if needed)
-        available_vram = gpu.memoryFree  # Free VRAM in MiB
-        used_vram = gpu.memoryUsed  # Used VRAM in MiB
-        total_vram = gpu.memoryTotal  # Total VRAM in MiB
-
-        # Calculate available VRAM minus the buffer
-        available_for_use = available_vram - vram_buffer
-        if available_for_use <= 0:
-            return 1  # Minimum one worker to avoid overloading the GPU
-
-        # Dynamically adjust workers based on the measured average VRAM usage per worker
-        max_workers = max(
-            1, int(available_for_use // avg_vram_per_worker)
-        )  # Ensure max_workers is an integer
-
-        return max_workers
-    else:
-        return 1  # Fallback to single worker if no GPU is detected
-
-
-# Parallel processing of images with dynamic worker adjustment and rolling average
-def process_images_in_parallel(image_names, avg_vram_per_worker, measure_interval=10):
+# Parallel processing of images with controlled worker ramp-up
+def process_images_in_parallel(
+    image_names, avg_vram_per_worker, vram_buffer=1024, increment_delay=30
+):
     total_images = len(image_names)
+    current_workers = 4  # Start with four workers
     completed_images = 0
-    vram_usages = [avg_vram_per_worker]  # Start with the initial average VRAM usage
 
     with tqdm(
         total=total_images, desc="Upscaling Images", unit="image", dynamic_ncols=True
     ) as pbar:
         while image_names:
-            # Calculate the rolling average every `measure_interval` images
-            if completed_images % measure_interval == 0 and completed_images > 0:
-                rolling_avg_vram = np.mean(vram_usages[-measure_interval:])
-                print(
-                    f"Rolling average VRAM usage per worker: {rolling_avg_vram:.2f} MiB"
-                )
-                avg_vram_per_worker = rolling_avg_vram
+            # Adjust workers slowly, increasing only if we have enough free VRAM
+            current_workers = adjust_worker_count(
+                current_workers, avg_vram_per_worker, vram_buffer=vram_buffer
+            )
 
-            max_workers = get_max_workers(
-                avg_vram_per_worker, vram_buffer=1024
-            )  # Adjust workers based on VRAM usage
             batch_size = min(
-                len(image_names), max_workers
-            )  # Process a batch that fits within VRAM
+                len(image_names), current_workers
+            )  # Process a batch that fits the current worker count
             batch = image_names[:batch_size]
             image_names = image_names[batch_size:]
 
             with ThreadPoolExecutor(max_workers=batch_size) as executor:
                 futures = {
-                    executor.submit(upscale_image_and_measure, image_name): image_name
+                    executor.submit(upscale_image, image_name): image_name
                     for image_name in batch
                 }
                 for future in as_completed(futures):
                     image_name = futures[future]
                     try:
-                        result, vram_used = future.result()
+                        result = future.result()
                         if result:  # Only update progress if the image was processed
                             pbar.update(1)
                             completed_images += 1
-                            vram_usages.append(
-                                vram_used
-                            )  # Append VRAM usage for rolling average calculation
                     except Exception as exc:
                         print(f"Error: {image_name} generated an exception: {exc}")
 
-            time.sleep(1)  # Small delay to allow VRAM to free up if necessary
+            # Check the VRAM buffer after each batch
+            free_vram, used_vram = measure_vram_usage()
+            if free_vram < vram_buffer:
+                # If we exceed the VRAM buffer, reduce workers and wait before incrementing
+                print(
+                    f"Exceeded VRAM buffer ({vram_buffer} MB). Reducing workers and pausing increments for {increment_delay} seconds."
+                )
+                current_workers = max(
+                    1, current_workers - 2
+                )  # Reduce by 2, but at least 1 worker
+                time.sleep(increment_delay)  # Wait before incrementing again
+            else:
+                # Faster ramp-up: Wait for a shorter time before adding more workers
+                time.sleep(increment_delay)
 
 
 # Get list of images
 image_names = [img for img in os.listdir(input_folder) if img.endswith(".png")]
 
-# Step 1: Measure VRAM usage by running one worker a few times
-avg_vram_per_worker = calculate_average_vram_usage(samples=10)
+# Initial average VRAM usage per worker (this can be adjusted based on actual measurements)
+avg_vram_per_worker = 400  # Start with an estimate of 400MiB per worker
 
-# Step 2: Process images in parallel, dynamically adjusting worker count and using a rolling average
-process_images_in_parallel(image_names, avg_vram_per_worker, measure_interval=10)
+# Process images in parallel, incrementing workers slowly
+process_images_in_parallel(
+    image_names, avg_vram_per_worker, vram_buffer=1024, increment_delay=30
+)
