@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGL Triangle - Half Viewport</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="glCanvas"></canvas>
+
+    <script>
+        // Vertex shader program
+        const vsSource = `
+      attribute vec4 position;
+      void main() {
+        gl_Position = position;
+      }
+    `;
+
+        // Fragment shader program
+        const fsSource = `
+      void main() {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);  // Red
+      }
+    `;
+
+        // Initialize WebGL context and shaders
+        function initWebGL() {
+            const canvas = document.getElementById("glCanvas");
+            const gl = canvas.getContext("webgl");
+
+            if (!gl) {
+                alert("Unable to initialize WebGL. Your browser may not support it.");
+                return null;
+            }
+
+            // Compile shaders
+            const vertexShader = compileShader(gl, vsSource, gl.VERTEX_SHADER);
+            const fragmentShader = compileShader(gl, fsSource, gl.FRAGMENT_SHADER);
+
+            // Link shaders into a program
+            const shaderProgram = gl.createProgram();
+            gl.attachShader(shaderProgram, vertexShader);
+            gl.attachShader(shaderProgram, fragmentShader);
+            gl.linkProgram(shaderProgram);
+
+            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+                alert("Unable to initialize the shader program: " + gl.getProgramInfoLog(shaderProgram));
+                return null;
+            }
+
+            gl.useProgram(shaderProgram);
+
+            return { gl, shaderProgram };
+        }
+
+        // Compile individual shader
+        function compileShader(gl, source, type) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            return shader;
+        }
+
+        // Initialize buffers for triangle vertices
+        function initBuffers(gl) {
+            // Define a triangle that covers half the viewport
+            const vertices = new Float32Array([
+                0.0, 1.0, 0.0,   // Top center (halfway up)
+                -1.0, 0.0, 0.0,   // Bottom left
+                1.0, 0.0, 0.0    // Bottom right
+            ]);
+
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+            return buffer;
+        }
+
+        // Draw the scene
+        function drawScene(gl, shaderProgram, buffer) {
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear with black
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+
+            const positionAttribute = gl.getAttribLocation(shaderProgram, "position");
+            gl.vertexAttribPointer(positionAttribute, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(positionAttribute);
+
+            gl.drawArrays(gl.TRIANGLES, 0, 3);
+        }
+
+        // Main entry point
+        function main() {
+            const { gl, shaderProgram } = initWebGL();
+            if (!gl) return;
+
+            const buffer = initBuffers(gl);
+            drawScene(gl, shaderProgram, buffer);
+        }
+
+        // Run the main function once the window is loaded
+        window.onload = main;
+    </script>
+</body>
+
+</html>

@@ -19,6 +19,7 @@
     "enquirer": "^2.4.1",
     "fluent-ffmpeg": "^2.1.2",
     "gl": "^8.0.2",
+    "gl-matrix": "^3.4.3",
     "progress": "^2.0.3",
     "sanitize-filename": "^1.6.3",
     "ytpl": "^2.3.0"
