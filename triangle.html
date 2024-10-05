@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGL 3D Spinning Pyramid</title>
+    <title>WebGL 3D Pyramid - 720p @ 60fps</title>
     <style>
         body,
         html {
@@ -14,14 +14,12 @@
 
         canvas {
             display: block;
-            width: 100vw;
-            height: 100vh;
         }
     </style>
 </head>
 
 <body>
-    <canvas id="glCanvas"></canvas>
+    <canvas id="glCanvas" width="1280" height="720"></canvas> <!-- 720p Resolution -->
 
     <script>
         const vsSource = `
@@ -179,9 +177,9 @@
             let rotation = 0.0;
 
             function render() {
-                rotation += 0.01;  // Slow rotation
+                rotation += 0.005;  // Slower rotation
                 drawScene(gl, shaderProgram, buffers, rotation);
-                requestAnimationFrame(render);
+                setTimeout(() => requestAnimationFrame(render), 1000 / 60); // 60 FPS
             }
 
             // Set background to black and start rendering loop
