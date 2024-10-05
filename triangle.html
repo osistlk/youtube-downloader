@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGL Triangle - Half Viewport</title>
+    <title>WebGL 3D Pyramid</title>
     <style>
         body,
         html {
@@ -24,43 +24,44 @@
     <canvas id="glCanvas"></canvas>
 
     <script>
-        // Vertex shader program
         const vsSource = `
       attribute vec4 position;
+      attribute vec4 color;
+      uniform mat4 projectionMatrix;
+      uniform mat4 modelViewMatrix;
+      varying lowp vec4 vColor;
       void main() {
-        gl_Position = position;
+        gl_Position = projectionMatrix * modelViewMatrix * position;
+        vColor = color;
       }
     `;
 
-        // Fragment shader program
         const fsSource = `
+      varying lowp vec4 vColor;
       void main() {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);  // Red
+        gl_FragColor = vColor;
       }
     `;
 
-        // Initialize WebGL context and shaders
         function initWebGL() {
             const canvas = document.getElementById("glCanvas");
             const gl = canvas.getContext("webgl");
 
             if (!gl) {
-                alert("Unable to initialize WebGL. Your browser may not support it.");
+                alert("Unable to initialize WebGL.");
                 return null;
             }
 
-            // Compile shaders
             const vertexShader = compileShader(gl, vsSource, gl.VERTEX_SHADER);
             const fragmentShader = compileShader(gl, fsSource, gl.FRAGMENT_SHADER);
 
-            // Link shaders into a program
             const shaderProgram = gl.createProgram();
             gl.attachShader(shaderProgram, vertexShader);
             gl.attachShader(shaderProgram, fragmentShader);
             gl.linkProgram(shaderProgram);
 
             if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-                alert("Unable to initialize the shader program: " + gl.getProgramInfoLog(shaderProgram));
+                alert("Shader program failed to link.");
                 return null;
             }
 
@@ -69,62 +70,114 @@
             return { gl, shaderProgram };
         }
 
-        // Compile individual shader
         function compileShader(gl, source, type) {
             const shader = gl.createShader(type);
             gl.shaderSource(shader, source);
             gl.compileShader(shader);
 
             if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));
-                gl.deleteShader(shader);
+                alert("Shader compilation failed.");
                 return null;
             }
+
             return shader;
         }
 
-        // Initialize buffers for triangle vertices
         function initBuffers(gl) {
-            // Define a triangle that covers half the viewport
             const vertices = new Float32Array([
-                0.0, 1.0, 0.0,   // Top center (halfway up)
-                -1.0, 0.0, 0.0,   // Bottom left
-                1.0, 0.0, 0.0    // Bottom right
+                // Tip of the pyramid
+                0.0, 1.0, 0.0,   // Vertex 0: tip
+
+                // Base of the pyramid (square)
+                -1.0, -1.0, 1.0,   // Vertex 1: front-left
+                1.0, -1.0, 1.0,   // Vertex 2: front-right
+                1.0, -1.0, -1.0,   // Vertex 3: back-right
+                -1.0, -1.0, -1.0    // Vertex 4: back-left
             ]);
 
-            const buffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            const indices = new Uint16Array([
+                // Pyramid sides (triangles)
+                0, 1, 2,    // Front face
+                0, 2, 3,    // Right face
+                0, 3, 4,    // Back face
+                0, 4, 1     // Left face
+            ]);
+
+            const colors = new Float32Array([
+                // Tip color (soft pastel)
+                0.8, 0.8, 1.0, 1.0,  // Light blue
+
+                // Base colors (softer tones)
+                0.9, 0.5, 0.7, 1.0,  // Light pink (front-left)
+                0.5, 0.9, 0.5, 1.0,  // Light green (front-right)
+                0.5, 0.5, 0.9, 1.0,  // Light blue (back-right)
+                0.9, 0.8, 0.5, 1.0   // Light yellow (back-left)
+            ]);
+
+            const vertexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-            return buffer;
+            const colorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+
+            const indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+
+            return {
+                vertexBuffer,
+                colorBuffer,
+                indexBuffer
+            };
         }
 
-        // Draw the scene
-        function drawScene(gl, shaderProgram, buffer) {
-            gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear with black
-            gl.clear(gl.COLOR_BUFFER_BIT);
+        function drawScene(gl, shaderProgram, buffers) {
+            const fieldOfView = 45 * Math.PI / 180;
+            const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+            const zNear = 0.1;
+            const zFar = 100.0;
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            const projectionMatrix = mat4.create();
+            mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
-            const positionAttribute = gl.getAttribLocation(shaderProgram, "position");
-            gl.vertexAttribPointer(positionAttribute, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(positionAttribute);
+            const modelViewMatrix = mat4.create();
+            mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, -6.0]);
 
-            gl.drawArrays(gl.TRIANGLES, 0, 3);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.enable(gl.DEPTH_TEST);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.vertexBuffer);
+            const position = gl.getAttribLocation(shaderProgram, "position");
+            gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(position);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colorBuffer);
+            const color = gl.getAttribLocation(shaderProgram, "color");
+            gl.vertexAttribPointer(color, 4, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(color);
+
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indexBuffer);
+
+            const projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "projectionMatrix");
+            const modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "modelViewMatrix");
+
+            gl.uniformMatrix4fv(projectionMatrixUniform, false, projectionMatrix);
+            gl.uniformMatrix4fv(modelViewMatrixUniform, false, modelViewMatrix);
+
+            gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
         }
 
-        // Main entry point
         function main() {
             const { gl, shaderProgram } = initWebGL();
-            if (!gl) return;
-
-            const buffer = initBuffers(gl);
-            drawScene(gl, shaderProgram, buffer);
+            const buffers = initBuffers(gl);
+            drawScene(gl, shaderProgram, buffers);
         }
 
-        // Run the main function once the window is loaded
         window.onload = main;
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
 </body>
 
 </html>
