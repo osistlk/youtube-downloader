@@ -28,6 +28,7 @@ async function handleURL(youtubeVideoUrl) {
       qualityLabel: format.qualityLabel,
       fps: format.fps,
       container: format.container,
+      videoCodec: format.videoCodec,
     };
   });
 
@@ -58,6 +59,7 @@ async function handleURL(youtubeVideoUrl) {
       itag: format.itag,
       audioBitrate: format.audioBitrate,
       container: format.container,
+      audioCodec: format.audioCodec,
     };
   });
 
@@ -76,7 +78,7 @@ async function handleURL(youtubeVideoUrl) {
 
   const videoChoices = uniqueVideos.map((video) => {
     return {
-      message: `${video.qualityLabel}${video.fps ? `@${video.fps}` : ""} - ${video.container}`,
+      message: `${video.qualityLabel}${video.fps ? `@${video.fps}` : ""} - ${video.container} - ${video.videoCodec}`,
       name: video.itag,
     };
   });
@@ -89,7 +91,7 @@ async function handleURL(youtubeVideoUrl) {
 
   const audioChoices = uniqueAudios.map((audio) => {
     return {
-      message: `${audio.audioBitrate} bitrate - ${audio.container}`,
+      message: `${audio.audioBitrate} bitrate - ${audio.container} - ${audio.audioCodec}`,
       name: audio.itag,
     };
   });
