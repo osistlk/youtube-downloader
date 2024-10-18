@@ -667,11 +667,7 @@
         "baseUrl": "https://s.youtube.com/api/stats/atr?docid=DUydu5ASF04&ei=9toSZ9aEINeCkucP3uTz4QM&len=1838&ns=yt&plid=AAYkx3WcXEec6F14&ver=2&vm=CAQQARgCOjJBSHFpSlRLcVhaWTg1Z3RqOXFHSGlYRW5jVTdaOVdRSXRvZmkxeTctakszbUtFVEx0d2JSQU9BckJGc05ObFFUelpzLUx4QW5ocUFURTFkdHZDaUxtZzZQQS1Uc2JqM2gwUlJ2NzRURWZINWs1TTV1SEphMFlXem92SGJ5ZjZRcGZ2R3VNQQ",
         "elapsedMediaTimeSeconds": 5
       },
-      "videostatsScheduledFlushWalltimeSeconds": [
-        10,
-        20,
-        30
-      ],
+      "videostatsScheduledFlushWalltimeSeconds": [10, 20, 30],
       "videostatsDefaultFlushIntervalSeconds": 40
     },
     "videoDetails": {
@@ -772,9 +768,7 @@
               }
             },
             "subscribeEndpoint": {
-              "channelIds": [
-                "UCSOVla99Ed_BJUuxVKGURMA"
-              ],
+              "channelIds": ["UCSOVla99Ed_BJUuxVKGURMA"],
               "params": "EgIIBxgA"
             }
           },
@@ -787,9 +781,7 @@
               }
             },
             "unsubscribeEndpoint": {
-              "channelIds": [
-                "UCSOVla99Ed_BJUuxVKGURMA"
-              ],
+              "channelIds": ["UCSOVla99Ed_BJUuxVKGURMA"],
               "params": "CgIIBxgA"
             }
           },
@@ -1191,9 +1183,7 @@
     "videoQualityPromoSupportedRenderers": {
       "videoQualityPromoRenderer": {
         "triggerCriteria": {
-          "connectionWhitelist": [
-            "WIFI"
-          ],
+          "connectionWhitelist": ["WIFI"],
           "joinLatencySeconds": 15,
           "rebufferTimeSeconds": 10,
           "watchTimeWindowSeconds": 180,
@@ -2777,9 +2767,7 @@
                             }
                           },
                           "subscribeEndpoint": {
-                            "channelIds": [
-                              "UCSOVla99Ed_BJUuxVKGURMA"
-                            ],
+                            "channelIds": ["UCSOVla99Ed_BJUuxVKGURMA"],
                             "params": "EgIIAxgAIgtEVXlkdTVBU0YwNA%3D%3D"
                           }
                         }
@@ -3100,9 +3088,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "sE0NX8Z7CRw"
-                                                  ],
+                                                  "videoIds": ["sE0NX8Z7CRw"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CNIBEPBbIhMI7tvwrPeYiQMVYeI_BB1NpjUy",
                                                     "commandMetadata": {
@@ -3734,9 +3720,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "fQ0Pa9uTBrY"
-                                                  ],
+                                                  "videoIds": ["fQ0Pa9uTBrY"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CMoBEPBbIhMI7tvwrPeYiQMVYeI_BB1NpjUy",
                                                     "commandMetadata": {
@@ -4358,9 +4342,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "j8xRewVPfFA"
-                                                  ],
+                                                  "videoIds": ["j8xRewVPfFA"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CMIBEPBbIhMI7tvwrPeYiQMVYeI_BB1NpjUy",
                                                     "commandMetadata": {
@@ -4923,9 +4905,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "V0QTxnzxstU"
-                                                  ],
+                                                  "videoIds": ["V0QTxnzxstU"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CLoBEPBbIhMI7tvwrPeYiQMVYeI_BB1NpjUy",
                                                     "commandMetadata": {
@@ -5547,9 +5527,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "I8ShSvEbBFU"
-                                                  ],
+                                                  "videoIds": ["I8ShSvEbBFU"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CLIBEPBbIhMI7tvwrPeYiQMVYeI_BB1NpjUy",
                                                     "commandMetadata": {
@@ -6112,9 +6090,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "c2xiKbi4RLs"
-                                                  ],
+                                                  "videoIds": ["c2xiKbi4RLs"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CKoBEPBbIhMI7tvwrPeYiQMVYeI_BB1NpjUy",
                                                     "commandMetadata": {
@@ -6736,9 +6712,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "S0-84MzPg6s"
-                                                  ],
+                                                  "videoIds": ["S0-84MzPg6s"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CKIBEPBbIhMI7tvwrPeYiQMVYeI_BB1NpjUy",
                                                     "commandMetadata": {
@@ -7359,9 +7333,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "8DnT5ToPZn8"
-                                                  ],
+                                                  "videoIds": ["8DnT5ToPZn8"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CJoBEPBbIhMI7tvwrPeYiQMVYeI_BB1NpjUy",
                                                     "commandMetadata": {
@@ -7983,9 +7955,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "fjhXfHR-I1g"
-                                                  ],
+                                                  "videoIds": ["fjhXfHR-I1g"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CJIBEPBbIhMI7tvwrPeYiQMVYeI_BB1NpjUy",
                                                     "commandMetadata": {
@@ -8548,9 +8518,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "8rLDTzmIAOk"
-                                                  ],
+                                                  "videoIds": ["8rLDTzmIAOk"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CIoBEPBbIhMI7tvwrPeYiQMVYeI_BB1NpjUy",
                                                     "commandMetadata": {
@@ -9183,9 +9151,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "8TgBRiCVvSA"
-                                                  ],
+                                                  "videoIds": ["8TgBRiCVvSA"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CIIBEPBbIhMI7tvwrPeYiQMVYeI_BB1NpjUy",
                                                     "commandMetadata": {
@@ -9806,9 +9772,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "Q9kNMJ8SguQ"
-                                                  ],
+                                                  "videoIds": ["Q9kNMJ8SguQ"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CHoQ8FsiEwju2_Cs95iJAxVh4j8EHU2mNTI=",
                                                     "commandMetadata": {
@@ -10430,9 +10394,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "b4tjXPAgNh0"
-                                                  ],
+                                                  "videoIds": ["b4tjXPAgNh0"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CHIQ8FsiEwju2_Cs95iJAxVh4j8EHU2mNTI=",
                                                     "commandMetadata": {
@@ -11054,9 +11016,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "D4dKBHtCQZ8"
-                                                  ],
+                                                  "videoIds": ["D4dKBHtCQZ8"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CGoQ8FsiEwju2_Cs95iJAxVh4j8EHU2mNTI=",
                                                     "commandMetadata": {
@@ -11619,9 +11579,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "P29EBpjyO5M"
-                                                  ],
+                                                  "videoIds": ["P29EBpjyO5M"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CGIQ8FsiEwju2_Cs95iJAxVh4j8EHU2mNTI=",
                                                     "commandMetadata": {
@@ -12243,9 +12201,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "MNV498SCouA"
-                                                  ],
+                                                  "videoIds": ["MNV498SCouA"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CFoQ8FsiEwju2_Cs95iJAxVh4j8EHU2mNTI=",
                                                     "commandMetadata": {
@@ -12878,9 +12834,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "0juoZldRXiQ"
-                                                  ],
+                                                  "videoIds": ["0juoZldRXiQ"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CFIQ8FsiEwju2_Cs95iJAxVh4j8EHU2mNTI=",
                                                     "commandMetadata": {
@@ -13502,9 +13456,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "uDZzhLY_BVo"
-                                                  ],
+                                                  "videoIds": ["uDZzhLY_BVo"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CEoQ8FsiEwju2_Cs95iJAxVh4j8EHU2mNTI=",
                                                     "commandMetadata": {
@@ -14126,9 +14078,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "8FNbA3qbEJc"
-                                                  ],
+                                                  "videoIds": ["8FNbA3qbEJc"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CEIQ8FsiEwju2_Cs95iJAxVh4j8EHU2mNTI=",
                                                     "commandMetadata": {
@@ -14750,9 +14700,7 @@
                                                       "params": "CAQ%3D"
                                                     }
                                                   },
-                                                  "videoIds": [
-                                                    "c0v3dMn-vU4"
-                                                  ],
+                                                  "videoIds": ["c0v3dMn-vU4"],
                                                   "videoCommand": {
                                                     "clickTrackingParams": "CDoQ8FsiEwju2_Cs95iJAxVh4j8EHU2mNTI=",
                                                     "commandMetadata": {
