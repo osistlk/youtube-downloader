@@ -1,8 +1,6 @@
 (async () => {
   const ytdl = require("@distube/ytdl-core");
 
-  const fs = require("fs");
-
   // read youtube url from parameter
   const url = process.argv[2];
   // if url is not provided, exit
@@ -13,14 +11,24 @@
 
   const id = ytdl.getURLVideoID(url);
   const info = await ytdl.getInfo(id);
+
   const audioFormats = info.formats.filter(
     (format) => format.hasAudio && !format.hasVideo,
   );
+  const videoFormats = info.formats.filter(
+    (format) => format.hasVideo && !format.hasAudio,
+  );
+
   // remove duplicates and sort by itag
   const uniqueAudioFormats = Array.from(
     new Set(audioFormats.map((format) => format.itag)),
   )
     .map((itag) => audioFormats.find((format) => format.itag === itag))
+    .sort((a, b) => b.itag - a.itag);
+  const uniqueVideoFormats = Array.from(
+    new Set(videoFormats.map((format) => format.itag)),
+  )
+    .map((itag) => videoFormats.find((format) => format.itag === itag))
     .sort((a, b) => b.itag - a.itag);
 
   console.log("Available audio formats:");
@@ -28,6 +36,13 @@
     const contentLengthMB = (format.contentLength / (1024 * 1024)).toFixed(2);
     console.log(
       `itag: ${format.itag}, container: ${format.container}, audioBitrate: ${format.audioBitrate}, audioSampleRate: ${format.audioSampleRate}, audioCodec: ${format.audioCodec}, contentLength: ${contentLengthMB} MB`,
+    );
+  });
+  console.log("Available video formats:");
+  uniqueVideoFormats.forEach((format) => {
+    const contentLengthMB = (format.contentLength / (1024 * 1024)).toFixed(2);
+    console.log(
+      `itag: ${format.itag}, container: ${format.container}, videoBitrate: ${format.bitrate}, videoCodec: ${format.videoCodec}, quality: ${format.qualityLabel}, fps: ${format.fps}, contentLength: ${contentLengthMB} MB`,
     );
   });
 })();
