@@ -24,25 +24,30 @@
     new Set(audioFormats.map((format) => format.itag)),
   )
     .map((itag) => audioFormats.find((format) => format.itag === itag))
-    .sort((a, b) => b.itag - a.itag);
+    .sort((a, b) => b.audioBitrate - a.audioBitrate);
+
   const uniqueVideoFormats = Array.from(
     new Set(videoFormats.map((format) => format.itag)),
   )
     .map((itag) => videoFormats.find((format) => format.itag === itag))
-    .sort((a, b) => b.itag - a.itag);
+    .sort((a, b) => {
+      const getWidth = (qualityLabel) =>
+        parseInt(qualityLabel.replace("p", ""), 10);
+      return getWidth(b.qualityLabel) - getWidth(a.qualityLabel);
+    });
 
   console.log("Available audio formats:");
   uniqueAudioFormats.forEach((format) => {
     const contentLengthMB = (format.contentLength / (1024 * 1024)).toFixed(2);
     console.log(
-      `itag: ${format.itag}, container: ${format.container}, audioBitrate: ${format.audioBitrate}, audioSampleRate: ${format.audioSampleRate}, audioCodec: ${format.audioCodec}, contentLength: ${contentLengthMB} MB`,
+      `itag: ${format.itag}, container: ${format.container}, bitrate: ${format.audioBitrate}, sample rate: ${format.audioSampleRate}, codec: ${format.audioCodec}, size: ${contentLengthMB} MB`,
     );
   });
   console.log("Available video formats:");
   uniqueVideoFormats.forEach((format) => {
     const contentLengthMB = (format.contentLength / (1024 * 1024)).toFixed(2);
     console.log(
-      `itag: ${format.itag}, container: ${format.container}, videoBitrate: ${format.bitrate}, videoCodec: ${format.videoCodec}, quality: ${format.qualityLabel}, fps: ${format.fps}, contentLength: ${contentLengthMB} MB`,
+      `itag: ${format.itag}, container: ${format.container}, bitrate: ${format.bitrate}, codec: ${format.videoCodec}, quality: ${format.qualityLabel}, fps: ${format.fps}, size: ${contentLengthMB} MB`,
     );
   });
 })();
