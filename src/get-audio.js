@@ -35,6 +35,12 @@
   const output = `./${filename}`;
 
   console.log(`Downloading audio from ${title}...`);
-  ytdl(url, { quality: itag }).pipe(fs.createWriteStream(output));
+  const stream = ytdl(url, { quality: itag }).pipe(
+    fs.createWriteStream(output),
+  );
+  await new Promise((resolve, reject) => {
+    stream.on("finish", resolve);
+    stream.on("error", reject);
+  });
   console.log(`Downloaded to ${output}`);
 })();
