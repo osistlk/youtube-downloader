@@ -29,7 +29,7 @@
     }
     const title = info.videoDetails.title;
     const sanitizedTitle = sanitize(title);
-    const filename = `${sanitizedTitle}.${format.container}`;
+    const filename = `${sanitizedTitle}.audio.${format.container}`;
     const output = `./${filename}`;
 
     console.log(`Downloading audio from ${title}...`);
