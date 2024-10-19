@@ -29,9 +29,18 @@
   const output = `./${filename}`;
 
   console.log(`Downloading ${title}...`);
-  const stream = ytdl(url, { quality: itag }).pipe(
-    fs.createWriteStream(output),
-  );
+  const stream = ytdl(url, { quality: itag });
+
+  let downloaded = 0;
+  const total = format.contentLength;
+
+  stream.on("progress", (chunkLength, downloadedBytes, totalBytes) => {
+    downloaded += chunkLength;
+    const percent = ((downloaded / total) * 100).toFixed(2);
+    process.stdout.write(`Downloading: ${percent}%\r`);
+  });
+  stream.pipe(fs.createWriteStream(output));
+
   await new Promise((resolve, reject) => {
     stream.on("finish", resolve);
     stream.on("error", reject);
