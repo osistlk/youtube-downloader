@@ -43,11 +43,15 @@ router.get("/video/:id/formats", async (ctx) => {
 router.get("/video/:id/download/:itag", async (ctx) => {
   const videoId = ctx.params.id;
   const itag = ctx.params.itag;
+  const basicInfo = await ytdl.getInfo(videoId);
+  const extension = basicInfo.formats.find(
+    (format) => format.itag == itag,
+  ).container;
   const url = `https://www.youtube.com/watch?v=${videoId}`;
   const stream = ytdl(url, { quality: itag });
   ctx.set(
     "Content-Disposition",
-    `attachment; filename="${videoId}.${itag}.mp4"`,
+    `attachment; filename="${videoId}.${itag}.${extension}"`,
   );
   ctx.body = stream;
 });
