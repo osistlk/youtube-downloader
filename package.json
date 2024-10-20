@@ -16,6 +16,7 @@
   "license": "MIT",
   "dependencies": {
     "@distube/ytdl-core": "^4.14.4",
+    "@koa/router": "^13.1.0",
     "enquirer": "^2.4.1",
     "fluent-ffmpeg": "^2.1.2",
     "koa": "^2.15.3",
