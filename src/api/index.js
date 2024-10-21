@@ -67,6 +67,10 @@ router.get("/youtube/:id/queue/:itag", async (ctx) => {
     ctx.body = { message: "Added to queue.", id, videoId, itag, timestamp };
 });
 
+router.get("/queue", async (ctx) => {
+    ctx.body = queue;
+});
+
 app.use(router.routes()).use(router.allowedMethods());
 
 app.listen(3000, () => {
