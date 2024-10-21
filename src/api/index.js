@@ -95,7 +95,11 @@ eventEmitter.on("queueAdded", async (data) => {
     ).container;
     const url = `https://www.youtube.com/watch?v=${videoId}`;
     const stream = ytdl(url, { quality: itag });
-    const output = `./downloads/${videoId}.${itag}.${extension}`;
+    const outputDir = './downloads';
+    if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+    }
+    const output = `${outputDir}/${videoId}.${itag}.${extension}`;
     stream.pipe(fs.createWriteStream(output)).on("finish", () => {
         // Remove job from queue
         delete queue[data.id];
