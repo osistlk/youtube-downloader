@@ -4,8 +4,9 @@ const ytdl = require("@distube/ytdl-core");
 
 const app = new Koa();
 const router = new Router();
+const queue = [];
 
-router.get("/video/:id/formats", async (ctx) => {
+router.get("/youtube/:id/formats", async (ctx) => {
     const videoId = ctx.params.id;
     // get the video info
     const info = await ytdl.getInfo(videoId);
@@ -40,7 +41,7 @@ router.get("/video/:id/formats", async (ctx) => {
     };
 });
 
-router.get("/video/:id/download/:itag", async (ctx) => {
+router.get("/youtube/:id/download/:itag", async (ctx) => {
     const videoId = ctx.params.id;
     const itag = ctx.params.itag;
     const basicInfo = await ytdl.getInfo(videoId);
@@ -54,6 +55,13 @@ router.get("/video/:id/download/:itag", async (ctx) => {
         `attachment; filename="${videoId}.${itag}.${extension}"`,
     );
     ctx.body = stream;
+});
+
+router.get("/youtube/:id/queue/:itag", async (ctx) => {
+    const videoId = ctx.params.id;
+    const itag = ctx.params.itag;
+    queue.push({ videoId, itag });
+    ctx.body = { message: "Added to queue." };
 });
 
 app.use(router.routes()).use(router.allowedMethods());
