@@ -1,6 +1,7 @@
 const Koa = require("koa");
 const Router = require("@koa/router");
 const ytdl = require("@distube/ytdl-core");
+const { v4: uuidv4 } = require("uuid");
 
 const app = new Koa();
 const router = new Router();
@@ -60,8 +61,9 @@ router.get("/youtube/:id/download/:itag", async (ctx) => {
 router.get("/youtube/:id/queue/:itag", async (ctx) => {
     const videoId = ctx.params.id;
     const itag = ctx.params.itag;
-    queue.push({ videoId, itag });
-    ctx.body = { message: "Added to queue.", videoId, itag };
+    const id = uuidv4();
+    queue.push({ id, videoId, itag });
+    ctx.body = { message: "Added to queue.", id, videoId, itag };
 });
 
 app.use(router.routes()).use(router.allowedMethods());
