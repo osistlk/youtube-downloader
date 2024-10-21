@@ -1,7 +1,7 @@
 {
   "name": "youtube-downloader",
   "version": "1.0.0",
-  "description": "downloads video and audio stream of a youbtube video and uses FFmpeg to smush them into some ad free output",
+  "description": "downloads video and audio stream of a youtube video and uses FFmpeg to smush them into some ad free output",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
