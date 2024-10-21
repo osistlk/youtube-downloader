@@ -5,8 +5,8 @@ const { v4: uuidv4 } = require("uuid");
 
 const app = new Koa();
 const router = new Router();
-const queue = [];
-const history = [];
+const queue = {};
+const history = {};
 
 router.get("/youtube/:id/formats", async (ctx) => {
     const videoId = ctx.params.id;
@@ -64,7 +64,7 @@ router.get("/youtube/:id/queue/:itag", async (ctx) => {
     const itag = ctx.params.itag;
     const id = uuidv4();
     const timestamp = new Date().toISOString();
-    queue.push({ id, videoId, itag, timestamp });
+    queue[id] = { videoId, itag, timestamp };
     ctx.body = { message: "Added to queue.", id, videoId, itag, timestamp };
 });
 
