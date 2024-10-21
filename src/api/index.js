@@ -2,17 +2,17 @@ const Koa = require("koa");
 const Router = require("@koa/router");
 const ytdl = require("@distube/ytdl-core");
 const { v4: uuidv4 } = require("uuid");
+const EventEmitter = require("events");
 
 const app = new Koa();
 const router = new Router();
 const queue = {};
 const history = {};
+const eventEmitter = new EventEmitter();
 
 router.get("/youtube/:id/formats", async (ctx) => {
     const videoId = ctx.params.id;
-    // get the video info
     const info = await ytdl.getInfo(videoId);
-    // filter out the audio formats
     const audioFormats = info.formats.filter(
         (format) => format.hasAudio && !format.hasVideo,
     );
@@ -20,7 +20,6 @@ router.get("/youtube/:id/formats", async (ctx) => {
         (format) => format.hasVideo && !format.hasAudio,
     );
 
-    // remove duplicates and sort by itag
     const uniqueAudioFormats = Array.from(
         new Set(audioFormats.map((format) => format.itag)),
     )
@@ -65,6 +64,7 @@ router.get("/youtube/:id/queue/:itag", async (ctx) => {
     const id = uuidv4();
     const timestamp = new Date().toISOString();
     queue[id] = { videoId, itag, timestamp };
+    eventEmitter.emit("queueAdded", { id, videoId, itag, timestamp });
     ctx.body = { message: "Added to queue.", id, videoId, itag, timestamp };
 });
 
@@ -80,4 +80,10 @@ app.use(router.routes()).use(router.allowedMethods());
 
 app.listen(3000, () => {
     console.log("Server is running at http://localhost:3000");
+});
+
+// Add event listeners
+eventEmitter.on("queueAdded", (data) => {
+    console.log("New item added to queue:", data);
+    // You can add more logic here, such as processing the queue item
 });
