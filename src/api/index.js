@@ -62,8 +62,9 @@ router.get("/youtube/:id/queue/:itag", async (ctx) => {
     const videoId = ctx.params.id;
     const itag = ctx.params.itag;
     const id = uuidv4();
-    queue.push({ id, videoId, itag });
-    ctx.body = { message: "Added to queue.", id, videoId, itag };
+    const timestamp = new Date().toISOString();
+    queue.push({ id, videoId, itag, timestamp });
+    ctx.body = { message: "Added to queue.", id, videoId, itag, timestamp };
 });
 
 app.use(router.routes()).use(router.allowedMethods());
