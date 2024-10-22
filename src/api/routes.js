@@ -1,6 +1,6 @@
 const ytdl = require("@distube/ytdl-core");
 const { randomUUID } = require("crypto");
-const { queue, history } = require("./state");
+const { queue, history, log } = require("./state");
 
 const setupRoutes = (router, eventEmitter) => {
   router.get("/youtube/:id/formats", async (ctx) => {
@@ -49,6 +49,10 @@ const setupRoutes = (router, eventEmitter) => {
 
   router.get("/history", async (ctx) => {
     ctx.body = history;
+  });
+
+  router.get("/log", async (ctx) => {
+    ctx.body = log;
   });
 };
 

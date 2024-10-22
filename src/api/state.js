@@ -4,7 +4,11 @@ const expired = [];
 const log = [];
 
 function logAction(action, item, collection) {
-  log.push(`${action} ${item} to/from ${collection}`);
+  if (action === "Added") {
+    log.push(`Added ${Object.values(item)} to ${collection}`);
+  } else if (action === "Removed") {
+    log.push(`Removed ${Object.values(item)} from ${collection}`);
+  }
 }
 
 const queueProxy = new Proxy(queue, {
