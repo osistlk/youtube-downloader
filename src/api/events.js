@@ -14,6 +14,7 @@ const setupEventListeners = (eventEmitter) => {
 
 const downloadVideo = async ({ id, videoId, itag }) => {
   try {
+    console.log(`Downloading ${videoId}.${itag}`);
     const { stream, extension } = await getStreamAndExtension(videoId, itag);
     const outputDir = "./downloads";
     if (!fs.existsSync(outputDir)) {

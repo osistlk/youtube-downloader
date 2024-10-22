@@ -25,8 +25,9 @@ const setupRoutes = (router, eventEmitter) => {
     ctx.body = stream;
   });
 
-  router.get("/youtube/:id/queue/:itag", async (ctx) => {
+  router.get("/youtube/:videoId/queue/:itag", async (ctx) => {
     const { videoId, itag } = ctx.params;
+    console.log(`Adding ${videoId}.${itag} to queue.`);
     const id = uuidv4();
     const timestamp = new Date().toISOString();
     const retries = 3;
