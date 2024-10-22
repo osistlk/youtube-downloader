@@ -1,6 +1,7 @@
 const Koa = require("koa");
 const Router = require("@koa/router");
 const EventEmitter = require("events");
+
 const { setupRoutes } = require("./routes");
 const { setupEventListeners } = require("./events");
 
@@ -11,7 +12,9 @@ const eventEmitter = new EventEmitter();
 setupRoutes(router, eventEmitter);
 setupEventListeners(eventEmitter);
 
-app.use(router.routes()).use(router.allowedMethods());
+app
+  .use(router.routes())
+  .use(router.allowedMethods());
 
 const PORT = 3000;
 app.listen(PORT, () => {
