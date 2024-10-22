@@ -1,5 +1,5 @@
 const ytdl = require("@distube/ytdl-core");
-const { v4: uuidv4 } = require("uuid");
+const { randomUUID } = require("crypto");
 const { queue, history } = require("./state");
 
 const setupRoutes = (router, eventEmitter) => {
@@ -28,7 +28,7 @@ const setupRoutes = (router, eventEmitter) => {
   router.get("/youtube/:videoId/queue/:itag", async (ctx) => {
     const { videoId, itag } = ctx.params;
     console.log(`Adding ${videoId}.${itag} to queue.`);
-    const id = uuidv4();
+    const id = randomUUID();
     const timestamp = new Date().toISOString();
     const retries = 3;
     queue[id] = { videoId, itag, timestamp, retries };

@@ -12,9 +12,7 @@ const eventEmitter = new EventEmitter();
 setupRoutes(router, eventEmitter);
 setupEventListeners(eventEmitter);
 
-app
-  .use(router.routes())
-  .use(router.allowedMethods());
+app.use(router.routes()).use(router.allowedMethods());
 
 const PORT = 3000;
 app.listen(PORT, () => {
