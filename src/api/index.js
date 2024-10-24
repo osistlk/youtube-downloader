@@ -1,11 +1,14 @@
 const Koa = require("koa");
 const Router = require("@koa/router");
+const cors = require("@koa/cors");
 
 const { setupRoutes } = require("./routes");
 const { setupEventListeners } = require("./events");
 
 const app = new Koa();
 const router = new Router();
+
+app.use(cors()); // Add this line to ignore CORS
 
 setupRoutes(router);
 setupEventListeners();
