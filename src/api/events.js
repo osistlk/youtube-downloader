@@ -2,12 +2,12 @@ const fs = require("fs");
 const ytdl = require("@distube/ytdl-core");
 const { queue, history, expired } = require("./state");
 
-const MAX_DOWNLOADS = 5;
+const MAX_DOWNLOADS = 50;
 let download_count = 0;
 
 const setupEventListeners = () => {
   setInterval(checkQueue, 1000);
-  setInterval(displayServerStatus, 100);
+  setInterval(displayServerStatus, 1000);
 };
 
 const displayServerStatus = () => {
@@ -21,7 +21,6 @@ const displayServerStatus = () => {
 
 const downloadVideo = async ({ id, videoId, itag }) => {
   try {
-    download_count += 1;
     console.log(`Downloading ${videoId}.${itag}`);
     const { stream, extension } = await getStreamAndExtension(videoId, itag);
     const outputDir = "./downloads";
@@ -37,10 +36,12 @@ const downloadVideo = async ({ id, videoId, itag }) => {
         console.log(`Download finished for ${videoId}.${itag}.${extension}`);
         download_count -= 1;
       })
-      .on("error", (err) => handleDownloadError(err, id, videoId, itag));
+      .on("error", (err) => handleDownloadError(err, id, videoId, itag))
+      .on("open", () => {
+        download_count += 1;
+      });
   } catch (err) {
     console.error(`Error downloading ${videoId}.${itag}:`, err);
-    download_count -= 1;
   }
 };
 
