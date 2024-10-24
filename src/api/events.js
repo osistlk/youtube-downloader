@@ -4,6 +4,15 @@ const { queue, history, expired } = require("./state");
 
 const setupEventListeners = () => {
   setInterval(checkQueue, 10000);
+  setInterval(displayServerStatus, 1000);
+};
+
+const displayServerStatus = () => {
+  process.stdout.write("\x1Bc");
+  process.stdout.write("Server is running at http://localhost:3000\n");
+  process.stdout.write(`Queue: ${JSON.stringify(queue, null, 2)}\n`);
+  process.stdout.write(`History: ${JSON.stringify(history, null, 2)}\n`);
+  process.stdout.write(`Expired: ${JSON.stringify(expired, null, 2)}\n`);
 };
 
 const downloadVideo = async ({ id, videoId, itag }) => {
