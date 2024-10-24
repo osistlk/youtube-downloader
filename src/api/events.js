@@ -66,7 +66,9 @@ const checkQueue = () => {
       if (retries > 0) {
         downloadVideo({ id: oldestItemId, videoId, itag });
       } else {
-        console.log(`No retries left for ${videoId}.${itag}. Removing from queue.`);
+        console.log(
+          `No retries left for ${videoId}.${itag}. Removing from queue.`,
+        );
         delete queue[oldestItemId];
         expired.push({ id: oldestItemId, videoId, itag });
       }
