@@ -7,7 +7,11 @@ function logAction(action, item, collection) {
   if (action === "Added") {
     log.push(`Added ${Object.values(item)} to ${collection}`);
   } else if (action === "Removed") {
-    log.push(`Removed ${Object.values(item)} from ${collection}`);
+    if (item) {
+      log.push(`Removed ${Object.values(item)} from ${collection}`);
+    } else {
+      log.push(`Attempted to remove an undefined or null item from ${collection}`);
+    }
   }
 }
 

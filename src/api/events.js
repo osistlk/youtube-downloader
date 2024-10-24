@@ -6,20 +6,22 @@ const MAX_DOWNLOADS = 5;
 let download_count = 0;
 
 const setupEventListeners = () => {
-  setInterval(checkQueue, 10000);
-  setInterval(displayServerStatus, 1000);
+  setInterval(checkQueue, 1000);
+  setInterval(displayServerStatus, 100);
 };
 
 const displayServerStatus = () => {
   process.stdout.write("\x1Bc");
   process.stdout.write("Server is running at http://localhost:3000\n");
-  process.stdout.write(`Queue: ${JSON.stringify(queue, null, 2)}\n`);
-  process.stdout.write(`History: ${JSON.stringify(history, null, 2)}\n`);
-  process.stdout.write(`Expired: ${JSON.stringify(expired, null, 2)}\n`);
+  process.stdout.write(`Queue size: ${Object.keys(queue).length}\n`);
+  process.stdout.write(`History size: ${Object.keys(history).length}\n`);
+  process.stdout.write(`Expired size: ${expired.length}\n`);
+  process.stdout.write(`Current downloads: ${download_count}\n`);
 };
 
 const downloadVideo = async ({ id, videoId, itag }) => {
   try {
+    download_count += 1;
     console.log(`Downloading ${videoId}.${itag}`);
     const { stream, extension } = await getStreamAndExtension(videoId, itag);
     const outputDir = "./downloads";
@@ -38,6 +40,7 @@ const downloadVideo = async ({ id, videoId, itag }) => {
       .on("error", (err) => handleDownloadError(err, id, videoId, itag));
   } catch (err) {
     console.error(`Error downloading ${videoId}.${itag}:`, err);
+    download_count -= 1;
   }
 };
 
@@ -56,7 +59,6 @@ const handleDownloadError = (err, id, videoId, itag) => {
 
 const checkQueue = () => {
   if (download_count < MAX_DOWNLOADS) {
-    download_count += 1;
     const oldestItemId = Object.keys(queue).shift();
     if (oldestItemId) {
       const { videoId, itag, retries } = queue[oldestItemId];
