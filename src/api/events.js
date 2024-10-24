@@ -2,6 +2,9 @@ const fs = require("fs");
 const ytdl = require("@distube/ytdl-core");
 const { queue, history, expired } = require("./state");
 
+const MAX_DOWNLOADS = 5;
+let download_count = 0;
+
 const setupEventListeners = () => {
   setInterval(checkQueue, 10000);
   setInterval(displayServerStatus, 1000);
@@ -30,6 +33,7 @@ const downloadVideo = async ({ id, videoId, itag }) => {
         delete queue[id];
         history[id] = { videoId, itag, output };
         console.log(`Download finished for ${videoId}.${itag}.${extension}`);
+        download_count -= 1;
       })
       .on("error", (err) => handleDownloadError(err, id, videoId, itag));
   } catch (err) {
@@ -46,20 +50,24 @@ const handleDownloadError = (err, id, videoId, itag) => {
     console.log(`No retries left for ${videoId}.${itag}. Removing from queue.`);
     delete queue[id];
     expired.push({ id, videoId, itag });
+    download_count -= 1;
   }
 };
 
 const checkQueue = () => {
-  const oldestItemId = Object.keys(queue).shift();
-  if (oldestItemId) {
-    const { videoId, itag, retries } = queue[oldestItemId];
-    console.log(`Processing ${videoId}.${itag} with ${retries} retries left`);
-    if (retries > 0) {
-      downloadVideo({ id: oldestItemId, videoId, itag });
-    } else {
-      console.log(`No retries left for ${videoId}.${itag}. Removing from queue.`);
-      delete queue[oldestItemId];
-      expired.push({ id: oldestItemId, videoId, itag });
+  if (download_count < MAX_DOWNLOADS) {
+    download_count += 1;
+    const oldestItemId = Object.keys(queue).shift();
+    if (oldestItemId) {
+      const { videoId, itag, retries } = queue[oldestItemId];
+      console.log(`Processing ${videoId}.${itag} with ${retries} retries left`);
+      if (retries > 0) {
+        downloadVideo({ id: oldestItemId, videoId, itag });
+      } else {
+        console.log(`No retries left for ${videoId}.${itag}. Removing from queue.`);
+        delete queue[oldestItemId];
+        expired.push({ id: oldestItemId, videoId, itag });
+      }
     }
   }
 };
