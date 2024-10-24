@@ -2,7 +2,7 @@ const ytdl = require("@distube/ytdl-core");
 const { randomUUID } = require("crypto");
 const { queue, history, log } = require("./state");
 
-const setupRoutes = (router, eventEmitter) => {
+const setupRoutes = (router) => {
   router.get("/youtube/:id/formats", async (ctx) => {
     const videoId = ctx.params.id;
     const info = await ytdl.getInfo(videoId);
@@ -32,7 +32,6 @@ const setupRoutes = (router, eventEmitter) => {
     const timestamp = new Date().toISOString();
     const retries = 3;
     queue[id] = { videoId, itag, timestamp, retries };
-    eventEmitter.emit("queueAdded", { id, videoId, itag, timestamp, retries });
     ctx.body = {
       message: "Added to queue.",
       id,
@@ -71,7 +70,7 @@ const uniqueFormats = (formats, sortKey) => {
       sortKey === "audioBitrate"
         ? b[sortKey] - a[sortKey]
         : parseInt(b[sortKey].replace("p", ""), 10) -
-          parseInt(a[sortKey].replace("p", ""), 10),
+        parseInt(a[sortKey].replace("p", ""), 10),
     );
 };
 

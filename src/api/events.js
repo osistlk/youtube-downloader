@@ -2,14 +2,8 @@ const fs = require("fs");
 const ytdl = require("@distube/ytdl-core");
 const { queue, history, expired } = require("./state");
 
-const setupEventListeners = (eventEmitter) => {
-  eventEmitter.on("queueAdded", async (data) => {
-    console.log("New item added to queue:", data);
-    eventEmitter.emit("historyAdded", data);
-    await downloadVideo(data);
-  });
-
-  setInterval(checkQueue, 60000);
+const setupEventListeners = () => {
+  setInterval(checkQueue, 10000);
 };
 
 const downloadVideo = async ({ id, videoId, itag }) => {
@@ -47,15 +41,16 @@ const handleDownloadError = (err, id, videoId, itag) => {
 };
 
 const checkQueue = () => {
-  for (const id in queue) {
-    const { videoId, itag, retries } = queue[id];
-    console.log(`Checking ${videoId}.${itag} with ${retries} retries left`);
-    if (retries === 0) {
-      console.log(
-        `No retries left for ${videoId}.${itag}. Removing from queue.`,
-      );
-      delete queue[id];
-      expired.push(queue[id]);
+  const oldestItemId = Object.keys(queue).shift();
+  if (oldestItemId) {
+    const { videoId, itag, retries } = queue[oldestItemId];
+    console.log(`Processing ${videoId}.${itag} with ${retries} retries left`);
+    if (retries > 0) {
+      downloadVideo({ id: oldestItemId, videoId, itag });
+    } else {
+      console.log(`No retries left for ${videoId}.${itag}. Removing from queue.`);
+      delete queue[oldestItemId];
+      expired.push({ id: oldestItemId, videoId, itag });
     }
   }
 };
