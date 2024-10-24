@@ -2,7 +2,7 @@ const fs = require("fs");
 const ytdl = require("@distube/ytdl-core");
 const { queue, history, expired } = require("./state");
 
-const MAX_DOWNLOADS = 50;
+const MAX_DOWNLOADS = 5;
 let download_count = 0;
 
 const setupEventListeners = () => {
@@ -37,9 +37,6 @@ const downloadVideo = async ({ id, videoId, itag }) => {
         download_count -= 1;
       })
       .on("error", (err) => handleDownloadError(err, id, videoId, itag))
-      .on("open", () => {
-        download_count += 1;
-      });
   } catch (err) {
     console.error(`Error downloading ${videoId}.${itag}:`, err);
   }
@@ -66,6 +63,7 @@ const checkQueue = () => {
       console.log(`Processing ${videoId}.${itag} with ${retries} retries left`);
       if (retries > 0) {
         downloadVideo({ id: oldestItemId, videoId, itag });
+        download_count += 1;
       } else {
         console.log(`No retries left for ${videoId}.${itag}. Removing from queue.`);
         delete queue[oldestItemId];
