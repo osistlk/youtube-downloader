@@ -28,17 +28,19 @@ const downloadVideo = async ({ id, videoId, itag }) => {
       fs.mkdirSync(outputDir, { recursive: true });
     }
     const output = `${outputDir}/${videoId}.${itag}.${extension}`;
+    download_count += 1; // Increment download count when starting a download
     stream
       .pipe(fs.createWriteStream(output))
       .on("finish", () => {
         delete queue[id];
         history[id] = { videoId, itag, output };
         console.log(`Download finished for ${videoId}.${itag}.${extension}`);
-        download_count -= 1;
+        download_count -= 1; // Decrement download count when download finishes
       })
-      .on("error", (err) => handleDownloadError(err, id, videoId, itag))
+      .on("error", (err) => handleDownloadError(err, id, videoId, itag));
   } catch (err) {
     console.error(`Error downloading ${videoId}.${itag}:`, err);
+    download_count -= 1; // Decrement download count if an error occurs
   }
 };
 
@@ -51,7 +53,7 @@ const handleDownloadError = (err, id, videoId, itag) => {
     console.log(`No retries left for ${videoId}.${itag}. Removing from queue.`);
     delete queue[id];
     expired.push({ id, videoId, itag });
-    download_count -= 1;
+    download_count -= 1; // Decrement download count when removing from queue
   }
 };
 
@@ -63,7 +65,6 @@ const checkQueue = () => {
       console.log(`Processing ${videoId}.${itag} with ${retries} retries left`);
       if (retries > 0) {
         downloadVideo({ id: oldestItemId, videoId, itag });
-        download_count += 1;
       } else {
         console.log(`No retries left for ${videoId}.${itag}. Removing from queue.`);
         delete queue[oldestItemId];
