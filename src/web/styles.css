@@ -3,8 +3,8 @@
 /* General Styles */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: #121212;
+    color: #e0e0e0;
     margin: 0;
     padding: 0;
     text-align: left;
@@ -13,10 +13,10 @@ body {
 
 /* Form Styles */
 #form {
-    background-color: #ffffff;
+    background-color: #1e1e1e;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     max-width: 600px;
     margin: 20px auto;
     text-align: left;
@@ -28,6 +28,7 @@ body {
     margin-bottom: 8px;
     font-weight: bold;
     text-align: left;
+    color: #e0e0e0;
     /* Align label text to the left */
 }
 
@@ -38,9 +39,11 @@ body {
     width: 100%;
     padding: 10px;
     margin-bottom: 20px;
-    border: 1px solid #ccc;
+    border: 1px solid #555;
     border-radius: 4px;
     box-sizing: border-box;
+    background-color: #333;
+    color: #e0e0e0;
     text-align: left;
     /* Align input text to the left */
 }
@@ -72,8 +75,8 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #1e1e1e;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     text-align: left;
     /* Align table text to the left */
 }
@@ -83,14 +86,15 @@ td {
     padding: 12px;
     text-align: left;
     /* Align table cell text to the left */
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #555;
+    color: #e0e0e0;
 }
 
 th {
-    background-color: #f2f2f2;
+    background-color: #333;
     font-weight: bold;
 }
 
 tr:hover {
-    background-color: #f1f1f1;
+    background-color: #2a2a2a;
 }
