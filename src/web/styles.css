@@ -70,11 +70,18 @@ body {
     /* Align div text to the left */
 }
 
+#formats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
 /* Table Styles */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 20px 0;
+    margin: 20px auto;
     background-color: #1e1e1e;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     text-align: left;
