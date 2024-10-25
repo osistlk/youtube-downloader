@@ -1,12 +1,18 @@
-// simple jQuery app
+const url = 'http://localhost:3000/youtube';
 
-updateApp = () => {
-    $.get("http://localhost:3000/youtube/t9atoY_vkQc/formats", (data) => {
-        $("#app").html('hello world');
+const parseVideoId = (url) => {
+    const videoId = url.split('v=')[1];
+    return videoId;
+}
+
+const listFormats = () => {
+    const videoId = parseVideoId($('#url').val());
+    $.get(`${url}/${videoId}/formats`, (data) => {
+        console.log(data);
     });
 }
 
 $(document).ready(() => {
-    updateApp();
-    setInterval(updateApp, 360000);
+    console.log('Hello from bundle.js');
+
 });
