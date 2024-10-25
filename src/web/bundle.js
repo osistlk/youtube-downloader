@@ -77,5 +77,4 @@ const listFormats = () => {
 
 $(document).ready(() => {
     console.log('Hello from bundle.js');
-
 });
