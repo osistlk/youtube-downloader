@@ -9,8 +9,15 @@
 
 <body>
     <div id="app">
-        <input type="text" id="url" placeholder="Enter YouTube URL" />
-        <button onClick="listFormats()">List formats</button>
+        <div id="form">
+            <input type="text" id="url" placeholder="Enter YouTube URL" />
+            <button onClick="listFormats()">List formats</button>
+        </div>
+        <div id="formats">
+            <span>Formats</span>
+            <div id="audioFormats"></div>
+            <div id="videoFormats"></div>
+        </div>
     </div>
 </body>
 
