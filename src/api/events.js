@@ -7,7 +7,7 @@ let download_count = 0;
 
 const setupEventListeners = () => {
   setInterval(checkQueue, 1000);
-  setInterval(displayServerStatus, 1000);
+  setInterval(displayServerStatus, 10000);
 };
 
 const displayServerStatus = () => {

@@ -7,14 +7,18 @@ const MAX_RETRIES = 3;
 const setupRoutes = (router) => {
   router.get("/youtube/:id/formats", async (ctx) => {
     const videoId = ctx.params.id;
-    const info = await ytdl.getInfo(videoId);
-    const audioFormats = filterFormats(info.formats, "audio");
-    const videoFormats = filterFormats(info.formats, "video");
+    try {
+      const info = await ytdl.getInfo(videoId);
+      const audioFormats = filterFormats(info.formats, "audio");
+      const videoFormats = filterFormats(info.formats, "video");
 
-    ctx.body = {
-      audioFormats: uniqueFormats(audioFormats, "audioBitrate"),
-      videoFormats: uniqueFormats(videoFormats, "qualityLabel"),
-    };
+      ctx.body = {
+        audioFormats: uniqueFormats(audioFormats, "audioBitrate"),
+        videoFormats: uniqueFormats(videoFormats, "qualityLabel"),
+      };
+    } catch (err) {
+      ctx.status = 500;
+    }
   });
 
   router.get("/youtube/:id/download/:itag", async (ctx) => {
@@ -72,7 +76,7 @@ const uniqueFormats = (formats, sortKey) => {
       sortKey === "audioBitrate"
         ? b[sortKey] - a[sortKey]
         : parseInt(b[sortKey].replace("p", ""), 10) -
-          parseInt(a[sortKey].replace("p", ""), 10),
+        parseInt(a[sortKey].replace("p", ""), 10),
     );
 };
 
