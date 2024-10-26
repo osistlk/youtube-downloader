@@ -30,6 +30,7 @@ const handleSuccess = (data) => {
         <th>Audio Sample Rate</th>
         <th>Audio Codec</th>
         <th>Size (MB)</th>
+        <th>URL</th>
         </tr>
     `);
   $("#videoFormats").append(`
@@ -42,6 +43,7 @@ const handleSuccess = (data) => {
         <th>Quality</th>
         <th>FPS</th>
         <th>Size (MB)</th>
+        <th>URL</th>
         </tr>
     `);
 
@@ -61,6 +63,7 @@ const handleSuccess = (data) => {
         <td>${format.audioSampleRate || ""}</td>
         <td>${format.audioCodec || ""}</td>
         <td>${contentLengthMB}</td>
+        <td><a href="${format.url}" target="_blank">Link</a></td>
         </tr>
         `);
   });
@@ -82,6 +85,7 @@ const handleSuccess = (data) => {
         <td>${format.qualityLabel || ""}</td>
         <td>${format.fps || ""}</td>
         <td>${contentLengthMB}</td>
+        <td><a href="${format.url}" target="_blank">Link</a></td>
         </tr>
         `);
   });
