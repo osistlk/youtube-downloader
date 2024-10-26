@@ -13,8 +13,8 @@ parseFormatsResponse = (data) => {
 
 const handleSuccess = (data) => {
   let { audioFormats, videoFormats } = parseFormatsResponse(data);
-  audioFormats = audioFormats.filter(format => format.audioBitrate > 48);
-  videoFormats = videoFormats.filter(format => {
+  audioFormats = audioFormats.filter((format) => format.audioBitrate > 48);
+  videoFormats = videoFormats.filter((format) => {
     const quality = parseInt(format.qualityLabel.slice(0, -1));
     return quality > 480;
   });
@@ -52,8 +52,12 @@ const handleSuccess = (data) => {
     const contentLengthMB = isNaN(format.contentLength)
       ? ""
       : (format.contentLength / (1024 * 1024)).toFixed(2);
-    const averageBitrate = format.averageBitrate ? (format.averageBitrate / 1024).toFixed(2) : "";
-    const audioBitrate = format.bitrate ? (format.bitrate / 1024).toFixed(2) : "";
+    const averageBitrate = format.averageBitrate
+      ? (format.averageBitrate / 1024).toFixed(2)
+      : "";
+    const audioBitrate = format.bitrate
+      ? (format.bitrate / 1024).toFixed(2)
+      : "";
     $("#audioFormats").append(`
         <tr>
         <td>${format.itag || ""}</td>
@@ -73,8 +77,12 @@ const handleSuccess = (data) => {
     const contentLengthMB = isNaN(format.contentLength)
       ? ""
       : (format.contentLength / (1024 * 1024)).toFixed(2);
-    const averageBitrate = format.averageBitrate ? (format.averageBitrate / (1024 * 1024)).toFixed(2) : "";
-    const bitrate = format.bitrate ? (format.bitrate / (1024 * 1024)).toFixed(2) : "";
+    const averageBitrate = format.averageBitrate
+      ? (format.averageBitrate / (1024 * 1024)).toFixed(2)
+      : "";
+    const bitrate = format.bitrate
+      ? (format.bitrate / (1024 * 1024)).toFixed(2)
+      : "";
     $("#videoFormats").append(`
         <tr>
         <td>${format.itag || ""}</td>
@@ -96,9 +104,8 @@ const listFormats = () => {
   $.ajax({
     url: `${url}/${videoId}/formats`,
     method: "GET",
-    success: handleSuccess
+    success: handleSuccess,
   });
-
 };
 
 $(document).ready(() => {
