@@ -25,23 +25,23 @@ const handleSuccess = (data) => {
         <tr>
         <th>Itag</th>
         <th>Container</th>
-        <th>Audio Bitrate (Mbps)</th>
-        <th>Average Bitrate (Mbps)</th>
+        <th>Bitrate (KBps)</th>
+        <th>Average Bitrate (KBps)</th>
         <th>Audio Sample Rate</th>
         <th>Audio Codec</th>
-        <th>Size</th>
+        <th>Size (MB)</th>
         </tr>
     `);
   $("#videoFormats").append(`
         <tr>
         <th>Itag</th>
         <th>Container</th>
-        <th>Bitrate (Mbps)</th>
-        <th>Average Bitrate (Mbps)</th>
+        <th>Bitrate (MBps)</th>
+        <th>Average Bitrate (MBps)</th>
         <th>Video Codec</th>
         <th>Quality</th>
         <th>FPS</th>
-        <th>Size</th>
+        <th>Size (MB)</th>
         </tr>
     `);
 
@@ -60,7 +60,7 @@ const handleSuccess = (data) => {
         <td>${averageBitrate}</td>
         <td>${format.audioSampleRate || ""}</td>
         <td>${format.audioCodec || ""}</td>
-        <td>${contentLengthMB} MB</td>
+        <td>${contentLengthMB}</td>
         </tr>
         `);
   });
@@ -81,7 +81,7 @@ const handleSuccess = (data) => {
         <td>${format.videoCodec || ""}</td>
         <td>${format.qualityLabel || ""}</td>
         <td>${format.fps || ""}</td>
-        <td>${contentLengthMB} MB</td>
+        <td>${contentLengthMB}</td>
         </tr>
         `);
   });
