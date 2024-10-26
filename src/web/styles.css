@@ -35,7 +35,7 @@ h6 {
 }
 
 a {
-  color: #1E90FF;
+  color: #1e90ff;
   /* Dodger blue for links */
   text-decoration: none;
 }
@@ -113,7 +113,7 @@ input[type="text"] {
 }
 
 input[type="text"]:focus {
-  border-color: #1E90FF;
+  border-color: #1e90ff;
   /* Dodger blue border on focus */
   outline: none;
 }

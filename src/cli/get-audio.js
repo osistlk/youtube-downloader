@@ -42,7 +42,7 @@
 
   stream.on("progress", (chunkLength, downloadedBytes, totalBytes) => {
     downloaded += chunkLength;
-    const percent = (downloaded / total * 100).toFixed(2);
+    const percent = ((downloaded / total) * 100).toFixed(2);
     process.stdout.write(`Downloading: ${percent}%\r`);
   });
   stream.pipe(fs.createWriteStream(output));
