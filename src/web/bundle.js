@@ -50,8 +50,8 @@ const handleSuccess = (data) => {
     const contentLengthMB = isNaN(format.contentLength)
       ? ""
       : (format.contentLength / (1024 * 1024)).toFixed(2);
-    const averageBitrate = format.averageBitrate ? (format.averageBitrate / (1024 * 1024)).toFixed(2) : "";
-    const audioBitrate = format.bitrate ? (format.bitrate / (1024 * 1024)).toFixed(2) : "";
+    const averageBitrate = format.averageBitrate ? (format.averageBitrate / 1024).toFixed(2) : "";
+    const audioBitrate = format.bitrate ? (format.bitrate / 1024).toFixed(2) : "";
     $("#audioFormats").append(`
         <tr>
         <td>${format.itag || ""}</td>
