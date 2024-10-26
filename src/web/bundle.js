@@ -26,10 +26,10 @@ const handleSuccess = (data) => {
         <th>Itag</th>
         <th>Container</th>
         <th>Audio Bitrate</th>
+        <th>Average Bitrate</th>
         <th>Audio Sample Rate</th>
         <th>Audio Codec</th>
         <th>Size</th>
-        <th>Average Bitrate</th>
         </tr>
     `);
   $("#videoFormats").append(`
@@ -37,11 +37,11 @@ const handleSuccess = (data) => {
         <th>Itag</th>
         <th>Container</th>
         <th>Bitrate</th>
+        <th>Average Bitrate</th>
         <th>Video Codec</th>
         <th>Quality</th>
         <th>FPS</th>
         <th>Size</th>
-        <th>Average Bitrate</th>
         </tr>
     `);
 
@@ -56,10 +56,10 @@ const handleSuccess = (data) => {
         <td>${format.itag || ""}</td>
         <td>${format.container || ""}</td>
         <td>${format.audioBitrate || ""}</td>
+        <td>${averageBitrate}</td>
         <td>${format.audioSampleRate || ""}</td>
         <td>${format.audioCodec || ""}</td>
         <td>${contentLengthMB} MB</td>
-        <td>${averageBitrate}</td>
         </tr>
         `);
   });
@@ -75,11 +75,11 @@ const handleSuccess = (data) => {
         <td>${format.itag || ""}</td>
         <td>${format.container || ""}</td>
         <td>${format.bitrate || ""}</td>
+        <td>${averageBitrate}</td>
         <td>${format.videoCodec || ""}</td>
         <td>${format.qualityLabel || ""}</td>
         <td>${format.fps || ""}</td>
         <td>${contentLengthMB} MB</td>
-        <td>${averageBitrate}</td>
         </tr>
         `);
   });
