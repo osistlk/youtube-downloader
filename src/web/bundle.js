@@ -29,6 +29,7 @@ const handleSuccess = (data) => {
         <th>Audio Sample Rate</th>
         <th>Audio Codec</th>
         <th>Size</th>
+        <th>Average Bitrate</th>
         </tr>
     `);
   $("#videoFormats").append(`
@@ -40,6 +41,7 @@ const handleSuccess = (data) => {
         <th>Quality</th>
         <th>FPS</th>
         <th>Size</th>
+        <th>Average Bitrate</th>
         </tr>
     `);
 
@@ -48,6 +50,7 @@ const handleSuccess = (data) => {
     const contentLengthMB = isNaN(format.contentLength)
       ? ""
       : (format.contentLength / (1024 * 1024)).toFixed(2);
+    const averageBitrate = format.averageBitrate || "";
     $("#audioFormats").append(`
         <tr>
         <td>${format.itag || ""}</td>
@@ -56,6 +59,7 @@ const handleSuccess = (data) => {
         <td>${format.audioSampleRate || ""}</td>
         <td>${format.audioCodec || ""}</td>
         <td>${contentLengthMB} MB</td>
+        <td>${averageBitrate}</td>
         </tr>
         `);
   });
@@ -65,6 +69,7 @@ const handleSuccess = (data) => {
     const contentLengthMB = isNaN(format.contentLength)
       ? ""
       : (format.contentLength / (1024 * 1024)).toFixed(2);
+    const averageBitrate = format.averageBitrate || "";
     $("#videoFormats").append(`
         <tr>
         <td>${format.itag || ""}</td>
@@ -74,6 +79,7 @@ const handleSuccess = (data) => {
         <td>${format.qualityLabel || ""}</td>
         <td>${format.fps || ""}</td>
         <td>${contentLengthMB} MB</td>
+        <td>${averageBitrate}</td>
         </tr>
         `);
   });
