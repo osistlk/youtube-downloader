@@ -25,8 +25,8 @@ const handleSuccess = (data) => {
         <tr>
         <th>Itag</th>
         <th>Container</th>
-        <th>Audio Bitrate</th>
-        <th>Average Bitrate</th>
+        <th>Audio Bitrate (Mbps)</th>
+        <th>Average Bitrate (Mbps)</th>
         <th>Audio Sample Rate</th>
         <th>Audio Codec</th>
         <th>Size</th>
@@ -36,8 +36,8 @@ const handleSuccess = (data) => {
         <tr>
         <th>Itag</th>
         <th>Container</th>
-        <th>Bitrate</th>
-        <th>Average Bitrate</th>
+        <th>Bitrate (Mbps)</th>
+        <th>Average Bitrate (Mbps)</th>
         <th>Video Codec</th>
         <th>Quality</th>
         <th>FPS</th>
@@ -50,12 +50,13 @@ const handleSuccess = (data) => {
     const contentLengthMB = isNaN(format.contentLength)
       ? ""
       : (format.contentLength / (1024 * 1024)).toFixed(2);
-    const averageBitrate = format.averageBitrate || "";
+    const averageBitrate = format.averageBitrate ? (format.averageBitrate / (1024 * 1024)).toFixed(2) : "";
+    const audioBitrate = format.audioBitrate ? (format.audioBitrate / (1024 * 1024)).toFixed(2) : "";
     $("#audioFormats").append(`
         <tr>
         <td>${format.itag || ""}</td>
         <td>${format.container || ""}</td>
-        <td>${format.audioBitrate || ""}</td>
+        <td>${audioBitrate}</td>
         <td>${averageBitrate}</td>
         <td>${format.audioSampleRate || ""}</td>
         <td>${format.audioCodec || ""}</td>
@@ -69,12 +70,13 @@ const handleSuccess = (data) => {
     const contentLengthMB = isNaN(format.contentLength)
       ? ""
       : (format.contentLength / (1024 * 1024)).toFixed(2);
-    const averageBitrate = format.averageBitrate || "";
+    const averageBitrate = format.averageBitrate ? (format.averageBitrate / (1024 * 1024)).toFixed(2) : "";
+    const bitrate = format.bitrate ? (format.bitrate / (1024 * 1024)).toFixed(2) : "";
     $("#videoFormats").append(`
         <tr>
         <td>${format.itag || ""}</td>
         <td>${format.container || ""}</td>
-        <td>${format.bitrate || ""}</td>
+        <td>${bitrate}</td>
         <td>${averageBitrate}</td>
         <td>${format.videoCodec || ""}</td>
         <td>${format.qualityLabel || ""}</td>
