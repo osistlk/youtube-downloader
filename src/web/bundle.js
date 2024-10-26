@@ -17,12 +17,7 @@ const listFormats = () => {
     url: `${url}/${videoId}/formats`,
     method: "GET",
     success: (data) => {
-      if (data.error) {
-        $("#error").text(data.error);
-      }
       const { audioFormats, videoFormats } = parseFormatsResponse(data);
-      console.log("Audio Formats:", audioFormats);
-      console.log("Video Formats:", videoFormats);
       $("#audioFormats").empty();
       $("#videoFormats").empty();
       // Create table headers
@@ -82,14 +77,10 @@ const listFormats = () => {
               </tr>
               `);
       });
-    },
-    error: (jqXHR, textStatus, errorThrown) => {
-      console.error("Error fetching formats:", textStatus, errorThrown);
-      alert("Failed to fetch formats. Please try again later.");
     }
   });
 };
 
 $(document).ready(() => {
-  console.log("Hello from bundle.js");
+  console.log("(✿◠‿◠)");
 });
