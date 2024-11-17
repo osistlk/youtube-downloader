@@ -16,7 +16,7 @@ const sanitize = require('sanitize-filename');
     const caption = info.player_response.captions.playerCaptionsTracklistRenderer.captionTracks.find((caption) => caption.languageCode == languageCode);
     const title = info.videoDetails.title;
     const sanitizedTitle = sanitize(title);
-    const filename = `${sanitizedTitle}.caption${caption.vssId}.xml`; // TimedText XML
+    const filename = `${sanitizedTitle}.caption${caption.vssId}.ttml`; // TimedText XML
     const output = `./${filename}`;
 
     console.log(`Downloading ${title}...`);
