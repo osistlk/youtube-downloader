@@ -16,29 +16,15 @@ const sanitize = require('sanitize-filename');
     const caption = info.player_response.captions.playerCaptionsTracklistRenderer.captionTracks.find((caption) => caption.languageCode == languageCode);
     const title = info.videoDetails.title;
     const sanitizedTitle = sanitize(title);
-    const filename = `${sanitizedTitle}.caption${caption.vssId}.vtt`;
+    const filename = `${sanitizedTitle}.caption${caption.vssId}.xml`;
     const output = `./${filename}`;
 
     console.log(`Downloading ${title}...`);
-    const stream = ytdl.downloadFromInfo(info, { lang: languageCode, format: 'vtt' });
+    const captionUrl = caption.baseUrl;
 
-    let downloaded = 0;
-    const total = caption.contentLength;
+    const response = await fetch(captionUrl);
+    const vttData = await response.text();
 
-    stream.on("progress", (chunkLength, downloadedBytes, totalBytes) => {
-        downloaded += chunkLength;
-        let percent = ((downloaded / total) * 100).toFixed(2);
-        if (isNaN(percent) || !isFinite(percent)) {
-            process.stdout.write(`Downloading: pending...\r`);
-        } else {
-            process.stdout.write(`Downloading: ${percent}%\r`);
-        }
-    });
-    stream.pipe(fs.createWriteStream(output));
-
-    await new Promise((resolve, reject) => {
-        stream.on("finish", resolve);
-        stream.on("error", reject);
-    });
+    fs.writeFileSync(output, vttData);
     console.log(`Downloaded to ${output}`);
 })();
