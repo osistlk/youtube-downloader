@@ -5,5 +5,7 @@ node_modules
 *.webm
 *.mkv
 *.mp4a
+*.srt
+*.vtt
 
 .DS_Store

@@ -1,43 +1,38 @@
+const fs = require('fs');
+const ytdl = require('@distube/ytdl-core');
+const sanitize = require('sanitize-filename');
+
 (async () => {
-    const fs = require("fs");
-    const ytdl = require("@distube/ytdl-core");
-    const sanitize = require("sanitize-filename");
-
-    // read youtube url from parameter
     const url = process.argv[2];
-    // if url is not provided, exit
-    if (!url) {
-        console.error("Please provide a URL.");
-        process.exit(1);
-    }
-
-    // read video itag from parameter
     const languageCode = process.argv[3];
-    // if itag is not provided, exit
-    if (!languageCode) {
-        console.error("Please provide a languageCode.");
+
+    if (!url || !languageCode) {
+        console.error("Please provide a URL and a language code.");
         process.exit(1);
     }
 
-    // download video based on itag
     const id = ytdl.getURLVideoID(url);
     const info = await ytdl.getInfo(id);
     const caption = info.player_response.captions.playerCaptionsTracklistRenderer.captionTracks.find((caption) => caption.languageCode == languageCode);
     const title = info.videoDetails.title;
     const sanitizedTitle = sanitize(title);
-    const filename = `${sanitizedTitle}.caption${caption.vssId}`;
+    const filename = `${sanitizedTitle}.caption${caption.vssId}.vtt`;
     const output = `./${filename}`;
 
     console.log(`Downloading ${title}...`);
-    const stream = ytdl.downloadFromInfo(info, { lang: languageCode });
+    const stream = ytdl.downloadFromInfo(info, { lang: languageCode, format: 'vtt' });
 
     let downloaded = 0;
     const total = caption.contentLength;
 
     stream.on("progress", (chunkLength, downloadedBytes, totalBytes) => {
         downloaded += chunkLength;
-        const percent = ((downloaded / total) * 100).toFixed(2);
-        process.stdout.write(`Downloading: ${percent}%\r`);
+        let percent = ((downloaded / total) * 100).toFixed(2);
+        if (isNaN(percent) || !isFinite(percent)) {
+            process.stdout.write(`Downloading: pending...\r`);
+        } else {
+            process.stdout.write(`Downloading: ${percent}%\r`);
+        }
     });
     stream.pipe(fs.createWriteStream(output));
 
