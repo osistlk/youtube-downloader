@@ -8,7 +8,13 @@ const { TEMP_DIR, OUTPUT_DIR } = require("./constants");
 const sanitize = require("sanitize-filename");
 
 async function handleURL(youtubeVideoUrl) {
-  const id = ytdl.getURLVideoID(youtubeVideoUrl);
+  let id;
+  try {
+    id = ytdl.getURLVideoID(youtubeVideoUrl);
+  } catch (error) {
+    console.error("Invalid YouTube URL. Please try again.");
+    process.exit(1);
+  }
   const info = await ytdl.getInfo(id);
   const title = info.videoDetails.title;
 
@@ -141,30 +147,32 @@ async function handleURL(youtubeVideoUrl) {
     "🕚",
   ];
   let clockIndex = 0;
+  let videoDownloaded = 0;
+  let audioDownloaded = 0;
   const videoStream = ytdl
     .downloadFromInfo(info, { format: videoFormat })
     .on("data", (chunk) => {
-      // Cycle through the clock emojis
+      videoDownloaded += chunk.length;
+      const percent = ((videoDownloaded / videoFormat.contentLength) * 100).toFixed(2);
       const clock = clockEmojis[clockIndex];
-      clockIndex = (clockIndex + 1) % clockEmojis.length; // Loop back to the start
+      clockIndex = (clockIndex + 1) % clockEmojis.length;
 
-      // Update console with the rotating clock
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`${clock}`);
+      process.stdout.write(`${clock} Video Download: ${percent}%`);
     })
     .pipe(fs.createWriteStream(videoOutput));
   const audioStream = ytdl
     .downloadFromInfo(info, { format: audioFormat })
     .on("data", (chunk) => {
-      // Cycle through the clock emojis
+      audioDownloaded += chunk.length;
+      const percent = ((audioDownloaded / audioFormat.contentLength) * 100).toFixed(2);
       const clock = clockEmojis[clockIndex];
-      clockIndex = (clockIndex + 1) % clockEmojis.length; // Loop back to the start
+      clockIndex = (clockIndex + 1) % clockEmojis.length;
 
-      // Update console with the rotating clock
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`${clock}`);
+      process.stdout.write(`${clock} Audio Download: ${percent}%`);
     })
     .pipe(fs.createWriteStream(audioOutput));
 
@@ -228,9 +236,9 @@ async function handleURL(youtubeVideoUrl) {
     const ffmpegCommand = ffmpeg()
       .input(videoOutput)
       .inputOptions("-y")
-      .videoCodec("libx264")
+      .videoCodec("copy")
       .input(audioOutput)
-      .audioCodec("aac")
+      .audioCodec("copy")
       .output(finalOutput)
       .on("progress", (progress) => {
         const percent = Math.floor(Number(progress.percent));
