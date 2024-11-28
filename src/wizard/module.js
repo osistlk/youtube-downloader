@@ -277,7 +277,6 @@ async function handleURL(youtubeVideoUrl) {
         ffmpegCommand.on("end", () => {
           fs.unlinkSync(videoOutput);
           fs.unlinkSync(audioOutput);
-          console.log("\nDownload complete! Enjoy your video! 😊");
           resolve();
         });
       },
