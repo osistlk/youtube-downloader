@@ -262,7 +262,8 @@ async function handleURL(youtubeVideoUrl) {
     const ffmpegCommand = ffmpeg()
       .input(videoOutput)
       .input(audioOutput)
-      .inputOptions("-c copy")
+      .videoCodec("copy")
+      .audioCodec("copy")
       .output(finalOutput)
       .on("start", (cmdline) => console.log(cmdline))
       .on("progress", (progress) => {
