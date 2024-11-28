@@ -72,7 +72,7 @@ const uniqueFormats = (formats, sortKey) => {
       sortKey === "audioBitrate"
         ? b[sortKey] - a[sortKey]
         : parseInt(b[sortKey].replace("p", ""), 10) -
-        parseInt(a[sortKey].replace("p", ""), 10),
+          parseInt(a[sortKey].replace("p", ""), 10),
     );
 };
 

@@ -18,7 +18,9 @@
   const videoFormats = info.formats.filter(
     (format) => format.hasVideo && !format.hasAudio,
   );
-  const captionFormats = info.player_response.captions.playerCaptionsTracklistRenderer.captionTracks || [];
+  const captionFormats =
+    info.player_response.captions.playerCaptionsTracklistRenderer
+      .captionTracks || [];
 
   // remove duplicates and sort by itag
   const uniqueAudioFormats = Array.from(
@@ -53,6 +55,8 @@
   });
   console.log("Available captions:");
   captionFormats.forEach((caption) => {
-    console.log(`language: ${caption.languageCode}, name: ${caption.name.simpleText}`);
+    console.log(
+      `language: ${caption.languageCode}, name: ${caption.name.simpleText}`,
+    );
   });
 })();

@@ -10,7 +10,9 @@ function logAction(action, item, collection) {
     if (item) {
       log.push(`Removed ${Object.values(item)} from ${collection}`);
     } else {
-      log.push(`Attempted to remove an undefined or null item from ${collection}`);
+      log.push(
+        `Attempted to remove an undefined or null item from ${collection}`,
+      );
     }
   }
 }
