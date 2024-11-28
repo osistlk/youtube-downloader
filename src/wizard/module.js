@@ -265,7 +265,6 @@ async function handleURL(youtubeVideoUrl) {
       .videoCodec("copy")
       .audioCodec("copy")
       .output(finalOutput)
-      .on("start", (cmdline) => console.log(cmdline))
       .on("progress", (progress) => {
         const percent = Math.floor(Number(progress.percent));
         process.stdout.clearLine(0);
@@ -278,6 +277,7 @@ async function handleURL(youtubeVideoUrl) {
         ffmpegCommand.on("end", () => {
           fs.unlinkSync(videoOutput);
           fs.unlinkSync(audioOutput);
+          console.log("\nDownload complete! Enjoy your video! 😊");
           resolve();
         });
       },
