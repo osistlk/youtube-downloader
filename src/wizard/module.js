@@ -157,12 +157,14 @@ async function handleURL(youtubeVideoUrl) {
   let audioDownloaded = 0;
   let videoContentLength = videoFormat.contentLength;
   let audioContentLength = audioFormat.contentLength;
-  const videoStream = ytdl
-    .downloadFromInfo(info, { format: videoFormat })
+  const videoStream = ytdl(youtubeVideoUrl, { quality: videoAnswer })
     .on("progress", (_, downloaded, total) => {
       videoDownloaded = downloaded;
       videoContentLength = total;
-      const videoPercent = ((videoDownloaded / videoContentLength) * 100).toFixed(2);
+      const videoPercent = (
+        (videoDownloaded / videoContentLength) *
+        100
+      ).toFixed(2);
       const clock = clockEmojis[clockIndex];
       clockIndex = (clockIndex + 1) % clockEmojis.length;
 
@@ -170,22 +172,31 @@ async function handleURL(youtubeVideoUrl) {
       process.stdout.cursorTo(0);
       process.stdout.write(`${clock} Video Download: ${videoPercent}%`);
       process.stdout.cursorTo(40);
-      process.stdout.write(`Audio Download: ${(audioDownloaded / audioContentLength * 100).toFixed(2) || "0.00"}%`);
+      process.stdout.write(
+        `Audio Download: ${((audioDownloaded / audioContentLength) * 100).toFixed(2) || "0.00"}%`,
+      );
     })
     .pipe(fs.createWriteStream(videoOutput));
-  const audioStream = ytdl
-    .downloadFromInfo(info, { format: audioFormat })
+  const audioStream = ytdl(youtubeVideoUrl, { quality: audioAnswer })
     .on("progress", (_, downloaded, total) => {
       audioDownloaded = downloaded;
       audioContentLength = total;
-      const audioPercent = ((audioDownloaded / audioContentLength) * 100).toFixed(2);
+      const audioPercent = (
+        (audioDownloaded / audioContentLength) *
+        100
+      ).toFixed(2);
       const clock = clockEmojis[clockIndex];
       clockIndex = (clockIndex + 1) % clockEmojis.length;
 
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      const videoPercent = ((videoDownloaded / videoContentLength) * 100).toFixed(2);
-      process.stdout.write(`${clock} Video Download: ${videoPercent || "0.00"}%`);
+      const videoPercent = (
+        (videoDownloaded / videoContentLength) *
+        100
+      ).toFixed(2);
+      process.stdout.write(
+        `${clock} Video Download: ${videoPercent || "0.00"}%`,
+      );
       process.stdout.cursorTo(40);
       process.stdout.write(`Audio Download: ${audioPercent}%`);
     })
@@ -251,15 +262,15 @@ async function handleURL(youtubeVideoUrl) {
     const ffmpegCommand = ffmpeg()
       .input(videoOutput)
       .input(audioOutput)
+      .inputOptions("-c copy")
       .output(finalOutput)
+      .on("start", (cmdline) => console.log(cmdline))
       .on("progress", (progress) => {
         const percent = Math.floor(Number(progress.percent));
         process.stdout.clearLine(0);
         process.stdout.cursorTo(0);
         process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent : 0}%`);
       })
-      .videoCodec("copy")
-      .audioCodec("copy")
       .run();
     await new Promise(
       (resolve) => {
