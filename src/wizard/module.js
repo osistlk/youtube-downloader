@@ -252,10 +252,7 @@ async function handleURL(youtubeVideoUrl) {
   } else {
     const ffmpegCommand = ffmpeg()
       .input(videoOutput)
-      .inputOptions("-y")
-      .videoCodec("copy")
       .input(audioOutput)
-      .audioCodec("copy")
       .output(finalOutput)
       .on("progress", (progress) => {
         const percent = Math.floor(Number(progress.percent));
@@ -263,6 +260,8 @@ async function handleURL(youtubeVideoUrl) {
         process.stdout.cursorTo(0);
         process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent : 0}%`);
       })
+      .videoCodec("copy")
+      .audioCodec("copy")
       .run();
     await new Promise(
       (resolve) => {
