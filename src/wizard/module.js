@@ -2,10 +2,12 @@ const { Select, Input, Confirm } = require("enquirer");
 const ytdl = require("@distube/ytdl-core");
 const ytpl = require("ytpl");
 const ffmpeg = require("fluent-ffmpeg");
+const sanitize = require("sanitize-filename");
+
 const path = require("path");
 const fs = require("fs");
+
 const { TEMP_DIR, OUTPUT_DIR } = require("./constants");
-const sanitize = require("sanitize-filename");
 
 async function handleURL(youtubeVideoUrl) {
   let id;
@@ -35,6 +37,8 @@ async function handleURL(youtubeVideoUrl) {
       fps: format.fps,
       container: format.container,
       videoCodec: format.videoCodec,
+      bitrate: format.bitrate,
+      size: format.contentLength,
     };
   });
 
@@ -66,6 +70,8 @@ async function handleURL(youtubeVideoUrl) {
       audioBitrate: format.audioBitrate,
       container: format.container,
       audioCodec: format.audioCodec,
+      sampleRate: format.audioSampleRate,
+      size: format.contentLength,
     };
   });
 
@@ -84,7 +90,7 @@ async function handleURL(youtubeVideoUrl) {
 
   const videoChoices = uniqueVideos.map((video) => {
     return {
-      message: `${video.qualityLabel}${video.fps ? `@${video.fps}` : ""} - ${video.container} - ${video.videoCodec}`,
+      message: `${video.qualityLabel}${video.fps ? `@${video.fps}` : ""} - ${video.container} - ${video.videoCodec} - ${video.bitrate} bitrate - ${(video.size / (1024 * 1024)).toFixed(2)} MB`,
       name: video.itag,
     };
   });
@@ -97,7 +103,7 @@ async function handleURL(youtubeVideoUrl) {
 
   const audioChoices = uniqueAudios.map((audio) => {
     return {
-      message: `${audio.audioBitrate} bitrate - ${audio.container} - ${audio.audioCodec}`,
+      message: `${audio.audioBitrate} bitrate - ${audio.container} - ${audio.audioCodec} - ${audio.sampleRate} sample rate - ${(audio.size / (1024 * 1024)).toFixed(2)} MB`,
       name: audio.itag,
     };
   });
