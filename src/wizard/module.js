@@ -149,30 +149,47 @@ async function handleURL(youtubeVideoUrl) {
   let clockIndex = 0;
   let videoDownloaded = 0;
   let audioDownloaded = 0;
+  let audioPercent = 0;
   const videoStream = ytdl
     .downloadFromInfo(info, { format: videoFormat })
     .on("data", (chunk) => {
       videoDownloaded += chunk.length;
-      const percent = ((videoDownloaded / videoFormat.contentLength) * 100).toFixed(2);
+      const videoPercent = (
+        (videoDownloaded / videoFormat.contentLength) *
+        100
+      ).toFixed(2);
       const clock = clockEmojis[clockIndex];
       clockIndex = (clockIndex + 1) % clockEmojis.length;
 
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`${clock} Video Download: ${percent}%`);
+      process.stdout.write(`${clock} Video Download: ${videoPercent}%`);
+      process.stdout.cursorTo(40);
+      process.stdout.write(`Audio Download: ${audioPercent || "0.00"}%`);
     })
     .pipe(fs.createWriteStream(videoOutput));
   const audioStream = ytdl
     .downloadFromInfo(info, { format: audioFormat })
     .on("data", (chunk) => {
       audioDownloaded += chunk.length;
-      const percent = ((audioDownloaded / audioFormat.contentLength) * 100).toFixed(2);
+      const audioPercent = (
+        (audioDownloaded / audioFormat.contentLength) *
+        100
+      ).toFixed(2);
       const clock = clockEmojis[clockIndex];
       clockIndex = (clockIndex + 1) % clockEmojis.length;
 
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`${clock} Audio Download: ${percent}%`);
+      const videoPercent = (
+        (videoDownloaded / videoFormat.contentLength) *
+        100
+      ).toFixed(2);
+      process.stdout.write(
+        `${clock} Video Download: ${videoPercent || "0.00"}%`,
+      );
+      process.stdout.cursorTo(40);
+      process.stdout.write(`Audio Download: ${audioPercent}%`);
     })
     .pipe(fs.createWriteStream(audioOutput));
 
