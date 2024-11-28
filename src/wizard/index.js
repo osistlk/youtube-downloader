@@ -20,6 +20,8 @@ const {
         break;
       case "video":
         await handleVideoMenuSelection();
+        run = false;
+        console.log("\nGoodbye!");
         break;
       case "playlist":
         await handlePlaylistMenuSelection();

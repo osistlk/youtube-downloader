@@ -90,7 +90,7 @@ async function handleURL(youtubeVideoUrl) {
 
   const videoChoices = uniqueVideos.map((video) => {
     return {
-      message: `${video.qualityLabel}${video.fps ? `@${video.fps}` : ""} - ${video.container} - ${video.videoCodec} - ${video.bitrate} bitrate - ${(video.size / (1024 * 1024)).toFixed(2)} MB`,
+      message: `${video.itag} - ${video.qualityLabel}${video.fps ? `@${video.fps}` : ""} - ${video.container} - ${video.videoCodec} - ${video.bitrate} bitrate - ${(video.size / (1024 * 1024)).toFixed(2)} MB`,
       name: video.itag,
     };
   });
@@ -103,7 +103,7 @@ async function handleURL(youtubeVideoUrl) {
 
   const audioChoices = uniqueAudios.map((audio) => {
     return {
-      message: `${audio.audioBitrate} bitrate - ${audio.container} - ${audio.audioCodec} - ${audio.sampleRate} sample rate - ${(audio.size / (1024 * 1024)).toFixed(2)} MB`,
+      message: `${audio.itag} - ${audio.audioBitrate} bitrate - ${audio.container} - ${audio.audioCodec} - ${audio.sampleRate} sample rate - ${(audio.size / (1024 * 1024)).toFixed(2)} MB`,
       name: audio.itag,
     };
   });
