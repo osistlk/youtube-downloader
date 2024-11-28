@@ -91,7 +91,7 @@ async function handleURL(youtubeVideoUrl) {
 
   const videoPrompt = new Select({
     name: "video container",
-    message: "Select a video format (I prefer mp4/h264)",
+    message: "Select a video format",
     choices: videoChoices,
   });
 
@@ -104,7 +104,7 @@ async function handleURL(youtubeVideoUrl) {
 
   const audioPrompt = new Select({
     name: "audio container",
-    message: "Select a audio format (I prefer mp4/aac",
+    message: "Select a audio format",
     choices: audioChoices,
   });
 
