@@ -176,6 +176,9 @@ async function handleURL(youtubeVideoUrl) {
         `Audio Download: ${((audioDownloaded / audioContentLength) * 100).toFixed(2) || "0.00"}%`,
       );
     })
+    .on("error", (error) => {
+      console.error("Error downloading video stream.");
+    })
     .pipe(fs.createWriteStream(videoOutput));
   const audioStream = ytdl(youtubeVideoUrl, { quality: audioAnswer })
     .on("progress", (_, downloaded, total) => {
@@ -199,6 +202,9 @@ async function handleURL(youtubeVideoUrl) {
       );
       process.stdout.cursorTo(40);
       process.stdout.write(`Audio Download: ${audioPercent}%`);
+    })
+    .on("error", (error) => {
+      console.error("Error downloading audio stream.");
     })
     .pipe(fs.createWriteStream(audioOutput));
 
