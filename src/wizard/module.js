@@ -90,7 +90,7 @@ async function handleURL(youtubeVideoUrl) {
 
   const videoChoices = uniqueVideos.map((video) => {
     return {
-      message: `${video.itag} - ${video.qualityLabel}${video.fps ? `@${video.fps}` : ""} - ${video.container} - ${video.videoCodec} - ${video.bitrate} bitrate - ${(video.size / (1024 * 1024)).toFixed(2)} MB`,
+      message: `${video.itag} - ${video.qualityLabel}${video.fps ? `@${video.fps}` : ""} - ${video.container} - ${video.videoCodec} - ${video.bitrate} bitrate - ${(video.size / (1024 * 1024)).toFixed(0)} MB`,
       name: video.itag,
     };
   });
@@ -107,7 +107,7 @@ async function handleURL(youtubeVideoUrl) {
     .filter((audio) => audio.container === selectedVideoContainer)
     .map((audio) => {
       return {
-        message: `${audio.itag} - ${audio.audioBitrate} bitrate - ${audio.container} - ${audio.audioCodec} - ${audio.sampleRate} sample rate - ${(audio.size / (1024 * 1024)).toFixed(2)} MB`,
+        message: `${audio.itag} - ${audio.audioBitrate} bitrate - ${audio.container} - ${audio.audioCodec} - ${audio.sampleRate} sample rate - ${(audio.size / (1024 * 1024)).toFixed(0)} MB`,
         name: audio.itag,
       };
     });
@@ -167,7 +167,7 @@ async function handleURL(youtubeVideoUrl) {
       const videoPercent = (
         (videoDownloaded / videoContentLength) *
         100
-      ).toFixed(2);
+      ).toFixed(0);
       const clock = clockEmojis[clockIndex];
       clockIndex = (clockIndex + 1) % clockEmojis.length;
 
@@ -176,7 +176,7 @@ async function handleURL(youtubeVideoUrl) {
       process.stdout.write(`${clock} Video Download: ${videoPercent}%`);
       process.stdout.cursorTo(40);
       process.stdout.write(
-        `Audio Download: ${((audioDownloaded / audioContentLength) * 100).toFixed(2) || "0.00"}%`,
+        `Audio Download: ${((audioDownloaded / audioContentLength) * 100).toFixed(0) || "0.00"}%`,
       );
     })
     .on("error", (error) => {
@@ -190,7 +190,7 @@ async function handleURL(youtubeVideoUrl) {
       const audioPercent = (
         (audioDownloaded / audioContentLength) *
         100
-      ).toFixed(2);
+      ).toFixed(0);
       const clock = clockEmojis[clockIndex];
       clockIndex = (clockIndex + 1) % clockEmojis.length;
 
@@ -199,7 +199,7 @@ async function handleURL(youtubeVideoUrl) {
       const videoPercent = (
         (videoDownloaded / videoContentLength) *
         100
-      ).toFixed(2);
+      ).toFixed(0);
       process.stdout.write(
         `${clock} Video Download: ${videoPercent || "0.00"}%`,
       );
@@ -247,7 +247,7 @@ async function handleURL(youtubeVideoUrl) {
         const percent = Math.floor(Number(progress.percent));
         process.stdout.clearLine(0);
         process.stdout.cursorTo(0);
-        process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent : 0}%\n`);
+        process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent.toFixed(0) : 0}%\n`);
       })
       .run();
     await new Promise(
@@ -278,7 +278,7 @@ async function handleURL(youtubeVideoUrl) {
         const percent = Math.floor(Number(progress.percent));
         process.stdout.clearLine(0);
         process.stdout.cursorTo(0);
-        process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent : 0}%\n`);
+        process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent.toFixed(0) : 0}%\n`);
       })
       .run();
     await new Promise(
