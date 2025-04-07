@@ -101,13 +101,16 @@ async function handleURL(youtubeVideoUrl) {
     choices: videoChoices,
   });
 
-  const audioChoices = uniqueAudios.map((audio) => {
-    return {
-      message: `${audio.itag} - ${audio.audioBitrate} bitrate - ${audio.container} - ${audio.audioCodec} - ${audio.sampleRate} sample rate - ${(audio.size / (1024 * 1024)).toFixed(2)} MB`,
-      name: audio.itag,
-    };
-  });
+  const selectedVideoContainer = uniqueVideos[videoPrompt.initial]?.container;
 
+  const audioChoices = uniqueAudios
+    .filter((audio) => audio.container === selectedVideoContainer)
+    .map((audio) => {
+      return {
+        message: `${audio.itag} - ${audio.audioBitrate} bitrate - ${audio.container} - ${audio.audioCodec} - ${audio.sampleRate} sample rate - ${(audio.size / (1024 * 1024)).toFixed(2)} MB`,
+        name: audio.itag,
+      };
+    });
   const audioPrompt = new Select({
     name: "audio container",
     message: "Select a audio format",
