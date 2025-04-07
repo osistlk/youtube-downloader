@@ -247,7 +247,7 @@ async function handleURL(youtubeVideoUrl) {
         const percent = Math.floor(Number(progress.percent));
         process.stdout.clearLine(0);
         process.stdout.cursorTo(0);
-        process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent : 0}%`);
+        process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent : 0}%\n`);
       })
       .run();
     await new Promise(
@@ -278,7 +278,7 @@ async function handleURL(youtubeVideoUrl) {
         const percent = Math.floor(Number(progress.percent));
         process.stdout.clearLine(0);
         process.stdout.cursorTo(0);
-        process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent : 0}%`);
+        process.stdout.write(`FFmpeg progress: ${percent > 0 ? percent : 0}%\n`);
       })
       .run();
     await new Promise(
