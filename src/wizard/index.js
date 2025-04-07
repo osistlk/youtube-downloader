@@ -17,7 +17,9 @@ const {
         break;
       case "clean":
         if (fs.existsSync(TEMP_DIR)) fs.rmSync(TEMP_DIR, { recursive: true });
-        break;
+        run = false;
+        console.log("\nCache cleaned!");
+        break
       case "video":
         await handleVideoMenuSelection();
         run = false;
