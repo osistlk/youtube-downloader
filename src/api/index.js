@@ -5,9 +5,9 @@ const { randomUUID } = require("crypto");
 const fs = require("fs");
 
 // constants
-const MAX_RETRIES = 3;
 const PORT = 3000;
 const MAX_DOWNLOADS = 5;
+const MAX_RETRIES = 3;
 
 const app = new Koa();
 const router = new Router();
@@ -36,7 +36,7 @@ const uniqueFormats = (formats, sortKey) => {
       sortKey === "audioBitrate"
         ? b[sortKey] - a[sortKey]
         : parseInt(b[sortKey].replace("p", ""), 10) -
-          parseInt(a[sortKey].replace("p", ""), 10),
+        parseInt(a[sortKey].replace("p", ""), 10),
     );
 };
 
