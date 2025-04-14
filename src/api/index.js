@@ -2,12 +2,25 @@ const Koa = require("koa");
 const Router = require("@koa/router");
 const ytdl = require("@distube/ytdl-core");
 const { randomUUID } = require("crypto");
+const fs = require("fs");
+
+// constants
+const MAX_RETRIES = 3;
+const PORT = 3000;
+const MAX_DOWNLOADS = 5;
 
 const app = new Koa();
 const router = new Router();
 
-const MAX_RETRIES = 3;
+// state
+const pending = new Set();
+const completed = new Set();
+const failed = new Set();
+const expired = new Set();
+const log = new Array();
+let download_count = 0;
 
+// utilities
 const filterFormats = (formats, type) => {
   return formats.filter((format) =>
     type === "audio"
@@ -37,6 +50,78 @@ const getStreamAndExtension = async (videoId, itag) => {
   return { stream, extension };
 };
 
+const setupEventListeners = () => {
+  setInterval(checkQueue, 1000);
+  setInterval(displayServerStatus, 1000);
+};
+
+const displayServerStatus = () => {
+  process.stdout.write("\x1Bc");
+  process.stdout.write("Server is running at http://localhost:3000\n");
+  process.stdout.write(`Queue size: ${Object.keys(pending).length}\n`);
+  process.stdout.write(`History size: ${Object.keys(log).length}\n`);
+  process.stdout.write(`Expired size: ${expired.length}\n`);
+  process.stdout.write(`Current downloads: ${download_count}\n`);
+};
+
+const downloadVideo = async ({ id, videoId, itag }) => {
+  try {
+    console.log(`Downloading ${videoId}.${itag}`);
+    const { stream, extension } = await getStreamAndExtension(videoId, itag);
+    const outputDir = "./downloads";
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+    const output = `${outputDir}/${videoId}.${itag}.${extension}`;
+    download_count += 1; // Increment download count when starting a download
+    stream
+      .pipe(fs.createWriteStream(output))
+      .on("finish", () => {
+        delete pending[id];
+        log[id] = { videoId, itag, output };
+        console.log(`Download finished for ${videoId}.${itag}.${extension}`);
+        download_count -= 1; // Decrement download count when download finishes
+      })
+      .on("error", (err) => handleDownloadError(err, id, videoId, itag));
+  } catch (err) {
+    console.error(`Error downloading ${videoId}.${itag}:`, err);
+    download_count -= 1; // Decrement download count if an error occurs
+  }
+};
+
+const handleDownloadError = (err, id, videoId, itag) => {
+  console.error(`Error downloading ${videoId}.${itag}:`, err);
+  if (pending[id].retries > 0) {
+    pending[id].retries -= 1;
+    console.log(`Retries left for ${videoId}.${itag}: ${pending[id].retries}`);
+  } else {
+    console.log(`No retries left for ${videoId}.${itag}. Removing from queue.`);
+    delete pending[id];
+    expired.push({ id, videoId, itag });
+    download_count -= 1; // Decrement download count when removing from queue
+  }
+};
+
+const checkQueue = () => {
+  if (download_count < MAX_DOWNLOADS) {
+    const oldestItemId = Object.keys(pending).shift();
+    if (oldestItemId) {
+      const { videoId, itag, retries } = pending[oldestItemId];
+      console.log(`Processing ${videoId}.${itag} with ${retries} retries left`);
+      if (retries > 0) {
+        downloadVideo({ id: oldestItemId, videoId, itag });
+      } else {
+        console.log(
+          `No retries left for ${videoId}.${itag}. Removing from queue.`,
+        );
+        delete pending[oldestItemId];
+        expired.push({ id: oldestItemId, videoId, itag });
+      }
+    }
+  }
+};
+
+// routes
 router.get("/youtube/:id/formats", async (ctx) => {
   const videoId = ctx.params.id;
   const info = await ytdl.getInfo(videoId);
@@ -65,7 +150,7 @@ router.get("/youtube/:videoId/queue/:itag", async (ctx) => {
   const id = randomUUID();
   const timestamp = new Date().toISOString();
   const retries = MAX_RETRIES;
-  queue[id] = { videoId, itag, timestamp, retries };
+  pending[id] = { videoId, itag, timestamp, retries };
   ctx.body = {
     message: "Added to queue.",
     id,
@@ -76,95 +161,30 @@ router.get("/youtube/:videoId/queue/:itag", async (ctx) => {
   };
 });
 
-router.get("/queue", async (ctx) => {
-  ctx.body = queue;
+router.get("/pending", async (ctx) => {
+  ctx.body = pending;
 });
 
-router.get("/history", async (ctx) => {
-  ctx.body = history;
+router.get("/completed", async (ctx) => {
+  ctx.body = completed;
+});
+
+router.get("/failed", async (ctx) => {
+  ctx.body = failed;
+});
+
+router.get("/expired", async (ctx) => {
+  ctx.body = expired;
 });
 
 router.get("/log", async (ctx) => {
   ctx.body = log;
 });
 
+// cors
 app.use(router.routes()).use(router.allowedMethods());
 
-const MAX_DOWNLOADS = 5;
-let download_count = 0;
-
-const setupEventListeners = () => {
-  setInterval(checkQueue, 1000);
-  setInterval(displayServerStatus, 1000);
-};
-
-const displayServerStatus = () => {
-  process.stdout.write("\x1Bc");
-  process.stdout.write("Server is running at http://localhost:3000\n");
-  process.stdout.write(`Queue size: ${Object.keys(queue).length}\n`);
-  process.stdout.write(`History size: ${Object.keys(history).length}\n`);
-  process.stdout.write(`Expired size: ${expired.length}\n`);
-  process.stdout.write(`Current downloads: ${download_count}\n`);
-};
-
-const downloadVideo = async ({ id, videoId, itag }) => {
-  try {
-    console.log(`Downloading ${videoId}.${itag}`);
-    const { stream, extension } = await getStreamAndExtension(videoId, itag);
-    const outputDir = "./downloads";
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
-    const output = `${outputDir}/${videoId}.${itag}.${extension}`;
-    download_count += 1; // Increment download count when starting a download
-    stream
-      .pipe(fs.createWriteStream(output))
-      .on("finish", () => {
-        delete queue[id];
-        history[id] = { videoId, itag, output };
-        console.log(`Download finished for ${videoId}.${itag}.${extension}`);
-        download_count -= 1; // Decrement download count when download finishes
-      })
-      .on("error", (err) => handleDownloadError(err, id, videoId, itag));
-  } catch (err) {
-    console.error(`Error downloading ${videoId}.${itag}:`, err);
-    download_count -= 1; // Decrement download count if an error occurs
-  }
-};
-
-const handleDownloadError = (err, id, videoId, itag) => {
-  console.error(`Error downloading ${videoId}.${itag}:`, err);
-  if (queue[id].retries > 0) {
-    queue[id].retries -= 1;
-    console.log(`Retries left for ${videoId}.${itag}: ${queue[id].retries}`);
-  } else {
-    console.log(`No retries left for ${videoId}.${itag}. Removing from queue.`);
-    delete queue[id];
-    expired.push({ id, videoId, itag });
-    download_count -= 1; // Decrement download count when removing from queue
-  }
-};
-
-const checkQueue = () => {
-  if (download_count < MAX_DOWNLOADS) {
-    const oldestItemId = Object.keys(queue).shift();
-    if (oldestItemId) {
-      const { videoId, itag, retries } = queue[oldestItemId];
-      console.log(`Processing ${videoId}.${itag} with ${retries} retries left`);
-      if (retries > 0) {
-        downloadVideo({ id: oldestItemId, videoId, itag });
-      } else {
-        console.log(
-          `No retries left for ${videoId}.${itag}. Removing from queue.`,
-        );
-        delete queue[oldestItemId];
-        expired.push({ id: oldestItemId, videoId, itag });
-      }
-    }
-  }
-};
-
-const PORT = 3000;
+// app start
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
   setupEventListeners();
