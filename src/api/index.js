@@ -16,7 +16,7 @@ const router = new Router();
 const pending = new Set();
 const completed = new Set();
 const failed = new Set();
-const expired = new Set();
+const expired = new Array();
 const log = new Array();
 let download_count = 0;
 
@@ -51,14 +51,14 @@ const getStreamAndExtension = async (videoId, itag) => {
 };
 
 const setupEventListeners = () => {
-  setInterval(checkQueue, 1000);
+  setInterval(checkPendingQueue, 1000);
   setInterval(displayServerStatus, 1000);
 };
 
 const displayServerStatus = () => {
   process.stdout.write("\x1Bc");
   process.stdout.write("Server is running at http://localhost:3000\n");
-  process.stdout.write(`Queue size: ${Object.keys(pending).length}\n`);
+  process.stdout.write(`Pending size: ${Object.keys(pending).length}\n`);
   process.stdout.write(`History size: ${Object.keys(log).length}\n`);
   process.stdout.write(`Expired size: ${expired.length}\n`);
   process.stdout.write(`Current downloads: ${download_count}\n`);
@@ -95,14 +95,14 @@ const handleDownloadError = (err, id, videoId, itag) => {
     pending[id].retries -= 1;
     console.log(`Retries left for ${videoId}.${itag}: ${pending[id].retries}`);
   } else {
-    console.log(`No retries left for ${videoId}.${itag}. Removing from queue.`);
+    console.log(`No retries left for ${videoId}.${itag}. Removing from the pending queue.`);
     delete pending[id];
     expired.push({ id, videoId, itag });
-    download_count -= 1; // Decrement download count when removing from queue
+    download_count -= 1; // Decrement download count when removing from the pending queue
   }
 };
 
-const checkQueue = () => {
+const checkPendingQueue = () => {
   if (download_count < MAX_DOWNLOADS) {
     const oldestItemId = Object.keys(pending).shift();
     if (oldestItemId) {
@@ -112,7 +112,7 @@ const checkQueue = () => {
         downloadVideo({ id: oldestItemId, videoId, itag });
       } else {
         console.log(
-          `No retries left for ${videoId}.${itag}. Removing from queue.`,
+          `No retries left for ${videoId}.${itag}. Removing from the pending queue.`,
         );
         delete pending[oldestItemId];
         expired.push({ id: oldestItemId, videoId, itag });
@@ -144,15 +144,15 @@ router.get("/youtube/:id/download/:itag", async (ctx) => {
   ctx.body = stream;
 });
 
-router.get("/youtube/:videoId/queue/:itag", async (ctx) => {
+router.get("/youtube/:videoId/pending/:itag", async (ctx) => {
   const { videoId, itag } = ctx.params;
-  console.log(`Adding ${videoId}.${itag} to queue.`);
+  console.log(`Adding ${videoId}.${itag} to the pending queue.`);
   const id = randomUUID();
   const timestamp = new Date().toISOString();
   const retries = MAX_RETRIES;
   pending[id] = { videoId, itag, timestamp, retries };
   ctx.body = {
-    message: "Added to queue.",
+    message: "Added to the pending queue.",
     id,
     videoId,
     itag,
