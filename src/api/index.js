@@ -36,7 +36,7 @@ const uniqueFormats = (formats, sortKey) => {
       sortKey === "audioBitrate"
         ? b[sortKey] - a[sortKey]
         : parseInt(b[sortKey].replace("p", ""), 10) -
-        parseInt(a[sortKey].replace("p", ""), 10),
+          parseInt(a[sortKey].replace("p", ""), 10),
     );
 };
 
@@ -64,7 +64,9 @@ const displayServerStatus = () => {
   process.stdout.write(`Failed: ${Object.keys(failed).length}\n`);
   process.stdout.write(`Expired: ${expired.length}\n`);
   process.stdout.write(`History: ${Object.keys(log).length}\n`);
-  process.stdout.write(`Total: ${Object.keys(pending).length + Object.keys(completed).length + Object.keys(failed).length + expired.length}\n`);
+  process.stdout.write(
+    `Total: ${Object.keys(pending).length + Object.keys(completed).length + Object.keys(failed).length + expired.length}\n`,
+  );
 };
 
 const downloadVideo = async ({ id, videoId, itag }) => {
@@ -98,7 +100,9 @@ const handleDownloadError = (err, id, videoId, itag) => {
     pending[id].retries -= 1;
     console.log(`Retries left for ${videoId}.${itag}: ${pending[id].retries}`);
   } else {
-    console.log(`No retries left for ${videoId}.${itag}. Removing from the pending queue.`);
+    console.log(
+      `No retries left for ${videoId}.${itag}. Removing from the pending queue.`,
+    );
     delete pending[id];
     expired.push({ id, videoId, itag });
     download_count -= 1; // Decrement download count when removing from the pending queue
