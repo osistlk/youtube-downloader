@@ -58,10 +58,13 @@ const setupEventListeners = () => {
 const displayServerStatus = () => {
   process.stdout.write("\x1Bc");
   process.stdout.write("Server is running at http://localhost:3000\n");
-  process.stdout.write(`Pending size: ${Object.keys(pending).length}\n`);
-  process.stdout.write(`History size: ${Object.keys(log).length}\n`);
-  process.stdout.write(`Expired size: ${expired.length}\n`);
-  process.stdout.write(`Current downloads: ${download_count}\n`);
+  process.stdout.write(`Pending: ${Object.keys(pending).length}\n`);
+  process.stdout.write(`Active: ${download_count}\n`);
+  process.stdout.write(`Completed: ${Object.keys(completed).length}\n`);
+  process.stdout.write(`Failed: ${Object.keys(failed).length}\n`);
+  process.stdout.write(`Expired: ${expired.length}\n`);
+  process.stdout.write(`History: ${Object.keys(log).length}\n`);
+  process.stdout.write(`Total: ${Object.keys(pending).length + Object.keys(completed).length + Object.keys(failed).length + expired.length}\n`);
 };
 
 const downloadVideo = async ({ id, videoId, itag }) => {
