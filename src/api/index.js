@@ -20,45 +20,51 @@ const history = [];
 
 // routes
 router.post("/youtube/pending", async (ctx) => {
-  // validate the request body
-  if (!ctx.request.body) {
-    ctx.status = 400;
-    ctx.body = { message: "Request body is required." };
-    return;
-  }
-  // validate the task parameters
-  const { videoId, itag } = ctx.request.body;
-  if (!videoId || !itag) {
-    ctx.status = 400;
-    ctx.body = { message: "videoId and itag are required." };
-    return;
-  }
-  const id = randomUUID();
-  const timestamp = new Date().toISOString();
-  const retries = MAX_RETRIES;
-  const pendingTask = { id, videoId, itag, timestamp, retries };
-  if (pending.length >= MAX_PENDING) {
-    console.log(
-      `Pending queue is full. Cannot add task for video ${videoId} with itag ${itag}.`,
-    );
-    ctx.status = 503;
+  try {
+    // validate the request body
+    if (!ctx.request.body) {
+      ctx.status = 400;
+      ctx.body = { message: "Request body is required." };
+      return;
+    }
+    // validate the task parameters
+    const { videoId, itag } = ctx.request.body;
+    if (!videoId || !itag) {
+      ctx.status = 400;
+      ctx.body = { message: "videoId and itag are required." };
+      return;
+    }
+    const id = randomUUID();
+    const timestamp = new Date().toISOString();
+    const retries = MAX_RETRIES;
+    const pendingTask = { id, videoId, itag, timestamp, retries };
+    if (pending.length >= MAX_PENDING) {
+      console.log(
+        `Pending queue is full. Cannot add task for video ${videoId} with itag ${itag}.`,
+      );
+      ctx.status = 503;
+      ctx.body = {
+        message: "Pending queue is full. Please try again later.",
+        maxPending: MAX_PENDING,
+      };
+      return;
+    }
+    console.log(`Adding ${videoId}.${itag} to the pending queue.`);
+    pending.push(pendingTask);
+    ctx.status = 201;
     ctx.body = {
-      message: "Pending queue is full. Please try again later.",
-      maxPending: MAX_PENDING,
+      message: "Added to the pending queue.",
+      id,
+      videoId,
+      itag,
+      timestamp,
+      retries,
     };
-    return;
+  } catch (error) {
+    console.error("Error while adding task to pending queue:", error);
+    ctx.status = 500;
+    ctx.body = { message: "Internal server error." };
   }
-  console.log(`Adding ${videoId}.${itag} to the pending queue.`);
-  pending.push(pendingTask);
-  ctx.status = 201;
-  ctx.body = {
-    message: "Added to the pending queue.",
-    id,
-    videoId,
-    itag,
-    timestamp,
-    retries,
-  };
 });
 
 router.get("/pending", async (ctx) => {
