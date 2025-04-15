@@ -50,6 +50,22 @@ router.get("/pending", async (ctx) => {
   ctx.body = pending;
 });
 
+router.delete("/pending/:id", async (ctx) => {
+  const { id } = ctx.params;
+  const index = pending.findIndex((task) => task.id === id);
+  if (index === -1) {
+    ctx.status = 404;
+    ctx.body = { message: "Task not found." };
+    return;
+  }
+  pending.splice(index, 1);
+  ctx.body = { message: "Task removed successfully." };
+});
+
+router.get("/seen", async (ctx) => {
+  ctx.body = Object.keys(seen);
+});
+
 router.get("/history", async (ctx) => {
   ctx.body = history;
 });
