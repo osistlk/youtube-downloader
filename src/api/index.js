@@ -5,6 +5,7 @@ const { randomUUID } = require("crypto");
 // constants
 const PORT = 3000;
 const MAX_RETRIES = 3;
+const MAX_PENDING = 3;
 
 const app = new Koa();
 const router = new Router();
@@ -20,6 +21,14 @@ router.get("/youtube/:videoId/pending/:itag", async (ctx) => {
   const timestamp = new Date().toISOString();
   const retries = MAX_RETRIES;
   const pendingTask = { id, videoId, itag, timestamp, retries };
+  if (pending.length >= MAX_PENDING) {
+    ctx.status = 503;
+    ctx.body = {
+      message: "Pending queue is full. Please try again later.",
+      maxPending: MAX_PENDING,
+    };
+    return;
+  }
   pending.push(pendingTask);
   ctx.body = {
     message: "Added to the pending queue.",
