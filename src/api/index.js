@@ -54,15 +54,24 @@ app.listen(PORT, () => {
 });
 
 // process pending tasks
+const seen = new Map();
 setInterval(() => {
   if (pending.length > 0) {
     const task = pending.shift();
+    if (seen.has(task.videoId)) {
+      console.log(
+        `Task for video ${task.videoId} is already being processed. Skipping.`,
+      );
+      return;
+    }
+    seen.set(task.videoId, true);
     console.log(
       `Processing task: ${task.id} for video ${task.videoId} with itag ${task.itag}`,
     );
     // simulate task processing
     setTimeout(() => {
       console.log(`Task ${task.id} completed.`);
+      seen.delete(task.videoId);
     }, 2000);
   }
 }, PENDING_QUEUE_INTERVAL);
