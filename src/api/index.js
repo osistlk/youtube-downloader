@@ -10,7 +10,7 @@ const app = new Koa();
 const router = new Router();
 
 // state
-const pending = new Set();
+const pending = [];
 
 // routes
 router.get("/youtube/:videoId/pending/:itag", async (ctx) => {
@@ -19,7 +19,8 @@ router.get("/youtube/:videoId/pending/:itag", async (ctx) => {
   const id = randomUUID();
   const timestamp = new Date().toISOString();
   const retries = MAX_RETRIES;
-  pending[id] = { videoId, itag, timestamp, retries };
+  const pendingTask = { id, videoId, itag, timestamp, retries };
+  pending.push(pendingTask);
   ctx.body = {
     message: "Added to the pending queue.",
     id,
