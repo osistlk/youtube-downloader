@@ -81,8 +81,13 @@ const downloadVideo = async ({ id, videoId, itag }) => {
     download_count += 1; // Increment download count when starting a download
     stream
       .pipe(fs.createWriteStream(output))
+      .on("open", () => {
+        console.log(`Started downloading ${videoId}.${itag}`);
+        delete pending[id]; // Remove from pending queue on start to prevent reprocessing
+      })
       .on("finish", () => {
-        delete pending[id];
+        delete pending[id]; // Remove from pending queue on start to prevent reprocessing
+        completed[id] = { videoId, itag, output }; // Mark as completed
         log[id] = { videoId, itag, output };
         console.log(`Download finished for ${videoId}.${itag}.${extension}`);
         download_count -= 1; // Decrement download count when download finishes
