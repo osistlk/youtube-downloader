@@ -4,9 +4,9 @@ const { randomUUID } = require("crypto");
 const { koaBody } = require("koa-body");
 
 // constants
-const PENDING_QUEUE_INTERVAL = 500;
+const PENDING_QUEUE_INTERVAL = 0;
 const PORT = 3000;
-const MAX_PENDING = 3;
+const MAX_PENDING = 100;
 const MAX_RETRIES = 3;
 
 // dependencies
