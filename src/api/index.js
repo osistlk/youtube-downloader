@@ -86,11 +86,17 @@ const downloadVideo = async ({ id, videoId, itag }) => {
         log[id] = { videoId, itag, output };
         console.log(`Download finished for ${videoId}.${itag}.${extension}`);
         download_count -= 1; // Decrement download count when download finishes
+        if (pending[id]) {
+          pending[id].retries -= 1; // Decrement retries if an error occurs
+        }
       })
       .on("error", (err) => handleDownloadError(err, id, videoId, itag));
   } catch (err) {
     console.error(`Error downloading ${videoId}.${itag}:`, err);
     download_count -= 1; // Decrement download count if an error occurs
+    if (pending[id]) {
+      pending[id].retries -= 1; // Decrement retries if an error occurs
+    }
   }
 };
 
@@ -107,6 +113,8 @@ const handleDownloadError = (err, id, videoId, itag) => {
     expired.push({ id, videoId, itag });
     download_count -= 1; // Decrement download count when removing from the pending queue
   }
+
+  log.push({ id, videoId, itag, error: err.message });
 };
 
 const checkPendingQueue = () => {
