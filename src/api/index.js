@@ -6,6 +6,7 @@ const { randomUUID } = require("crypto");
 const PORT = 3000;
 const MAX_RETRIES = 3;
 const MAX_PENDING = 3;
+const PENDING_QUEUE_INTERVAL = 1000;
 
 const app = new Koa();
 const router = new Router();
@@ -51,3 +52,17 @@ app.use(router.routes()).use(router.allowedMethods());
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
+
+// process pending tasks
+setInterval(() => {
+  if (pending.length > 0) {
+    const task = pending.shift();
+    console.log(
+      `Processing task: ${task.id} for video ${task.videoId} with itag ${task.itag}`,
+    );
+    // simulate task processing
+    setTimeout(() => {
+      console.log(`Task ${task.id} completed.`);
+    }, 2000);
+  }
+}, PENDING_QUEUE_INTERVAL);
