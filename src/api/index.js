@@ -3,16 +3,17 @@ const Router = require("@koa/router");
 const { randomUUID } = require("crypto");
 
 // constants
-const PORT = 3000;
-const MAX_RETRIES = 3;
-const MAX_PENDING = 3;
 const PENDING_QUEUE_INTERVAL = 1000;
+const PORT = 3000;
+const MAX_PENDING = 3;
+const MAX_RETRIES = 3;
 
 const app = new Koa();
 const router = new Router();
 
 // state
 const pending = [];
+const seen = {};
 
 // routes
 router.get("/youtube/:videoId/pending/:itag", async (ctx) => {
@@ -57,25 +58,25 @@ app.listen(PORT, () => {
 });
 
 // process pending tasks
-const seen = new Map();
 setInterval(() => {
   if (pending.length > 0) {
     const task = pending.shift();
-    if (seen.has(task.videoId)) {
+    if (seen[task.videoId]) {
       console.log(
         `Task for video ${task.videoId} is already being processed. Skipping.`,
       );
       return;
     }
-    seen.set(task.videoId, true);
+    seen[task.videoId] = true;
     console.log(
       `Processing task: ${task.id} for video ${task.videoId} with itag ${task.itag}`,
     );
     // simulate task processing
-    const processingTime = Math.floor(Math.random() * (30000 - 2000 + 1)) + 2000;
+    const processingTime =
+      Math.floor(Math.random() * (30000 - 2000 + 1)) + 2000;
     setTimeout(() => {
       console.log(`Task ${task.id} processed in ${processingTime}ms.`);
-      seen.delete(task.videoId);
+      delete seen[task.videoId];
     }, processingTime);
   }
 }, PENDING_QUEUE_INTERVAL);
