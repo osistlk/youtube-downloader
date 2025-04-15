@@ -81,6 +81,7 @@ setInterval(() => {
       Math.floor(Math.random() * (30000 - 2000 + 1)) + 2000;
     setTimeout(() => {
       console.log(`Task ${task.id} processed in ${processingTime}ms.`);
+      task.completedTimestamp = new Date().toISOString();
       history.push(task);
       delete seen[task.videoId];
     }, processingTime);
