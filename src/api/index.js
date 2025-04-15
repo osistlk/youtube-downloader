@@ -20,6 +20,13 @@ const history = [];
 
 // routes
 router.post("/youtube/pending", async (ctx) => {
+  // validate the request body
+  if (!ctx.request.body) {
+    ctx.status = 400;
+    ctx.body = { message: "Request body is required." };
+    return;
+  }
+  // validate the task parameters
   const { videoId, itag } = ctx.request.body;
   if (!videoId || !itag) {
     ctx.status = 400;
@@ -43,6 +50,7 @@ router.post("/youtube/pending", async (ctx) => {
   }
   console.log(`Adding ${videoId}.${itag} to the pending queue.`);
   pending.push(pendingTask);
+  ctx.status = 201;
   ctx.body = {
     message: "Added to the pending queue.",
     id,
