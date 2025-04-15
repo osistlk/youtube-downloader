@@ -1,13 +1,14 @@
 const Koa = require("koa");
 const Router = require("@koa/router");
-const { randomUUID } = require("crypto");
 const { koaBody } = require("koa-body");
+const ytdl = require("@distube/ytdl-core");
+const { randomUUID } = require("crypto");
+const fs = require("fs");
+const path = require("path");
+
 
 // constants
 const PENDING_QUEUE_INTERVAL = 0;
-const PORT = 3000;
-const MAX_PENDING = 100;
-const MAX_RETRIES = 3;
 
 // dependencies
 const app = new Koa();
@@ -101,10 +102,11 @@ app.listen(PORT, () => {
 });
 
 // process pending tasks
-setInterval(() => {
+setInterval(async () => {
   if (pending.length > 0) {
     const task = pending.shift();
     const taskKey = `${task.videoId}-${task.itag}`; // Unique key for each task
+
     if (seen[taskKey]) {
       console.log(
         `Task for video ${task.videoId} with itag ${task.itag} is already being processed, skipping.`,
@@ -123,14 +125,45 @@ setInterval(() => {
     console.log(
       `Processing task: ${task.id} for video ${task.videoId} with itag ${task.itag}`,
     );
-    // simulate task processing
-    const processingTime =
-      Math.floor(Math.random() * (15000 - 1000 + 1)) + 1000;
-    setTimeout(() => {
-      console.log(`Task ${task.id} processed in ${processingTime}ms.`);
-      task.completedTimestamp = new Date().toISOString();
-      history.push(task);
+
+    const outputFileName = `${task.videoId}_${task.itag}.mp4`;
+    const outputPath = path.join(__dirname, "../../downloads", outputFileName);
+
+    try {
+      // Fetch video info
+      const info = await ytdl.getInfo(
+        `https://www.youtube.com/watch?v=${task.videoId}`,
+      );
+      const format = ytdl.chooseFormat(info.formats, { quality: task.itag });
+
+      if (!format) {
+        throw new Error(`No format found for itag ${task.itag}`);
+      }
+
+      // Create a write stream to save the file
+      const writeStream = fs.createWriteStream(outputPath);
+
+      // Download the video stream
+      ytdl
+        .downloadFromInfo(info, { format })
+        .pipe(writeStream)
+        .on("finish", () => {
+          console.log(`Task ${task.id} completed successfully.`);
+          task.completedTimestamp = new Date().toISOString();
+          history.push(task);
+          delete seen[taskKey]; // Clear the specific task from `seen`
+        })
+        .on("error", (error) => {
+          console.error(`Error processing task ${task.id}:`, error.message);
+          task.error = error.message;
+          task.failedTimestamp = new Date().toISOString();
+          delete seen[taskKey]; // Clear the specific task from `seen`
+        });
+    } catch (error) {
+      console.error(`Error processing task ${task.id}:`, error.message);
+      task.error = error.message;
+      task.failedTimestamp = new Date().toISOString();
       delete seen[taskKey]; // Clear the specific task from `seen`
-    }, processingTime);
+    }
   }
 }, PENDING_QUEUE_INTERVAL);
