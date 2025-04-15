@@ -3,9 +3,9 @@ const Router = require("@koa/router");
 const { randomUUID } = require("crypto");
 
 // constants
-const PENDING_QUEUE_INTERVAL = 1000;
+const PENDING_QUEUE_INTERVAL = 500;
 const PORT = 3000;
-const MAX_PENDING = 10;
+const MAX_PENDING = 3;
 const MAX_RETRIES = 3;
 
 const app = new Koa();
@@ -78,7 +78,7 @@ setInterval(() => {
     );
     // simulate task processing
     const processingTime =
-      Math.floor(Math.random() * (30000 - 2000 + 1)) + 2000;
+      Math.floor(Math.random() * (15000 - 1000 + 1)) + 1000;
     setTimeout(() => {
       console.log(`Task ${task.id} processed in ${processingTime}ms.`);
       task.completedTimestamp = new Date().toISOString();
