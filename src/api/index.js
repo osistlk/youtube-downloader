@@ -16,6 +16,10 @@ const seen = {};
 const history = [];
 
 // routes
+router.put('/ffmeg/pending', async (ctx) => {
+  ctx.body = { message: "ffmeg pending route" };
+});
+
 router.post("/youtube/pending", async (ctx) => {
   try {
     // validate the request body
