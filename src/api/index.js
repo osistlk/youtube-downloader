@@ -17,12 +17,14 @@ const pending = [];
 // routes
 router.get("/youtube/:videoId/pending/:itag", async (ctx) => {
   const { videoId, itag } = ctx.params;
-  console.log(`Adding ${videoId}.${itag} to the pending queue.`);
   const id = randomUUID();
   const timestamp = new Date().toISOString();
   const retries = MAX_RETRIES;
   const pendingTask = { id, videoId, itag, timestamp, retries };
   if (pending.length >= MAX_PENDING) {
+    console.log(
+      `Pending queue is full. Cannot add task for video ${videoId} with itag ${itag}.`,
+    );
     ctx.status = 503;
     ctx.body = {
       message: "Pending queue is full. Please try again later.",
@@ -30,6 +32,7 @@ router.get("/youtube/:videoId/pending/:itag", async (ctx) => {
     };
     return;
   }
+  console.log(`Adding ${videoId}.${itag} to the pending queue.`);
   pending.push(pendingTask);
   ctx.body = {
     message: "Added to the pending queue.",
@@ -70,7 +73,7 @@ setInterval(() => {
     );
     // simulate task processing
     setTimeout(() => {
-      console.log(`Task ${task.id} completed.`);
+      console.log(`Task ${task.id} processed.`);
       seen.delete(task.videoId);
     }, 2000);
   }
