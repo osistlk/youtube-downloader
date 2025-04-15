@@ -5,7 +5,7 @@ const { randomUUID } = require("crypto");
 // constants
 const PENDING_QUEUE_INTERVAL = 1000;
 const PORT = 3000;
-const MAX_PENDING = 3;
+const MAX_PENDING = 10;
 const MAX_RETRIES = 3;
 
 const app = new Koa();
@@ -14,6 +14,7 @@ const router = new Router();
 // state
 const pending = [];
 const seen = {};
+const history = [];
 
 // routes
 router.get("/youtube/:videoId/pending/:itag", async (ctx) => {
@@ -49,6 +50,10 @@ router.get("/pending", async (ctx) => {
   ctx.body = pending;
 });
 
+router.get("/history", async (ctx) => {
+  ctx.body = history;
+});
+
 // cors
 app.use(router.routes()).use(router.allowedMethods());
 
@@ -76,6 +81,7 @@ setInterval(() => {
       Math.floor(Math.random() * (30000 - 2000 + 1)) + 2000;
     setTimeout(() => {
       console.log(`Task ${task.id} processed in ${processingTime}ms.`);
+      history.push(task);
       delete seen[task.videoId];
     }, processingTime);
   }
