@@ -8,6 +8,7 @@ const PORT = 3000;
 const MAX_PENDING = 3;
 const MAX_RETRIES = 3;
 
+// dependencies
 const app = new Koa();
 const router = new Router();
 
@@ -82,9 +83,10 @@ app.listen(PORT, () => {
 setInterval(() => {
   if (pending.length > 0) {
     const task = pending.shift();
-    if (seen[task.videoId]) {
+    const taskKey = `${task.videoId}-${task.itag}`; // Unique key for each task
+    if (seen[taskKey]) {
       console.log(
-        `Task for video ${task.videoId} is already being processed, skipping.`,
+        `Task for video ${task.videoId} with itag ${task.itag} is already being processed, skipping.`,
       );
       return;
     }
@@ -96,7 +98,7 @@ setInterval(() => {
       );
       return;
     }
-    seen[task.videoId] = true;
+    seen[taskKey] = true;
     console.log(
       `Processing task: ${task.id} for video ${task.videoId} with itag ${task.itag}`,
     );
@@ -107,7 +109,7 @@ setInterval(() => {
       console.log(`Task ${task.id} processed in ${processingTime}ms.`);
       task.completedTimestamp = new Date().toISOString();
       history.push(task);
-      delete seen[task.videoId];
+      delete seen[taskKey]; // Clear the specific task from `seen`
     }, processingTime);
   }
 }, PENDING_QUEUE_INTERVAL);
