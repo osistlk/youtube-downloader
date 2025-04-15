@@ -68,7 +68,15 @@ setInterval(() => {
     const task = pending.shift();
     if (seen[task.videoId]) {
       console.log(
-        `Task for video ${task.videoId} is already being processed. Skipping.`,
+        `Task for video ${task.videoId} is already being processed, skipping..`,
+      );
+      return;
+    }
+    if (
+      history.some((t) => t.videoId === task.videoId && t.itag === task.itag)
+    ) {
+      console.log(
+        `Task for video ${task.videoId} with itag ${task.itag} is already completed, skipping..`,
       );
       return;
     }
