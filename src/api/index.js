@@ -72,9 +72,10 @@ setInterval(() => {
       `Processing task: ${task.id} for video ${task.videoId} with itag ${task.itag}`,
     );
     // simulate task processing
+    const processingTime = Math.floor(Math.random() * (30000 - 2000 + 1)) + 2000;
     setTimeout(() => {
-      console.log(`Task ${task.id} processed.`);
+      console.log(`Task ${task.id} processed in ${processingTime}ms.`);
       seen.delete(task.videoId);
-    }, 2000);
+    }, processingTime);
   }
 }, PENDING_QUEUE_INTERVAL);
