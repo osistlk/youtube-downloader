@@ -1,3 +1,5 @@
-for i in {1..7}; do
-    curl -X GET localhost:3000/youtube/WEb-TmacK-c/pending/137 | python3 -m json.tool
+for i in {1..1}; do
+    curl -X POST localhost:3000/youtube/pending \
+        -H "Content-Type: application/json" \
+        -d '{"videoId": "WEb-TmacK-c", "itag": 137}' | python3 -m json.tool
 done

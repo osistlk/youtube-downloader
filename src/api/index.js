@@ -1,6 +1,7 @@
 const Koa = require("koa");
 const Router = require("@koa/router");
 const { randomUUID } = require("crypto");
+const { koaBody } = require("koa-body");
 
 // constants
 const PENDING_QUEUE_INTERVAL = 500;
@@ -18,8 +19,13 @@ const seen = {};
 const history = [];
 
 // routes
-router.get("/youtube/:videoId/pending/:itag", async (ctx) => {
-  const { videoId, itag } = ctx.params;
+router.post("/youtube/pending", async (ctx) => {
+  const { videoId, itag } = ctx.request.body;
+  if (!videoId || !itag) {
+    ctx.status = 400;
+    ctx.body = { message: "videoId and itag are required." };
+    return;
+  }
   const id = randomUUID();
   const timestamp = new Date().toISOString();
   const retries = MAX_RETRIES;
@@ -71,7 +77,8 @@ router.get("/history", async (ctx) => {
   ctx.body = history;
 });
 
-// cors
+// body & cors
+app.use(koaBody({ multipart: true }));
 app.use(router.routes()).use(router.allowedMethods());
 
 // app start
