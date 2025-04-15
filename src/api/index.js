@@ -6,10 +6,6 @@ const { randomUUID } = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
-
-// constants
-const PENDING_QUEUE_INTERVAL = 0;
-
 // dependencies
 const app = new Koa();
 const router = new Router();
@@ -37,19 +33,7 @@ router.post("/youtube/pending", async (ctx) => {
     }
     const id = randomUUID();
     const timestamp = new Date().toISOString();
-    const retries = MAX_RETRIES;
-    const pendingTask = { id, videoId, itag, timestamp, retries };
-    if (pending.length >= MAX_PENDING) {
-      console.log(
-        `Pending queue is full. Cannot add task for video ${videoId} with itag ${itag}.`,
-      );
-      ctx.status = 503;
-      ctx.body = {
-        message: "Pending queue is full. Please try again later.",
-        maxPending: MAX_PENDING,
-      };
-      return;
-    }
+    const pendingTask = { id, videoId, itag, timestamp };
     console.log(`Adding ${videoId}.${itag} to the pending queue.`);
     pending.push(pendingTask);
     ctx.status = 201;
@@ -59,7 +43,6 @@ router.post("/youtube/pending", async (ctx) => {
       videoId,
       itag,
       timestamp,
-      retries,
     };
   } catch (error) {
     console.error("Error while adding task to pending queue:", error);
@@ -97,8 +80,8 @@ app.use(koaBody({ multipart: true }));
 app.use(router.routes()).use(router.allowedMethods());
 
 // app start
-app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+app.listen(3000, () => {
+  console.log(`Server is running at http://localhost:3000`);
 });
 
 // process pending tasks
@@ -166,4 +149,4 @@ setInterval(async () => {
       delete seen[taskKey]; // Clear the specific task from `seen`
     }
   }
-}, PENDING_QUEUE_INTERVAL);
+});
