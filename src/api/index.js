@@ -46,6 +46,13 @@ router.get("/youtube/:id/info/formats", async (ctx) => {
         return matchesVideo && matchesAudio && matchesHeight;
       });
       return;
+    } else if (ctx.query.audio) {
+      ctx.body = formats.filter(
+        (format) =>
+          format.audio === (ctx.query.audio === "true") &&
+          format.video === false,
+      );
+      return;
     }
     ctx.body = formats;
   } catch (error) {
