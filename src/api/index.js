@@ -29,18 +29,21 @@ router.get("/youtube/:id/info/formats", async (ctx) => {
       quality: format.qualityLabel,
       type: format.mimeType,
       container: format.container,
+      video: format.hasVideo,
+      audio: format.hasAudio,
       audioBitrate: format.audioBitrate,
       videoBitrate: format.bitrate,
       width: format.width,
       height: format.height,
       fps: format.fps,
     }));
-    if (ctx.query.type || ctx.query.height) {
-      const { type, height } = ctx.query;
+    if (ctx.query.video && ctx.query.height) {
+      const { video, height } = ctx.query;
       ctx.body = formats.filter((format) => {
-        const matchesType = type ? format.type.includes(type) : true;
+        const matchesVideo = format.video === (video === "true");
+        const matchesAudio = format.audio === false;
         const matchesHeight = height ? format.height == height : true;
-        return matchesType && matchesHeight;
+        return matchesVideo && matchesAudio && matchesHeight;
       });
       return;
     }
