@@ -16,8 +16,40 @@ const seen = {};
 const history = [];
 
 // routes
-router.put('/ffmeg/pending', async (ctx) => {
+router.put("/ffmeg/pending", async (ctx) => {
   ctx.body = { message: "ffmeg pending route" };
+});
+
+router.get("/youtube/:id/info/formats", async (ctx) => {
+  const { id } = ctx.params;
+  try {
+    const info = await ytdl.getInfo(`https://www.youtube.com/watch?v=${id}`);
+    const formats = info.formats.map((format) => ({
+      itag: format.itag,
+      quality: format.qualityLabel,
+      type: format.mimeType,
+      container: format.container,
+      audioBitrate: format.audioBitrate,
+      videoBitrate: format.bitrate,
+      width: format.width,
+      height: format.height,
+      fps: format.fps,
+    }));
+    if (ctx.query.type || ctx.query.height) {
+      const { type, height } = ctx.query;
+      ctx.body = formats.filter((format) => {
+        const matchesType = type ? format.type.includes(type) : true;
+        const matchesHeight = height ? format.height == height : true;
+        return matchesType && matchesHeight;
+      });
+      return;
+    }
+    ctx.body = formats;
+  } catch (error) {
+    console.error("Error fetching video info:", error);
+    ctx.status = 500;
+    ctx.body = { message: "Internal server error." };
+  }
 });
 
 router.post("/youtube/pending", async (ctx) => {
@@ -114,7 +146,11 @@ setInterval(async () => {
     );
 
     const outputFileName = `${task.videoId}_${task.itag}.mp4`;
-    const outputPath = path.join(__dirname, "../../downloads", outputFileName);
+    const DOWNLOADS_DIR = path.join(__dirname, "../../downloads");
+    if (!fs.existsSync(DOWNLOADS_DIR)) {
+      fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
+    }
+    const outputPath = path.join(DOWNLOADS_DIR, outputFileName);
 
     try {
       // Fetch video info
