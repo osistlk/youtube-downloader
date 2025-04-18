@@ -121,6 +121,14 @@ router.get("/history", async (ctx) => {
   ctx.body = history;
 });
 
+router.get("/", async (ctx) => {
+  ctx.type = "text/html";
+  ctx.body = fs.readFileSync(
+    path.join(__dirname, "../web/index.html"),
+    "utf-8"
+  );
+});
+
 // body & cors
 app.use(koaBody({ multipart: true }));
 app.use(router.routes()).use(router.allowedMethods());
