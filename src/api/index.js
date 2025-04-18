@@ -125,7 +125,7 @@ router.get("/", async (ctx) => {
   ctx.type = "text/html";
   ctx.body = fs.readFileSync(
     path.join(__dirname, "../web/index.html"),
-    "utf-8"
+    "utf-8",
   );
 });
 

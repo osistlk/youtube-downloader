@@ -1,75 +1,86 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>YouTube Downloader Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>YouTube Downloader</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-
-<body>
+  <body>
     <header>
-        <h3>Queue status</h3>
+      <h3>Queue statuses</h3>
     </header>
     <main>
-        <p>Pending tasks will be displayed here.</p>
-        <ul id="pending-tasks"></ul>
-        <section>
-            <h3>Seen Videos</h3>
-            <ul id="seen-videos"></ul>
-        </section>
-        <section>
-            <h3>History</h3>
-            <ul id="history"></ul>
-        </section>
+      <ul>
+        <li>
+          <h3>Pending Tasks</h3>
+          <ul id="pending-tasks"></ul>
+        </li>
+        <li>
+          <h3>Seen Videos</h3>
+          <ul id="seen-videos"></ul>
+        </li>
+        <li>
+          <h3>History</h3>
+          <ul id="history"></ul>
+        </li>
+      </ul>
     </main>
     <footer>
-        <p>&copy;
-            <script>document.write(new Date().getFullYear());</script> Jackie Daytona Company
-        </p>
+      <p>
+        &copy;
+        <script>
+          document.write(new Date().getFullYear());
+        </script>
+        Jackie Daytona Company
+      </p>
     </footer>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const fetchData = (url, elementId, formatter) => {
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        const list = document.getElementById(elementId);
-                        list.innerHTML = ''; // Clear the list before updating
-                        data.forEach(item => {
-                            const listItem = document.createElement('li');
-                            listItem.textContent = formatter(item);
-                            list.appendChild(listItem);
-                        });
-                    })
-                    .catch(error => console.error(`Error fetching ${elementId}:`, error));
-            };
-
-            const fetchPendingTasks = () => fetchData(
-                'http://localhost:3000/pending',
-                'pending-tasks',
-                task => task.name
+      document.addEventListener("DOMContentLoaded", () => {
+        const fetchData = (url, elementId, formatter) => {
+          fetch(url)
+            .then((response) => response.json())
+            .then((data) => {
+              const list = document.getElementById(elementId);
+              list.innerHTML = ""; // Clear the list before updating
+              data.forEach((item) => {
+                const listItem = document.createElement("li");
+                listItem.textContent = formatter(item);
+                list.appendChild(listItem);
+              });
+            })
+            .catch((error) =>
+              console.error(`Error fetching ${elementId}:`, error),
             );
+        };
 
-            const fetchSeenVideos = () => fetchData(
-                'http://localhost:3000/seen',
-                'seen-videos',
-                video => video
-            );
+        const fetchPendingTasks = () =>
+          fetchData(
+            "http://localhost:3000/pending",
+            "pending-tasks",
+            (task) => task.name,
+          );
 
-            const fetchHistory = () => fetchData(
-                'http://localhost:3000/history',
-                'history',
-                task => `${task.videoId} - ${task.itag}`
-            );
+        const fetchSeenVideos = () =>
+          fetchData(
+            "http://localhost:3000/seen",
+            "seen-videos",
+            (video) => video,
+          );
 
-            setInterval(fetchPendingTasks, 1000);
-            setInterval(fetchSeenVideos, 1000);
-            setInterval(fetchHistory, 1000);
-        });
+        const fetchHistory = () =>
+          fetchData(
+            "http://localhost:3000/history",
+            "history",
+            (task) => `${task.videoId} - ${task.itag}`,
+          );
+
+        setInterval(fetchPendingTasks, 1000);
+        setInterval(fetchSeenVideos, 1000);
+        setInterval(fetchHistory, 1000);
+      });
     </script>
-</body>
-
+  </body>
 </html>
