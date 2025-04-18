@@ -11,17 +11,29 @@
 
 <body>
     <header>
-        <h1>Welcome</h1>
+        <h3>Queue status</h3>
     </header>
     <main>
-        <p>This is a generic modern HTML template.</p>
+        <p>Pending tasks will be displayed here.</p>
+        <ul id="pending-tasks"></ul>
     </main>
     <footer>
-        <p>&copy; 2023 Your Company</p>
+        <p>&copy;
+            <script>document.write(new Date().getFullYear());</script> Jackie Daytona Company
+        </p>
     </footer>
     <script>
-        // Add your JavaScript code here
-        console.log('Script loaded successfully.');
+        fetch('http://localhost:3000/pending')
+            .then(response => response.json())
+            .then(data => {
+                const pendingTasksList = document.getElementById('pending-tasks');
+                data.forEach(task => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = task.name;
+                    pendingTasksList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error fetching pending tasks:', error));
     </script>
 </body>
 
