@@ -134,18 +134,30 @@
     </header>
     <main>
         <div style="margin-bottom: 20px;"></div>
+        <div id="error-message" style="display: none; color: red; margin-bottom: 10px;"></div>
         <form id="video-form">
             <input type="text" id="video-id" placeholder="Enter Video ID" required />
             <button type="submit" id="fetch-formats">Fetch Formats</button>
         </form>
-        <ul id="video-formats"></ul>
+        <ul id="formats-container" class="flex-row">
+            <li>
+                <h3>Video Formats</h3>
+                <ul id="video-formats"></ul>
+            </li>
+            <li>
+                <h3>Audio Formats</h3>
+                <ul id="audio-formats"></ul>
+            </li>
+        </ul>
         </div>
 
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 const form = document.getElementById("video-form");
                 const videoIdInput = document.getElementById("video-id");
-                const formatsList = document.getElementById("video-formats");
+                const formatsContainer = document.getElementById("formats-container");
+                const videoFormatsList = document.getElementById("video-formats");
+                const audioFormatsList = document.getElementById("audio-formats");
 
                 form.addEventListener("submit", (event) => {
                     event.preventDefault();
@@ -160,19 +172,31 @@
                                 return response.json();
                             })
                             .then((formats) => {
-                                formatsList.innerHTML = ""; // Clear the list before updating
+                                videoFormatsList.innerHTML = ""; // Clear the video list
+                                audioFormatsList.innerHTML = ""; // Clear the audio list
+
                                 const uniqueFormats = Array.from(
                                     new Map(formats.map((format) => [format.itag, format])).values()
                                 );
+
                                 uniqueFormats.forEach((format) => {
                                     const listItem = document.createElement("li");
-                                    listItem.textContent = `${format.itag} - ${format.quality} - ${format.type}`;
-                                    formatsList.appendChild(listItem);
+                                    listItem.textContent = `${format.itag} - ${format.quality || "N/A"} - ${format.type}`;
+                                    if (format.video) {
+                                        videoFormatsList.appendChild(listItem);
+                                    } else if (format.audio) {
+                                        audioFormatsList.appendChild(listItem);
+                                    }
                                 });
                             })
                             .catch((error) => {
-                                console.error("Error fetching video formats:", error);
-                                formatsList.innerHTML = "<li>Error fetching formats</li>";
+                                const errorMessage = "Error fetching formats. Please try again.";
+                                const errorContainer = document.getElementById("error-message");
+                                if (errorContainer) {
+                                    errorContainer.textContent = errorMessage;
+                                    errorContainer.style.display = "block";
+                                }
+                                audioFormatsList.innerHTML = "<li>Error fetching formats</li>";
                             });
                     }
                 });
