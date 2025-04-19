@@ -193,7 +193,13 @@
 
         form.addEventListener("submit", (event) => {
           event.preventDefault();
-          const videoId = videoIdInput.value.trim();
+          let videoId = videoIdInput.value.trim();
+
+          // Parse video ID from URL if input is a YouTube URL
+          const urlMatch = videoId.match(/(?:\?|\&)v=([^&]+)/);
+          if (urlMatch) {
+            videoId = urlMatch[1];
+          }
 
           if (videoId) {
             fetch(`http://localhost:3000/youtube/${videoId}/info/formats`)
