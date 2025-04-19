@@ -161,7 +161,10 @@
                             })
                             .then((formats) => {
                                 formatsList.innerHTML = ""; // Clear the list before updating
-                                formats.forEach((format) => {
+                                const uniqueFormats = Array.from(
+                                    new Map(formats.map((format) => [format.itag, format])).values()
+                                );
+                                uniqueFormats.forEach((format) => {
                                     const listItem = document.createElement("li");
                                     listItem.textContent = `${format.itag} - ${format.quality} - ${format.type}`;
                                     formatsList.appendChild(listItem);
