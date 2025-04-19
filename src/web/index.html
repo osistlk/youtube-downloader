@@ -182,6 +182,12 @@
         cursor: pointer;
         margin-top: 10px;
       }
+
+      #error-message {
+        display: none;
+        color: red;
+        margin-bottom: 10px;
+      }
     </style>
   </head>
 
@@ -191,10 +197,7 @@
     </header>
     <main>
       <div style="margin-bottom: 20px"></div>
-      <div
-        id="error-message"
-        style="display: none; color: red; margin-bottom: 10px"
-      ></div>
+      <div id="error-message"></div>
       <form id="video-form">
         <input
           type="text"
@@ -234,191 +237,204 @@
     </main>
     <div id="snackbar"></div>
     <footer>
-      <p>
-        &copy;
-        <script>
-          document.write(new Date().getFullYear());
-        </script>
-        Jackie Daytona Company
-      </p>
+      <p>&copy; <span id="current-year"></span> Jackie Daytona Company</p>
     </footer>
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const form = document.getElementById("video-form");
-        const videoIdInput = document.getElementById("video-id");
-        const videoFormatsList = document.getElementById("video-formats");
-        const audioFormatsList = document.getElementById("audio-formats");
-        const addToPendingButton = document.getElementById("add-to-pending");
+      const BASE_URL = window.BASE_URL || "http://localhost:3000";
 
-        form.addEventListener("submit", (event) => {
-          event.preventDefault();
-          let videoId = videoIdInput.value.trim();
-
-          // Parse video ID from URL if input is a YouTube URL
-          const urlMatch = videoId.match(/(?:\?|\&)v=([^&]+)/);
-          if (urlMatch) {
-            videoId = urlMatch[1];
-          }
-
-          if (videoId) {
-            showSnackbar("Fetching formats...");
-            fetch(`http://localhost:3000/youtube/${videoId}/info/formats`)
-              .then((response) => {
-                if (!response.ok) {
-                  throw new Error("Failed to fetch video formats");
-                }
-                return response.json();
-              })
-              .then((formats) => {
-                videoFormatsList.innerHTML = ""; // Clear the video list
-                audioFormatsList.innerHTML = ""; // Clear the audio list
-
-                const uniqueFormats = Array.from(
-                  new Map(
-                    formats.map((format) => [format.itag, format]),
-                  ).values(),
-                );
-
-                const filteredAndSortedFormats = uniqueFormats
-                  .filter((format) => format.video && format.height >= 1080)
-                  .sort((a, b) => Number(b.itag) - Number(a.itag));
-
-                filteredAndSortedFormats.forEach((format) => {
-                  const listItem = document.createElement("li");
-                  listItem.innerHTML = `
-                                    <label>
-                                        <input type="checkbox" class="format-checkbox" data-video-id="${videoId}" data-itag="${format.itag}" />
-                                        ${format.itag} - ${format.quality || "N/A"} - ${format.type}
-                                    </label>`;
-                  videoFormatsList.appendChild(listItem);
-                });
-
-                const audioOnlyFormats = uniqueFormats
-                  .filter((format) => format.audio && !format.video)
-                  .sort((a, b) => Number(b.itag) - Number(a.itag));
-
-                audioOnlyFormats.forEach((format) => {
-                  const listItem = document.createElement("li");
-                  listItem.innerHTML = `
-                                    <label>
-                                        <input type="checkbox" class="format-checkbox" data-video-id="${videoId}" data-itag="${format.itag}" />
-                                        ${format.itag} - ${format.quality || "N/A"} - ${format.type}
-                                    </label>`;
-                  audioFormatsList.appendChild(listItem);
-                });
-                showSnackbar("Formats fetched successfully.");
-              })
-              .catch((error) => {
-                const errorMessage =
-                  "Error fetching formats. Please try again.";
-                const errorContainer = document.getElementById("error-message");
-                if (errorContainer) {
-                  errorContainer.textContent = errorMessage;
-                  errorContainer.style.display = "block";
-                }
-                videoFormatsList.innerHTML = ""; // Clear the video list
-                audioFormatsList.innerHTML = ""; // Clear the audio list
-                showSnackbar("Failed to fetch formats.");
-              });
-          }
-        });
-
-        const showSnackbar = (message) => {
+      const showSnackbar = (message) => {
           const snackbar = document.getElementById("snackbar");
           snackbar.textContent = message;
           snackbar.className = "show";
           setTimeout(() => {
-            snackbar.className = snackbar.className.replace("show", "");
+              snackbar.className = snackbar.className.replace("show", "");
           }, 3000);
-        };
+      };
 
-        addToPendingButton.addEventListener("click", () => {
-          const selectedCheckboxes = document.querySelectorAll(
-            ".format-checkbox:checked",
-          );
-          const tasks = Array.from(selectedCheckboxes).map((checkbox) => ({
-            videoId: checkbox.dataset.videoId,
-            itag: checkbox.dataset.itag,
-          }));
+      document.addEventListener("DOMContentLoaded", () => {
+          form.addEventListener("submit", (event) => {
+              event.preventDefault();
+              const videoId = videoIdInput.value.trim();
 
-          if (tasks.length > 0) {
-            tasks.forEach((task) => {
-              fetch("http://localhost:3000/youtube/pending", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(task),
-              })
-                .then((response) => {
-                  if (!response.ok) {
-                    throw new Error(
-                      `Failed to add format ${task.itag} to pending`,
-                    );
+              if (!videoId) {
+                  const errorContainer = document.getElementById("error-message");
+                  errorContainer.textContent = "Please enter a valid Video ID.";
+                  errorContainer.style.display = "block";
+                  return;
+              }
+
+              // Hide error message if input is valid
+              const errorContainer = document.getElementById("error-message");
+              errorContainer.style.display = "none";
+              const videoIdInput = document.getElementById("video-id");
+              const videoFormatsList = document.getElementById("video-formats");
+              const audioFormatsList = document.getElementById("audio-formats");
+              const addToPendingButton = document.getElementById("add-to-pending");
+
+              form.addEventListener("submit", (event) => {
+                  event.preventDefault();
+                  let videoId = videoIdInput.value.trim();
+
+                  // Parse video ID from URL if input is a YouTube URL
+                  const urlMatch = videoId.match(/(?:\?|\&)v=([^&]+)/);
+                  if (urlMatch) {
+                      videoId = urlMatch[1];
                   }
-                  return response.json();
-                })
-                .then((data) => {
-                  console.log(
-                    `Successfully added format ${task.itag} to pending:`,
-                    data,
-                  );
-                })
-                .catch((error) => {
-                  console.error(
-                    `Error adding format ${task.itag} to pending:`,
-                    error,
-                  );
-                });
-            });
-            showSnackbar("Selected formats added to pending queue.");
-          } else {
-            showSnackbar("No formats selected.");
-          }
-        });
 
-        const fetchData = (url, elementId, formatter) => {
-          fetch(url)
-            .then((response) => response.json())
-            .then((data) => {
-              const list = document.getElementById(elementId);
-              list.innerHTML = ""; // Clear the list before updating
-              data.forEach((item) => {
-                const listItem = document.createElement("li");
-                listItem.textContent = formatter(item);
-                list.appendChild(listItem);
+                  if (videoId) {
+                      showSnackbar("Fetching formats...");
+                      fetch(`${BASE_URL}/youtube/${videoId}/info/formats`)
+                          .then((response) => {
+                              if (!response.ok) {
+                                  throw new Error("Failed to fetch video formats");
+                              }
+                              return response.json();
+                          })
+                          .then((formats) => {
+                              videoFormatsList.innerHTML = ""; // Clear the video list
+                              audioFormatsList.innerHTML = ""; // Clear the audio list
+
+                              const uniqueFormats = Array.from(
+                                  new Map(
+                                      formats.map((format) => [format.itag, format]),
+                                  ).values(),
+                              );
+                              const formatMap = new Map();
+                              for (const format of formats) {
+                                  if (!formatMap.has(format.itag)) {
+                                      formatMap.set(format.itag, format);
+                                  }
+                              }
+                              const uniqueFormats = Array.from(formatMap.values());
+                              filteredAndSortedFormats.forEach((format) => {
+                                  const listItem = document.createElement("li");
+                                  listItem.innerHTML = `
+                                  <label>
+                                      <input type="checkbox" class="format-checkbox" data-video-id="${videoId}" data-itag="${format.itag}" />
+                                      ${format.itag} - ${format.quality || "N/A"} - ${format.type}
+                                  </label>`;
+                                  videoFormatsList.appendChild(listItem);
+                              });
+
+                              const audioOnlyFormats = uniqueFormats
+                                  .filter((format) => format.audio && !format.video)
+                                  .sort((a, b) => Number(b.itag) - Number(a.itag));
+
+                              audioOnlyFormats.forEach((format) => {
+                                  const listItem = document.createElement("li");
+                                  listItem.innerHTML = `
+                                  <label>
+                                      <input type="checkbox" class="format-checkbox" data-video-id="${videoId}" data-itag="${format.itag}" />
+                                      ${format.itag} - ${format.quality || "N/A"} - ${format.type}
+                                  </label>`;
+                                  audioFormatsList.appendChild(listItem);
+                              });
+                              showSnackbar("Formats fetched successfully.");
+                          })
+                          .catch((error) => {
+                              const errorMessage =
+                                  "Error fetching formats. Please try again.";
+                              const errorContainer = document.getElementById("error-message");
+                              if (errorContainer) {
+                                  errorContainer.textContent = errorMessage;
+                                  errorContainer.style.display = "block";
+                              }
+                              videoFormatsList.innerHTML = ""; // Clear the video list
+                              audioFormatsList.innerHTML = ""; // Clear the audio list
+                              showSnackbar("Failed to fetch formats.");
+                          });
+                  }
               });
-            })
-            .catch((error) =>
-              console.error(`Error fetching ${elementId}:`, error),
-            );
-        };
 
-        const fetchPendingTasks = () =>
-          fetchData(
-            "http://localhost:3000/pending",
-            "pending-tasks",
-            (task) => task.name,
-          );
+              addToPendingButton.addEventListener("click", () => {
+                  const selectedCheckboxes = document.querySelectorAll(
+                      ".format-checkbox:checked",
+                  );
+                  const tasks = Array.from(selectedCheckboxes).map((checkbox) => ({
+                      videoId: checkbox.dataset.videoId,
+                      itag: checkbox.dataset.itag,
+                  }));
 
-        const fetchSeenVideos = () =>
-          fetchData(
-            "http://localhost:3000/seen",
-            "seen-videos",
-            (video) => video,
-          );
+                  if (tasks.length > 0) {
+                      tasks.forEach((task) => {
+                          fetch("http://localhost:3000/youtube/pending", {
+                              method: "POST",
+                              headers: {
+                                  "Content-Type": "application/json",
+                              },
+                              body: JSON.stringify(task),
+                          })
+                              .then(async (response) => {
+                                  if (!response.ok) {
+                                      const errorData = await response.json();
+                                      throw new Error(
+                                          errorData.message || `Failed to add format ${task.itag} to pending`,
+                                      );
+                                  }
+                                  return response.json();
+                              })
+                              .then((data) => {
+                                  console.log(
+                                      `Successfully added format ${task.itag} to pending:`,
+                                      data,
+                                  );
+                              })
+                              .catch((error) => {
+                                  console.error(
+                                      `Error adding format ${task.itag} to pending:`,
+                                      error.message,
+                                  );
+                                  showSnackbar(`Error: ${error.message}`);
+                              });
+                      });
+                      showSnackbar("Selected formats added to pending queue.");
+                  } else {
+                      showSnackbar("No formats selected.");
+                  }
+                  const fetchData = (url, element, formatter) => {
+                      fetch(url)
+                          .then((response) => response.json())
+                          .then((data) => {
+                              element.innerHTML = ""; // Clear the list before updating
+                              data.forEach((item) => {
+                                  const listItem = document.createElement("li");
+                                  listItem.textContent = formatter(item);
+                                  element.appendChild(listItem);
+                              });
+                          })
+                          .catch((error) =>
+                              console.error(`Error fetching data for element:`, error),
+                          );
+                  };
 
-        const fetchHistory = () =>
-          fetchData(
-            "http://localhost:3000/history",
-            "history",
-            (task) => `${task.videoId} - ${task.itag}`,
-          );
+                  const fetchPendingTasks = () =>
+                      fetchData(
+                          "http://localhost:3000/pending",
+                          document.getElementById("pending-tasks"),
+                          (task) => task.name,
+                      );
 
-        setInterval(fetchPendingTasks, 1000);
-        setInterval(fetchSeenVideos, 1000);
-        setInterval(fetchHistory, 1000);
-      });
+                  const fetchSeenVideos = () =>
+                      fetchData(
+                          "http://localhost:3000/seen",
+                          document.getElementById("seen-videos"),
+                          (video) => video,
+                      );
+
+                  const fetchHistory = () =>
+                      fetchData(
+                          "http://localhost:3000/history",
+                          document.getElementById("history"),
+                          (task) => `${task.videoId} - ${task.itag}`,
+                      );
+                  (task) => `${task.videoId} - ${task.itag}`,
+              );
+
+              setInterval(fetchPendingTasks, 1000);
+              const POLLING_INTERVAL = 5000; // Increase interval to 5 seconds
+              setInterval(fetchPendingTasks, POLLING_INTERVAL);
+              setInterval(fetchSeenVideos, POLLING_INTERVAL);
+              document.getElementById("current-year").textContent = new Date().getFullYear();
     </script>
   </body>
 </html>
