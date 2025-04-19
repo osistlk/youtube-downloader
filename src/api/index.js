@@ -160,6 +160,18 @@ setInterval(async () => {
       return;
     }
     seen[taskKey] = true;
+
+    // Set a timeout to remove the task from `seen` after 5 minutes
+    const timeout = setTimeout(
+      () => {
+        console.warn(
+          `Task for video ${task.videoId} with itag ${task.itag} timed out. Removing from seen.`,
+        );
+        delete seen[taskKey];
+      },
+      5 * 60 * 1000,
+    ); // 5 minutes
+
     console.log(
       `Processing task: ${task.id} for video ${task.videoId} with itag ${task.itag}`,
     );
@@ -194,18 +206,21 @@ setInterval(async () => {
           task.completedTimestamp = new Date().toISOString();
           history.push(task);
           delete seen[taskKey]; // Clear the specific task from `seen`
+          clearTimeout(timeout); // Clear the timeout
         })
         .on("error", (error) => {
           console.error(`Error processing task ${task.id}:`, error.message);
           task.error = error.message;
           task.failedTimestamp = new Date().toISOString();
           delete seen[taskKey]; // Clear the specific task from `seen`
+          clearTimeout(timeout); // Clear the timeout
         });
     } catch (error) {
       console.error(`Error processing task ${task.id}:`, error.message);
       task.error = error.message;
       task.failedTimestamp = new Date().toISOString();
       delete seen[taskKey]; // Clear the specific task from `seen`
+      clearTimeout(timeout); // Clear the timeout
     }
   }
 });
