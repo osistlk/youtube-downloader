@@ -136,7 +136,7 @@
         <div style="margin-bottom: 20px;"></div>
         <form id="video-form">
             <input type="text" id="video-id" placeholder="Enter Video ID" required />
-            <button type="submit">Fetch Formats</button>
+            <button type="submit" id="fetch-formats">Fetch Formats</button>
         </form>
         <ul id="video-formats"></ul>
         </div>
@@ -152,19 +152,25 @@
                     const videoId = videoIdInput.value.trim();
 
                     if (videoId) {
-                        fetch(`http://localhost:3000/formats/${videoId}`)
-                            .then((response) => response.json())
+                        fetch(`http://localhost:3000/youtube/${videoId}/info/formats`)
+                            .then((response) => {
+                                if (!response.ok) {
+                                    throw new Error("Failed to fetch video formats");
+                                }
+                                return response.json();
+                            })
                             .then((formats) => {
                                 formatsList.innerHTML = ""; // Clear the list before updating
                                 formats.forEach((format) => {
                                     const listItem = document.createElement("li");
-                                    listItem.textContent = `${format.itag} - ${format.mimeType}`;
+                                    listItem.textContent = `${format.itag} - ${format.quality} - ${format.type}`;
                                     formatsList.appendChild(listItem);
                                 });
                             })
-                            .catch((error) =>
-                                console.error("Error fetching video formats:", error),
-                            );
+                            .catch((error) => {
+                                console.error("Error fetching video formats:", error);
+                                formatsList.innerHTML = "<li>Error fetching formats</li>";
+                            });
                     }
                 });
             });
