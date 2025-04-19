@@ -155,7 +155,6 @@
             document.addEventListener("DOMContentLoaded", () => {
                 const form = document.getElementById("video-form");
                 const videoIdInput = document.getElementById("video-id");
-                const formatsContainer = document.getElementById("formats-container");
                 const videoFormatsList = document.getElementById("video-formats");
                 const audioFormatsList = document.getElementById("audio-formats");
 
@@ -179,14 +178,24 @@
                                     new Map(formats.map((format) => [format.itag, format])).values()
                                 );
 
-                                uniqueFormats.forEach((format) => {
+                                const filteredAndSortedFormats = uniqueFormats
+                                    .filter((format) => format.video && format.height >= 1080)
+                                    .sort((a, b) => Number(b.itag) - Number(a.itag));
+
+                                filteredAndSortedFormats.forEach((format) => {
                                     const listItem = document.createElement("li");
                                     listItem.textContent = `${format.itag} - ${format.quality || "N/A"} - ${format.type}`;
-                                    if (format.video) {
-                                        videoFormatsList.appendChild(listItem);
-                                    } else if (format.audio) {
-                                        audioFormatsList.appendChild(listItem);
-                                    }
+                                    videoFormatsList.appendChild(listItem);
+                                });
+
+                                const audioOnlyFormats = uniqueFormats
+                                    .filter((format) => format.audio && !format.video)
+                                    .sort((a, b) => Number(b.itag) - Number(a.itag));
+
+                                audioOnlyFormats.forEach((format) => {
+                                    const listItem = document.createElement("li");
+                                    listItem.textContent = `${format.itag} - ${format.quality || "N/A"} - ${format.type}`;
+                                    audioFormatsList.appendChild(listItem);
                                 });
                             })
                             .catch((error) => {
@@ -196,7 +205,14 @@
                                     errorContainer.textContent = errorMessage;
                                     errorContainer.style.display = "block";
                                 }
-                                audioFormatsList.innerHTML = "<li>Error fetching formats</li>";
+                                videoFormatsList.innerHTML = "<li>Error fetching formats</li>";
+                                const errorContainer = document.getElementById("error-message");
+                                if (errorContainer) {
+                                    errorContainer.textContent = "Error fetching formats. Please try again.";
+                                    errorContainer.style.display = "block";
+                                }
+                                videoFormatsList.innerHTML = ""; // Clear the video list
+                                audioFormatsList.innerHTML = ""; // Clear the audio list
                             });
                     }
                 });
