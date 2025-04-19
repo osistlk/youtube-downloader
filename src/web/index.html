@@ -124,6 +124,54 @@
       ul.flex-row h3 {
         margin-bottom: 10px;
       }
+
+      #snackbar {
+        visibility: hidden;
+        min-width: 250px;
+        margin-left: -125px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 10px;
+        position: fixed;
+        z-index: 1;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 1rem;
+      }
+
+      #snackbar.show {
+        visibility: visible;
+        animation:
+          fadein 0.5s,
+          fadeout 0.5s 2.5s;
+      }
+
+      @keyframes fadein {
+        from {
+          bottom: 0;
+          opacity: 0;
+        }
+
+        to {
+          bottom: 30px;
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeout {
+        from {
+          bottom: 30px;
+          opacity: 1;
+        }
+
+        to {
+          bottom: 0;
+          opacity: 0;
+        }
+      }
     </style>
   </head>
 
@@ -174,6 +222,7 @@
         </li>
       </ul>
     </main>
+    <div id="snackbar"></div>
     <footer>
       <p>
         &copy;
@@ -261,6 +310,15 @@
           }
         });
 
+        const showSnackbar = (message) => {
+          const snackbar = document.getElementById("snackbar");
+          snackbar.textContent = message;
+          snackbar.className = "show";
+          setTimeout(() => {
+            snackbar.className = snackbar.className.replace("show", "");
+          }, 3000);
+        };
+
         addToPendingButton.addEventListener("click", () => {
           const selectedCheckboxes = document.querySelectorAll(
             ".format-checkbox:checked",
@@ -300,9 +358,9 @@
                   );
                 });
             });
-            alert("Selected formats added to pending queue.");
+            showSnackbar("Selected formats added to pending queue.");
           } else {
-            alert("No formats selected.");
+            showSnackbar("No formats selected.");
           }
         });
 
