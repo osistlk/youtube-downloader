@@ -13,6 +13,49 @@
         <h3>Queue statuses</h3>
     </header>
     <main>
+        <div style="margin-bottom: 20px;"></div>
+        <form id="video-form" style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" id="video-id" placeholder="Enter Video ID"
+                style="flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #333; background-color: #1f1f1f; color: #e0e0e0;"
+                required />
+            <button type="submit"
+                style="padding: 10px 20px; border: none; border-radius: 5px; background-color: #bb86fc; color: #121212; cursor: pointer;">
+                Fetch Formats
+            </button>
+        </form>
+        <ul id="video-formats"
+            style="margin-top: 10px; padding: 10px; background-color: #1f1f1f; border-radius: 5px; border: 1px solid #333;">
+        </ul>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const form = document.getElementById("video-form");
+                const videoIdInput = document.getElementById("video-id");
+                const formatsList = document.getElementById("video-formats");
+
+                form.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const videoId = videoIdInput.value.trim();
+
+                    if (videoId) {
+                        fetch(`http://localhost:3000/formats/${videoId}`)
+                            .then((response) => response.json())
+                            .then((formats) => {
+                                formatsList.innerHTML = ""; // Clear the list before updating
+                                formats.forEach((format) => {
+                                    const listItem = document.createElement("li");
+                                    listItem.textContent = `${format.itag} - ${format.mimeType}`;
+                                    formatsList.appendChild(listItem);
+                                });
+                            })
+                            .catch((error) =>
+                                console.error("Error fetching video formats:", error),
+                            );
+                    }
+                });
+            });
+        </script>
         <ul style="display: flex; flex-direction: row; gap: 20px; padding: 0;">
             <li style="flex: 1;">
                 <h3>Pending Tasks</h3>
