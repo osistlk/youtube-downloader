@@ -1,356 +1,347 @@
 <!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>YouTube Downloader Dashboard</title>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-        }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: #e0e0e0;
+      }
 
-        header {
-            background-color: #1f1f1f;
-            padding: 10px 20px;
-            text-align: center;
-            border-bottom: 1px solid #333;
-        }
+      header {
+        background-color: #1f1f1f;
+        padding: 10px 20px;
+        text-align: center;
+        border-bottom: 1px solid #333;
+      }
 
-        header h3 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
+      header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+      }
 
-        main {
-            padding: 20px;
-        }
+      main {
+        padding: 20px;
+      }
 
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
 
-        li {
-            margin-bottom: 15px;
-        }
+      li {
+        margin-bottom: 15px;
+      }
 
-        h3 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            color: #bb86fc;
-        }
+      h3 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: #bb86fc;
+      }
 
-        #pending-tasks,
-        #seen-videos,
-        #history {
-            background-color: #1f1f1f;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #333;
-        }
+      #pending-tasks,
+      #seen-videos,
+      #history {
+        background-color: #1f1f1f;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #333;
+      }
 
-        footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #1f1f1f;
-            text-align: center;
-            padding: 10px;
-            border-top: 1px solid #333;
-            color: #e0e0e0;
-        }
+      footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #1f1f1f;
+        text-align: center;
+        padding: 10px;
+        border-top: 1px solid #333;
+        color: #e0e0e0;
+      }
 
-        footer p {
-            margin: 0;
-            font-size: 0.9rem;
-        }
+      footer p {
+        margin: 0;
+        font-size: 0.9rem;
+      }
 
-        a {
-            color: #bb86fc;
-            text-decoration: none;
-        }
+      a {
+        color: #bb86fc;
+        text-decoration: none;
+      }
 
-        a:hover {
-            text-decoration: underline;
-        }
+      a:hover {
+        text-decoration: underline;
+      }
 
-        #video-form {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+      #video-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
 
-        #video-id {
-            flex: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #333;
-            background-color: #1f1f1f;
-            color: #e0e0e0;
-        }
+      #video-id {
+        flex: 1;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #333;
+        background-color: #1f1f1f;
+        color: #e0e0e0;
+      }
 
-        #video-form button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #bb86fc;
-            color: #121212;
-            cursor: pointer;
-        }
+      #video-form button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #bb86fc;
+        color: #121212;
+        cursor: pointer;
+      }
 
-        #video-formats {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #1f1f1f;
-            border-radius: 5px;
-            border: 1px solid #333;
-        }
+      #video-formats {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #1f1f1f;
+        border-radius: 5px;
+        border: 1px solid #333;
+      }
 
-        ul.flex-row {
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-            padding: 0;
-        }
+      ul.flex-row {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        padding: 0;
+      }
 
-        ul.flex-row li {
-            flex: 1;
-        }
+      ul.flex-row li {
+        flex: 1;
+      }
 
-        ul.flex-row h3 {
-            margin-bottom: 10px;
-        }
+      ul.flex-row h3 {
+        margin-bottom: 10px;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <header>
-        <h3>Queue statuses</h3>
+      <h3>Queue statuses</h3>
     </header>
     <main>
-        <div style="margin-bottom: 20px"></div>
-        <div id="error-message" style="display: none; color: red; margin-bottom: 10px"></div>
-        <form id="video-form">
-            <input type="text" id="video-id" placeholder="Enter Video ID" required />
-            <button type="submit" id="fetch-formats">Fetch Formats</button>
-        </form>
-        <ul id="formats-container" class="flex-row">
-            <li>
-                <h3>Video Formats</h3>
-                <ul id="video-formats"></ul>
-            </li>
-            <li>
-                <h3>Audio Formats</h3>
-                <ul id="audio-formats"></ul>
-            </li>
-        </ul>
-        <button id="add-to-pending" style="margin-top: 10px">
-            Add formats to pending
-            <button id="add-to-pending" type="button" style="margin-top: 10px">
-            </button>
-
-            <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                    const form = document.getElementById("video-form");
-                    const videoIdInput = document.getElementById("video-id");
-                    const videoFormatsList = document.getElementById("video-formats");
-                    const audioFormatsList = document.getElementById("audio-formats");
-                    const addToPendingButton = document.getElementById("add-to-pending");
-
-                    form.addEventListener("submit", (event) => {
-                        event.preventDefault();
-                        const videoId = videoIdInput.value.trim();
-
-                        if (videoId) {
-                            fetch(`http://localhost:3000/youtube/${videoId}/info/formats`)
-                                .then((response) => {
-                                    if (!response.ok) {
-                                        throw new Error("Failed to fetch video formats");
-                                    }
-                                    return response.json();
-                                })
-                                .then((formats) => {
-                                    videoFormatsList.innerHTML = ""; // Clear the video list
-                                    audioFormatsList.innerHTML = ""; // Clear the audio list
-
-                                    const uniqueFormats = Array.from(
-                                        new Map(
-                                            formats.map((format) => [format.itag, format]),
-                                        ).values(),
-                                    );
-
-                                    const filteredAndSortedFormats = uniqueFormats
-                                        .filter((format) => format.video && format.height >= 1080)
-                                        .sort((a, b) => Number(b.itag) - Number(a.itag));
-
-                                    filteredAndSortedFormats.forEach((format) => {
-                                        const listItem = document.createElement("li");
-                                        listItem.innerHTML = `
-                      <label>
-                        <input type="checkbox" class="format-checkbox" data-video-id="${videoId}" data-itag="${format.itag}" />
-                        ${format.itag} - ${format.quality || "N/A"} - ${format.type}
-                      </label>`;
-                                        const listItem = document.createElement("li");
-                                        const label = document.createElement("label");
-                                        const checkbox = document.createElement("input");
-                                        checkbox.type = "checkbox";
-                                        checkbox.className = "format-checkbox";
-                                        checkbox.dataset.videoId = videoId;
-                                        checkbox.dataset.itag = format.itag;
-
-                                        const text = document.createTextNode(
-                                            `${format.itag} - ${format.quality || "N/A"} - ${format.type}`
-                                        );
-
-                                        label.appendChild(checkbox);
-                                        label.appendChild(text);
-                                        listItem.appendChild(label);
-                                        videoFormatsList.appendChild(listItem);
-                                        audioOnlyFormats.forEach((format) => {
-                                            const listItem = document.createElement("li");
-                                            listItem.innerHTML = `
-                      <label>
-                        <input type="checkbox" class="format-checkbox" data-video-id="${videoId}" data-itag="${format.itag}" />
-                        ${format.itag} - ${format.quality || "N/A"} - ${format.type}
-                      </label>`;
-                                            audioFormatsList.appendChild(listItem);
-                                        });
-                                    })
-                                        .catch((error) => {
-                                            const errorMessage =
-                                                "Error fetching formats. Please try again.";
-                                            const errorContainer =
-                                                document.getElementById("error-message");
-                                            if (errorContainer) {
-                                                errorContainer.textContent = errorMessage;
-                                                errorContainer.style.display = "block";
-                                            }
-                                            videoFormatsList.innerHTML = ""; // Clear the video list
-                                            audioFormatsList.innerHTML = ""; // Clear the audio list
-                                        });
-                                }
-                    });
-
-                    addToPendingButton.addEventListener("click", () => {
-                        const selectedCheckboxes = document.querySelectorAll(
-                            ".format-checkbox:checked",
-                        );
-                        const tasks = Array.from(selectedCheckboxes).map((checkbox) => ({
-                            videoId: checkbox.dataset.videoId,
-                            itag: checkbox.dataset.itag,
-                        }));
-
-                        if (tasks.length > 0) {
-                            tasks.forEach((task) => {
-                                fetch("http://localhost:3000/youtube/pending", {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify(task),
-                                })
-                                    .then((response) => {
-                                        if (!response.ok) {
-                                            throw new Error(
-                                                `Failed to add format ${task.itag} to pending`,
-                                            );
-                                        }
-                                        return response.json();
-                                    })
-                                    .then((data) => {
-                                        console.log(
-                                            `Successfully added format ${task.itag} to pending:`,
-                                            data,
-                                        );
-                                    })
-                                    .catch((error) => {
-                                        console.error(
-                                            `Error adding format ${task.itag} to pending:`,
-                                            error,
-                                        );
-                                    });
-                            });
-                            alert("Selected formats added to pending queue.");
-                        } else {
-                            alert("No formats selected.");
-                        }
-                    });
-                });
-            </script>
-            <ul class="flex-row">
-                <li>
-                    <h3>Pending Tasks</h3>
-                    <ul id="pending-tasks"></ul>
-                </li>
-                <li>
-                    <h3>Seen Videos</h3>
-                    <ul id="seen-videos"></ul>
-                </li>
-                <li>
-                    <h3>History</h3>
-                    <ul id="history"></ul>
-                </li>
-            </ul>
+      <div style="margin-bottom: 20px"></div>
+      <div
+        id="error-message"
+        style="display: none; color: red; margin-bottom: 10px"
+      ></div>
+      <form id="video-form">
+        <input
+          type="text"
+          id="video-id"
+          placeholder="Enter Video ID"
+          required
+        />
+        <button type="submit" id="fetch-formats">Fetch Formats</button>
+      </form>
+      <ul id="formats-container" class="flex-row">
+        <li>
+          <h3>Video Formats</h3>
+          <ul id="video-formats"></ul>
+        </li>
+        <li>
+          <h3>Audio Formats</h3>
+          <ul id="audio-formats"></ul>
+        </li>
+      </ul>
+      <button id="add-to-pending" type="button" style="margin-top: 10px">
+        Add formats to pending
+      </button>
+      <ul class="flex-row">
+        <li>
+          <h3>Pending Tasks</h3>
+          <ul id="pending-tasks"></ul>
+        </li>
+        <li>
+          <h3>Seen Videos</h3>
+          <ul id="seen-videos"></ul>
+        </li>
+        <li>
+          <h3>History</h3>
+          <ul id="history"></ul>
+        </li>
+      </ul>
     </main>
     <footer>
-        <p>
-            &copy;
-            <script>
-                document.write(new Date().getFullYear());
-            </script>
-            Jackie Daytona Company
-        </p>
+      <p>
+        &copy;
+        <script>
+          document.write(new Date().getFullYear());
+        </script>
+        Jackie Daytona Company
+      </p>
     </footer>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const fetchData = (url, elementId, formatter) => {
-                fetch(url)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        const list = document.getElementById(elementId);
-                        list.innerHTML = ""; // Clear the list before updating
-                        data.forEach((item) => {
-                            const listItem = document.createElement("li");
-                            listItem.textContent = formatter(item);
-                            list.appendChild(listItem);
-                        });
-                    })
-                    .catch((error) =>
-                        console.error(`Error fetching ${elementId}:`, error),
-                    );
-            };
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("video-form");
+        const videoIdInput = document.getElementById("video-id");
+        const videoFormatsList = document.getElementById("video-formats");
+        const audioFormatsList = document.getElementById("audio-formats");
+        const addToPendingButton = document.getElementById("add-to-pending");
 
-            const fetchPendingTasks = () =>
-                fetchData(
-                    "http://localhost:3000/pending",
-                    "pending-tasks",
-                    (task) => task.name,
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const videoId = videoIdInput.value.trim();
+
+          if (videoId) {
+            fetch(`http://localhost:3000/youtube/${videoId}/info/formats`)
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error("Failed to fetch video formats");
+                }
+                return response.json();
+              })
+              .then((formats) => {
+                videoFormatsList.innerHTML = ""; // Clear the video list
+                audioFormatsList.innerHTML = ""; // Clear the audio list
+
+                const uniqueFormats = Array.from(
+                  new Map(
+                    formats.map((format) => [format.itag, format]),
+                  ).values(),
                 );
 
-            const fetchSeenVideos = () =>
-                fetchData(
-                    "http://localhost:3000/seen",
-                    "seen-videos",
-                    (video) => video,
-                );
+                const filteredAndSortedFormats = uniqueFormats
+                  .filter((format) => format.video && format.height >= 1080)
+                  .sort((a, b) => Number(b.itag) - Number(a.itag));
 
-            const fetchHistory = () =>
-                fetchData(
-                    "http://localhost:3000/history",
-                    "history",
-                    (task) => `${task.videoId} - ${task.itag}`,
-                );
+                filteredAndSortedFormats.forEach((format) => {
+                  const listItem = document.createElement("li");
+                  listItem.innerHTML = `
+                                    <label>
+                                        <input type="checkbox" class="format-checkbox" data-video-id="${videoId}" data-itag="${format.itag}" />
+                                        ${format.itag} - ${format.quality || "N/A"} - ${format.type}
+                                    </label>`;
+                  videoFormatsList.appendChild(listItem);
+                });
 
-            setInterval(fetchPendingTasks, 1000);
-            setInterval(fetchSeenVideos, 1000);
-            setInterval(fetchHistory, 1000);
+                const audioOnlyFormats = uniqueFormats
+                  .filter((format) => format.audio && !format.video)
+                  .sort((a, b) => Number(b.itag) - Number(a.itag));
+
+                audioOnlyFormats.forEach((format) => {
+                  const listItem = document.createElement("li");
+                  listItem.innerHTML = `
+                                    <label>
+                                        <input type="checkbox" class="format-checkbox" data-video-id="${videoId}" data-itag="${format.itag}" />
+                                        ${format.itag} - ${format.quality || "N/A"} - ${format.type}
+                                    </label>`;
+                  audioFormatsList.appendChild(listItem);
+                });
+              })
+              .catch((error) => {
+                const errorMessage =
+                  "Error fetching formats. Please try again.";
+                const errorContainer = document.getElementById("error-message");
+                if (errorContainer) {
+                  errorContainer.textContent = errorMessage;
+                  errorContainer.style.display = "block";
+                }
+                videoFormatsList.innerHTML = ""; // Clear the video list
+                audioFormatsList.innerHTML = ""; // Clear the audio list
+              });
+          }
         });
-    </script>
-</body>
 
+        addToPendingButton.addEventListener("click", () => {
+          const selectedCheckboxes = document.querySelectorAll(
+            ".format-checkbox:checked",
+          );
+          const tasks = Array.from(selectedCheckboxes).map((checkbox) => ({
+            videoId: checkbox.dataset.videoId,
+            itag: checkbox.dataset.itag,
+          }));
+
+          if (tasks.length > 0) {
+            tasks.forEach((task) => {
+              fetch("http://localhost:3000/youtube/pending", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(task),
+              })
+                .then((response) => {
+                  if (!response.ok) {
+                    throw new Error(
+                      `Failed to add format ${task.itag} to pending`,
+                    );
+                  }
+                  return response.json();
+                })
+                .then((data) => {
+                  console.log(
+                    `Successfully added format ${task.itag} to pending:`,
+                    data,
+                  );
+                })
+                .catch((error) => {
+                  console.error(
+                    `Error adding format ${task.itag} to pending:`,
+                    error,
+                  );
+                });
+            });
+            alert("Selected formats added to pending queue.");
+          } else {
+            alert("No formats selected.");
+          }
+        });
+
+        const fetchData = (url, elementId, formatter) => {
+          fetch(url)
+            .then((response) => response.json())
+            .then((data) => {
+              const list = document.getElementById(elementId);
+              list.innerHTML = ""; // Clear the list before updating
+              data.forEach((item) => {
+                const listItem = document.createElement("li");
+                listItem.textContent = formatter(item);
+                list.appendChild(listItem);
+              });
+            })
+            .catch((error) =>
+              console.error(`Error fetching ${elementId}:`, error),
+            );
+        };
+
+        const fetchPendingTasks = () =>
+          fetchData(
+            "http://localhost:3000/pending",
+            "pending-tasks",
+            (task) => task.name,
+          );
+
+        const fetchSeenVideos = () =>
+          fetchData(
+            "http://localhost:3000/seen",
+            "seen-videos",
+            (video) => video,
+          );
+
+        const fetchHistory = () =>
+          fetchData(
+            "http://localhost:3000/history",
+            "history",
+            (task) => `${task.videoId} - ${task.itag}`,
+          );
+
+        setInterval(fetchPendingTasks, 1000);
+        setInterval(fetchSeenVideos, 1000);
+        setInterval(fetchHistory, 1000);
+      });
+    </script>
+  </body>
 </html>
