@@ -23,6 +23,7 @@ router.put("/ffmeg/pending", async (ctx) => {
 router.get("/youtube/:id/info/formats", async (ctx) => {
   const { id } = ctx.params;
   try {
+    console.log(`Fetching formats for video ID: ${id}`); // Log for debugging
     const info = await ytdl.getInfo(`https://www.youtube.com/watch?v=${id}`);
     const formats = info.formats.map((format) => ({
       itag: format.itag,

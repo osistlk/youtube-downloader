@@ -251,6 +251,7 @@
           }
 
           if (videoId) {
+            showSnackbar("Fetching formats...");
             fetch(`http://localhost:3000/youtube/${videoId}/info/formats`)
               .then((response) => {
                 if (!response.ok) {
@@ -295,6 +296,7 @@
                                     </label>`;
                   audioFormatsList.appendChild(listItem);
                 });
+                showSnackbar("Formats fetched successfully.");
               })
               .catch((error) => {
                 const errorMessage =
@@ -306,6 +308,7 @@
                 }
                 videoFormatsList.innerHTML = ""; // Clear the video list
                 audioFormatsList.innerHTML = ""; // Clear the audio list
+                showSnackbar("Failed to fetch formats.");
               });
           }
         });
