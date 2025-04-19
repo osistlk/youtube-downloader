@@ -4,8 +4,8 @@
   "description": "download youtube video/audio streams and output with FFmpeg sans ads",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "serve": "node --watch --inspect index.js",
+    "start": "node src/api/index.js",
+    "serve": "node --watch --inspect src/api/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
