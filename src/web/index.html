@@ -1,258 +1,255 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>YouTube Downloader Dashboard</title>
-    <style>
-      body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background-color: #121212;
-        color: #e0e0e0;
-      }
 
-      header {
-        background-color: #1f1f1f;
-        padding: 10px 20px;
-        text-align: center;
-        border-bottom: 1px solid #333;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>YouTube Downloader Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
 
-      header h3 {
-        margin: 0;
-        font-size: 1.5rem;
-      }
+    header {
+      background-color: #1f1f1f;
+      padding: 10px 20px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+    }
 
-      main {
-        padding: 20px;
-      }
+    header h3 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
 
-      ul {
-        list-style-type: none;
-        padding: 0;
-      }
+    main {
+      padding: 20px;
+    }
 
-      li {
-        margin-bottom: 15px;
-      }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
 
-      h3 {
-        font-size: 1.2rem;
-        margin-bottom: 10px;
-        color: #bb86fc;
-      }
+    li {
+      margin-bottom: 15px;
+    }
 
-      #pending-tasks,
-      #seen-videos,
-      #history {
-        background-color: #1f1f1f;
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #333;
-      }
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #bb86fc;
+    }
 
-      footer {
-        position: fixed;
+    #pending-tasks,
+    #seen-videos,
+    #history {
+      background-color: #1f1f1f;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #333;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #1f1f1f;
+      text-align: center;
+      padding: 10px;
+      border-top: 1px solid #333;
+      color: #e0e0e0;
+    }
+
+    footer p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    a {
+      color: #bb86fc;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    #video-form {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #video-id {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #333;
+      background-color: #1f1f1f;
+      color: #e0e0e0;
+    }
+
+    #video-form button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #bb86fc;
+      color: #121212;
+      cursor: pointer;
+    }
+
+    #video-formats {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #1f1f1f;
+      border-radius: 5px;
+      border: 1px solid #333;
+    }
+
+    ul.flex-row {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      padding: 0;
+    }
+
+    ul.flex-row li {
+      flex: 1;
+    }
+
+    ul.flex-row h3 {
+      margin-bottom: 10px;
+    }
+
+    #snackbar {
+      visibility: hidden;
+      min-width: 250px;
+      margin-left: -125px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+      padding: 10px;
+      position: fixed;
+      z-index: 1;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1rem;
+    }
+
+    #snackbar.show {
+      visibility: visible;
+      animation:
+        fadein 0.5s,
+        fadeout 0.5s 2.5s;
+    }
+
+    @keyframes fadein {
+      from {
         bottom: 0;
-        width: 100%;
-        background-color: #1f1f1f;
-        text-align: center;
-        padding: 10px;
-        border-top: 1px solid #333;
-        color: #e0e0e0;
+        opacity: 0;
       }
 
-      footer p {
-        margin: 0;
-        font-size: 0.9rem;
-      }
-
-      a {
-        color: #bb86fc;
-        text-decoration: none;
-      }
-
-      a:hover {
-        text-decoration: underline;
-      }
-
-      #video-form {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-
-      #video-id {
-        flex: 1;
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #333;
-        background-color: #1f1f1f;
-        color: #e0e0e0;
-      }
-
-      #video-form button {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        background-color: #bb86fc;
-        color: #121212;
-        cursor: pointer;
-      }
-
-      #video-formats {
-        margin-top: 10px;
-        padding: 10px;
-        background-color: #1f1f1f;
-        border-radius: 5px;
-        border: 1px solid #333;
-      }
-
-      ul.flex-row {
-        display: flex;
-        flex-direction: row;
-        gap: 20px;
-        padding: 0;
-      }
-
-      ul.flex-row li {
-        flex: 1;
-      }
-
-      ul.flex-row h3 {
-        margin-bottom: 10px;
-      }
-
-      #snackbar {
-        visibility: hidden;
-        min-width: 250px;
-        margin-left: -125px;
-        background-color: #333;
-        color: #fff;
-        text-align: center;
-        border-radius: 5px;
-        padding: 10px;
-        position: fixed;
-        z-index: 1;
+      to {
         bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 1rem;
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeout {
+      from {
+        bottom: 30px;
+        opacity: 1;
       }
 
-      #snackbar.show {
-        visibility: visible;
-        animation:
-          fadein 0.5s,
-          fadeout 0.5s 2.5s;
+      to {
+        bottom: 0;
+        opacity: 0;
       }
+    }
 
-      @keyframes fadein {
-        from {
-          bottom: 0;
-          opacity: 0;
-        }
+    #add-to-pending {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #bb86fc;
+      color: #121212;
+      cursor: pointer;
+      margin-top: 10px;
+    }
 
-        to {
-          bottom: 30px;
-          opacity: 1;
-        }
-      }
+    #error-message {
+      display: none;
+      color: red;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
 
-      @keyframes fadeout {
-        from {
-          bottom: 30px;
-          opacity: 1;
-        }
+<body>
+  <header>
+    <h3>Queue statuses</h3>
+  </header>
+  <main>
+    <div style="margin-bottom: 20px"></div>
+    <div id="error-message"></div>
+    <form id="video-form">
+      <input type="text" id="video-id" placeholder="Enter Video ID" required />
+      <button type="submit" id="fetch-formats">Fetch Formats</button>
+    </form>
+    <ul id="formats-container" class="flex-row">
+      <li>
+        <h3>Video Formats</h3>
+        <ul id="video-formats"></ul>
+      </li>
+      <li>
+        <h3>Audio Formats</h3>
+        <ul id="audio-formats"></ul>
+      </li>
+    </ul>
+    <button id="add-to-pending" type="button" style="margin-top: 10px">
+      Add formats to pending
+    </button>
+    <ul class="flex-row">
+      <li>
+        <h3>Pending Tasks</h3>
+        <ul id="pending-tasks"></ul>
+      </li>
+      <li>
+        <h3>Seen Videos</h3>
+        <ul id="seen-videos"></ul>
+      </li>
+      <li>
+        <h3>History</h3>
+        <ul id="history"></ul>
+      </li>
+    </ul>
+  </main>
+  <div id="snackbar"></div>
+  <footer>
+    <p>&copy; <span id="current-year"></span> Jackie Daytona Company</p>
+  </footer>
+  <script>
+    document
+      .addEventListener("DOMContentLoaded", () => {
+        const POLLING_INTERVAL = 1000; // Define polling interval at the top
+        const BASE_URL = window.BASE_URL || "http://localhost:3000";
 
-        to {
-          bottom: 0;
-          opacity: 0;
-        }
-      }
+        const showSnackbar = (message) => {
+          const snackbar = document.getElementById("snackbar");
+          snackbar.textContent = message;
+          snackbar.className = "show";
+          setTimeout(() => {
+            snackbar.className = snackbar.className.replace("show", "");
+          }, 3000);
+        };
 
-      #add-to-pending {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        background-color: #bb86fc;
-        color: #121212;
-        cursor: pointer;
-        margin-top: 10px;
-      }
-
-      #error-message {
-        display: none;
-        color: red;
-        margin-bottom: 10px;
-      }
-    </style>
-  </head>
-
-  <body>
-    <header>
-      <h3>Queue statuses</h3>
-    </header>
-    <main>
-      <div style="margin-bottom: 20px"></div>
-      <div id="error-message"></div>
-      <form id="video-form">
-        <input
-          type="text"
-          id="video-id"
-          placeholder="Enter Video ID"
-          required
-        />
-        <button type="submit" id="fetch-formats">Fetch Formats</button>
-      </form>
-      <ul id="formats-container" class="flex-row">
-        <li>
-          <h3>Video Formats</h3>
-          <ul id="video-formats"></ul>
-        </li>
-        <li>
-          <h3>Audio Formats</h3>
-          <ul id="audio-formats"></ul>
-        </li>
-      </ul>
-      <button id="add-to-pending" type="button" style="margin-top: 10px">
-        Add formats to pending
-      </button>
-      <ul class="flex-row">
-        <li>
-          <h3>Pending Tasks</h3>
-          <ul id="pending-tasks"></ul>
-        </li>
-        <li>
-          <h3>Seen Videos</h3>
-          <ul id="seen-videos"></ul>
-        </li>
-        <li>
-          <h3>History</h3>
-          <ul id="history"></ul>
-        </li>
-      </ul>
-    </main>
-    <div id="snackbar"></div>
-    <footer>
-      <p>&copy; <span id="current-year"></span> Jackie Daytona Company</p>
-    </footer>
-    <script>
-      const POLLING_INTERVAL = 1000; // Define polling interval at the top
-      const BASE_URL = window.BASE_URL || "http://localhost:3000";
-
-      const showSnackbar = (message) => {
-        const snackbar = document.getElementById("snackbar");
-        snackbar.textContent = message;
-        snackbar.className = "show";
-        setTimeout(() => {
-          snackbar.className = snackbar.className.replace("show", "");
-        }, 3000);
-      };
-
-      document.addEventListener("DOMContentLoaded", () => {
         const form = document.getElementById("video-form");
         const videoIdInput = document.getElementById("video-id");
         const addToPendingButton = document.getElementById("add-to-pending");
@@ -261,7 +258,9 @@
           let videoId = videoIdInput.value.trim();
 
           // Parse video ID from URL if input is a YouTube URL
-          const urlMatch = videoId.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+          const urlMatch = videoId.match(
+            /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+          );
           if (urlMatch) {
             videoId = urlMatch[1];
           }
@@ -278,7 +277,8 @@
           errorContainer.style.display = "none";
           const videoFormatsList = document.getElementById("video-formats");
           const audioFormatsList = document.getElementById("audio-formats");
-          const addToPendingButton = document.getElementById("add-to-pending");
+          const addToPendingButton =
+            document.getElementById("add-to-pending");
 
           if (videoId) {
             if (videoId) {
@@ -326,113 +326,115 @@
                 audioFormatsList.appendChild(listItem);
               });
               showSnackbar("Formats fetched successfully.");
-            })
-          .catch((error) => {
-            const errorMessage =
-              "Error fetching formats. Please try again.";
-            const errorContainer = document.getElementById("error-message");
-            if (errorContainer) {
-              errorContainer.textContent = errorMessage;
-              errorContainer.style.display = "block";
             }
-            videoFormatsList.innerHTML = ""; // Clear the video list
-            audioFormatsList.innerHTML = ""; // Clear the audio list
-            showSnackbar("Failed to fetch formats.");
-          });
+          } // Closing the if statement for videoId
+        });
+      })
+      .catch((error) => {
+        const errorMessage = "Error fetching formats. Please try again.";
+        const errorContainer = document.getElementById("error-message");
+        if (errorContainer) {
+          errorContainer.textContent = errorMessage;
+          errorContainer.style.display = "block";
+        }
+        videoFormatsList.innerHTML = ""; // Clear the video list
+        audioFormatsList.innerHTML = ""; // Clear the audio list
+        showSnackbar("Failed to fetch formats.");
       });
 
-      addToPendingButton.addEventListener("click", () => {
-        const selectedCheckboxes = document.querySelectorAll(
-          ".format-checkbox:checked"
-        );
-        const tasks = Array.from(selectedCheckboxes).map((checkbox) => ({
-          videoId: checkbox.dataset.videoId,
-          itag: checkbox.dataset.itag,
-        }));
+    addToPendingButton.addEventListener("click", () => {
+      const selectedCheckboxes = document.querySelectorAll(
+        ".format-checkbox:checked",
+      );
+      const tasks = Array.from(selectedCheckboxes).map((checkbox) => ({
+        videoId: checkbox.dataset.videoId,
+        itag: checkbox.dataset.itag,
+      }));
 
-        if (tasks.length > 0) {
-          const errors = [];
-          const promises = tasks.map((task) =>
-            fetch(`${BASE_URL}/youtube/pending`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(task),
-            })
-              .then(async (response) => {
-                if (!response.ok) {
-                  const errorData = await response.json();
-                  throw new Error(
-                    errorData.message ||
-                    `Failed to add format ${task.itag} to pending`,
-                  );
-                }
-                return response.json();
-              })
-              .catch((error) => {
-                errors.push(`Format ${task.itag}: ${error.message}`);
-              }),
-          );
-
-          Promise.all(promises).then(() => {
-            if (errors.length > 0) {
-              showSnackbar(`Errors occurred: ${errors.join(", ")}`);
-            } else {
-              showSnackbar("Selected formats added to pending queue.");
-            }
-          });
-        } else {
-          showSnackbar("No formats selected.");
-        }
-        const fetchData = (url, element, formatter) => {
-          fetch(url)
-            .then((response) => response.json())
-            .then((data) => {
-              element.innerHTML = ""; // Clear the list before updating
-              data.forEach((item) => {
-                const listItem = document.createElement("li");
-                listItem.textContent = formatter(item);
-                element.appendChild(listItem);
-              });
+      if (tasks.length > 0) {
+        const errors = [];
+        const promises = tasks.map((task) =>
+          fetch(`${BASE_URL}/youtube/pending`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(task),
+          })
+            .then(async (response) => {
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(
+                  errorData.message ||
+                  `Failed to add format ${task.itag} to pending`,
+                );
+              }
+              return response.json();
             })
             .catch((error) => {
-              console.error(`Error fetching data for element:`, error);
+              errors.push(`Format ${task.itag}: ${error.message}`);
+            }),
+        );
+
+        Promise.all(promises).then(() => {
+          if (errors.length > 0) {
+            showSnackbar(`Errors occurred: ${errors.join(", ")}`);
+          } else {
+            showSnackbar("Selected formats added to pending queue.");
+          }
+        });
+      } else {
+        showSnackbar("No formats selected.");
+      }
+      const fetchData = (url, element, formatter) => {
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            element.innerHTML = ""; // Clear the list before updating
+            data.forEach((item) => {
+              const listItem = document.createElement("li");
+              listItem.textContent = formatter(item);
+              element.appendChild(listItem);
             });
-        };
-        const fetchPendingTasks = () =>
-          fetchData(
-            "http://localhost:3000/pending",
-            document.getElementById("pending-tasks"),
-            (task) => task.name,
-          );
+          })
+          .catch((error) => {
+            console.error(`Error fetching data for element:`, error);
+          });
+      };
+      const fetchPendingTasks = () =>
+        fetchData(
+          "http://localhost:3000/pending",
+          document.getElementById("pending-tasks"),
+          (task) => task.name,
+        );
 
-        const fetchSeenVideos = () =>
-          fetchData(
-            "http://localhost:3000/seen",
-            document.getElementById("seen-videos"),
-            (video) => video,
-          );
+      const fetchSeenVideos = () =>
+        fetchData(
+          "http://localhost:3000/seen",
+          document.getElementById("seen-videos"),
+          (video) => video,
+        );
 
-        const fetchPending = () =>
-          fetchData(
-            "http://localhost:3000/pending",
-            document.getElementById("pending-tasks"),
-            (task) => task.name,
-          );
-        const fetchHistory = () => {
-          fetchData(
-            "http://localhost:3000/history",
-            document.getElementById("history"),
-            (task) => `${task.videoId} - ${task.itag}`
-          );
-        };
+      const fetchPending = () =>
+        fetchData(
+          "http://localhost:3000/pending",
+          document.getElementById("pending-tasks"),
+          (task) => task.name,
+        );
+      const fetchHistory = () => {
+        fetchData(
+          "http://localhost:3000/history",
+          document.getElementById("history"),
+          (task) => `${task.videoId} - ${task.itag}`,
+        );
+      };
 
-        // Removed redundant setInterval call
-        setInterval(fetchPendingTasks, POLLING_INTERVAL);
-        setInterval(fetchSeenVideos, POLLING_INTERVAL);
-        setInterval(fetchHistory, POLLING_INTERVAL);
-      }); // Close DOMContentLoaded event listener
-    </script>
-  </body>
+      // Removed redundant setInterval call
+      setInterval(fetchPendingTasks, POLLING_INTERVAL);
+      setInterval(fetchSeenVideos, POLLING_INTERVAL);
+      setInterval(fetchHistory, POLLING_INTERVAL);
+    }); // Close DOMContentLoaded event listener
+  </script>
+</body>
+
 </html>
