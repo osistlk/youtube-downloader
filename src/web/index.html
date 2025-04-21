@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <script type="module">
-      document.addEventListener("DOMContentLoaded", async () => {
+      document.addEventListener("DOMContentLoaded", () => {
         const alertMessage = document.getElementById("alertMessage");
         const videoUrlInput = document.getElementById("videoUrlInput");
         const fetchFormatsButton =
@@ -31,11 +31,15 @@
           }
           alertMessage.innerText = "Fetching formats...";
           videoIdDisplay.innerText = videoId;
-          const videoFormats = await fetch(
+          const formats = await fetch(
             `http://localhost:3000/youtube/${videoId}/info/formats`,
           );
-          const formatsData = await videoFormats.json();
-          videoFormatsDisplay.innerText = JSON.stringify(formatsData);
+          const formatsData = await formats.json();
+          console.log(formatsData);
+          const videoFormats = formatsData.filter(
+            (format) => format?.type?.includes("video") && format?.height > 720,
+          );
+          videoFormatsDisplay.innerText = JSON.stringify(videoFormats);
           alertMessage.innerText = "Formats fetched successfully";
         });
       });
