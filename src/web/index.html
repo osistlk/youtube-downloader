@@ -19,6 +19,17 @@
         "audioFormatRadioInputGroup",
       );
 
+      videoFormatRadioInputGroup.addEventListener("change", (event) => {
+        if (
+          event.target &&
+          event.target.name &&
+          event.target.name === "videoFormat"
+        ) {
+          alertMessage.innerText = `Selected video format: ${event.target.value}`;
+          console.log(audioFormats);
+        }
+      });
+
       fetchFormatsButton.addEventListener("click", async () => {
         if (!videoUrlInput.value) {
           alertMessage.innerText = "Please enter a URL";
@@ -110,15 +121,6 @@
         }
         if (videoFormats.length === 0 && audioFormats.length === 0) {
           alertMessage.innerText = "No formats found";
-        }
-      });
-      videoFormatRadioInputGroup.addEventListener("change", (event) => {
-        if (
-          event.target &&
-          event.target.name &&
-          event.target.name === "videoFormat"
-        ) {
-          alertMessage.innerText = `Selected video format: ${event.target.value}`;
         }
       });
     });
