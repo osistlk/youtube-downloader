@@ -1,171 +1,139 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <script type="module">
-      document.addEventListener("DOMContentLoaded", () => {
-        const alertMessage = document.getElementById("alertMessage");
-        const videoUrlInput = document.getElementById("videoUrlInput");
-        const fetchFormatsButton =
-          document.getElementById("fetchFormatsButton");
-        const videoIdDisplay = document.getElementById("videoIdDisplay");
-        const videoFormatRadioInputGroup = document.getElementById(
-          "videoFormatRadioInputGroup",
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script type="module">
+    document.addEventListener("DOMContentLoaded", () => {
+      const alertMessage = document.getElementById("alertMessage");
+      const videoUrlInput = document.getElementById("videoUrlInput");
+      const fetchFormatsButton =
+        document.getElementById("fetchFormatsButton");
+      const videoIdDisplay = document.getElementById("videoIdDisplay");
+      const videoFormatRadioInputGroup = document.getElementById(
+        "videoFormatRadioInputGroup",
+      );
+      const audioFormatRadioInputGroup = document.getElementById(
+        "audioFormatRadioInputGroup",
+      );
+
+      fetchFormatsButton.addEventListener("click", async () => {
+        if (!videoUrlInput.value) {
+          alertMessage.innerText = "Please enter a URL";
+          return;
+        }
+        if (videoUrlInput.value.trim() === "") {
+          alertMessage.innerText = "Please enter a valid URL";
+          return;
+        }
+        const videoIdMatch = videoUrlInput.value.match(
+          /(?:v=|\/)([0-9A-Za-z_-]{11})/,
         );
-        const audioFormatRadioInputGroup = document.getElementById(
-          "audioFormatRadioInputGroup",
+        const videoId = videoIdMatch ? videoIdMatch[1] : null;
+        if (!videoId || videoId.includes("&")) {
+          alertMessage.innerText = "Invalid URL";
+          return;
+        }
+        alertMessage.innerText = "Fetching formats...";
+        videoIdDisplay.innerText = videoId;
+        const formats = await fetch(
+          `http://localhost:3000/youtube/${videoId}/info/formats`,
         );
-
-        fetchFormatsButton.addEventListener("click", async () => {
-          if (!videoUrlInput.value) {
-            alertMessage.innerText = "Please enter a URL";
-            return;
-          }
-          if (videoUrlInput.value.trim() === "") {
-            alertMessage.innerText = "Please enter a valid URL";
-            return;
-          }
-          const videoIdMatch = videoUrlInput.value.match(
-            /(?:v=|\/)([0-9A-Za-z_-]{11})/,
-          );
-          const videoId = videoIdMatch ? videoIdMatch[1] : null;
-          if (!videoId || videoId.includes("&")) {
-            alertMessage.innerText = "Invalid URL";
-            return;
-          }
-          alertMessage.innerText = "Fetching formats...";
-          videoIdDisplay.innerText = videoId;
-          // Expected response structure:
-          // [
-          //   {
-          //     itag: string,
-          //     type: string,
-          //     height?: number,
-          //     videoBitrate?: number,
-          //     audioBitrate?: number
-          //   },
-          //   ...
-          // ]
-          const formats = await fetch(
-            `http://localhost:3000/youtube/${videoId}/info/formats`,
-          );
-          const formatsData = await formats.json();
-          const videoFormats = formatsData
-            .filter(
-              (format) =>
-                format &&
-                format.type &&
-                format.type.includes("video") &&
-                format.height &&
-                format.height > 720,
-            )
-            .reduce((uniqueFormats, format) => {
-              if (!uniqueFormats.some((f) => f.itag === format.itag)) {
-                uniqueFormats.push(format);
-              }
-              return uniqueFormats;
-            }, [])
-            .sort((a, b) => b.bitrate - a.bitrate);
-          const audioFormats = formatsData
-            .filter(
-              (format) =>
-                format &&
-                typeof format.type === "string" &&
-                format.type.includes("audio") &&
-                typeof format.audioBitrate === "number" &&
-                format.audioBitrate > 39,
-            )
-            .reduce((uniqueFormats, format) => {
-              if (!uniqueFormats.some((f) => f.itag === format.itag)) {
-                uniqueFormats.push(format);
-              }
-              return uniqueFormats;
-            }, []);
-          audioFormatRadioInputGroup.textContent = "";
-          alertMessage.innerText = "Formats fetched successfully";
-
-          videoFormatRadioInputGroup.innerHTML = "";
-          videoFormats.forEach((format) => {
-            const radioInput = document.createElement("input");
-            radioInput.type = "radio";
-            radioInput.name = "videoFormat";
-            radioInput.value = format.itag;
-            const label = document.createElement("label");
-            label.innerText = `${format.itag} - ${format.type} - ${format.height}p - ${(format.videoBitrate / 8 / 1024 / 1024).toFixed(2)} MBps`;
-            const lineBreak = document.createElement("br");
-            videoFormatRadioInputGroup.appendChild(radioInput);
-            videoFormatRadioInputGroup.appendChild(label);
-            videoFormatRadioInputGroup.appendChild(lineBreak);
-          });
-          audioFormatRadioInputGroup.innerHTML = "";
-          audioFormats.forEach((format) => {
-            const radioInput = document.createElement("input");
-            radioInput.type = "radio";
-            radioInput.name = "audioFormat";
-            radioInput.value = format.itag;
-            const label = document.createElement("label");
-            label.innerText = `${format.itag} - ${format.type} - ${format.audioBitrate ? (format.audioBitrate / 1000).toFixed(2) : "N/A"} kbps`;
-            const lineBreak = document.createElement("br");
-            audioFormatRadioInputGroup.appendChild(radioInput);
-            audioFormatRadioInputGroup.appendChild(label);
-            audioFormatRadioInputGroup.appendChild(lineBreak);
-          });
-          if (videoFormats.length === 0) {
-            alertMessage.innerText = "No video formats found";
-          }
-          if (audioFormats.length === 0) {
-            alertMessage.innerText = "No audio formats found";
-          }
-          if (videoFormats.length === 0 && audioFormats.length === 0) {
-            alertMessage.innerText = "No formats found";
-          }
-        });
-        videoFormatRadioInputGroup.addEventListener("change", (event) => {
-          if (
-            event.target &&
-            event.target.name &&
-            event.target.name === "videoFormat"
-          ) {
-            alertMessage.innerText = `Selected video format: ${event.target.value}`;
-            const selectedFormat = videoFormats.find(
-              (format) => format.itag === event.target.value,
-            );
-            if (selectedFormat) {
-              const matchingAudioFormats = audioFormats.filter((format) => {
-                if (format.type && format.type.includes("/")) {
-                  const typeParts = format.type.split("/");
-                  return (
-                    typeParts.length > 1 &&
-                    selectedFormat.type.includes("/") &&
-                    typeParts[1] === selectedFormat.type.split("/")[1]
-                  );
-                }
-                return false;
-              });
-              if (matchingAudioFormats.length > 0) {
-                alertMessage.innerText += ` | Matching audio formats: ${matchingAudioFormats
-                  .map((format) => format.itag)
-                  .join(", ")}`;
-              } else {
-                alertMessage.innerText += " | No matching audio formats found";
-              }
+        const formatsData = await formats.json();
+        const videoFormats = formatsData
+          .filter(
+            (format) =>
+              format &&
+              format.type &&
+              format.type.includes("video") &&
+              format.height &&
+              format.height > 720,
+          )
+          .reduce((uniqueFormats, format) => {
+            if (!uniqueFormats.some((f) => f.itag === format.itag)) {
+              uniqueFormats.push(format);
             }
-          }
-        });
-      });
-    </script>
-  </head>
+            return uniqueFormats;
+          }, [])
+          .sort((a, b) => b.bitrate - a.bitrate);
+        const audioFormats = formatsData
+          .filter(
+            (format) =>
+              format &&
+              typeof format.type === "string" &&
+              format.type.includes("audio") &&
+              typeof format.audioBitrate === "number" &&
+              format.audioBitrate > 39,
+          )
+          .reduce((uniqueFormats, format) => {
+            if (!uniqueFormats.some((f) => f.itag === format.itag)) {
+              uniqueFormats.push(format);
+            }
+            return uniqueFormats;
+          }, []);
+        audioFormatRadioInputGroup.textContent = "";
+        alertMessage.innerText = "Formats fetched successfully";
 
-  <body>
-    <div>
-      <p id="alertMessage">No alerts</p>
-      <input id="videoUrlInput" />
-      <button id="fetchFormatsButton">Fetch formats</button>
-      <p>Video id: <span id="videoIdDisplay"></span></p>
-      <p id="videoFormatRadioInputGroup">Video formats:</p>
-      <p id="audioFormatRadioInputGroup">Audio formats:</p>
-    </div>
-  </body>
+        videoFormatRadioInputGroup.innerHTML = "";
+        videoFormats.forEach((format) => {
+          const radioInput = document.createElement("input");
+          radioInput.type = "radio";
+          radioInput.name = "videoFormat";
+          radioInput.value = format.itag;
+          const label = document.createElement("label");
+          label.innerText = `${format.itag} - ${format.type} - ${format.height}p - ${(format.videoBitrate / 8 / 1024 / 1024).toFixed(2)} MBps`;
+          const lineBreak = document.createElement("br");
+          videoFormatRadioInputGroup.appendChild(radioInput);
+          videoFormatRadioInputGroup.appendChild(label);
+          videoFormatRadioInputGroup.appendChild(lineBreak);
+        });
+        audioFormatRadioInputGroup.innerHTML = "";
+        audioFormats.forEach((format) => {
+          const radioInput = document.createElement("input");
+          radioInput.type = "radio";
+          radioInput.name = "audioFormat";
+          radioInput.value = format.itag;
+          const label = document.createElement("label");
+          label.innerText = `${format.itag} - ${format.type} - ${format.audioBitrate ? (format.audioBitrate / 1000).toFixed(2) : "N/A"} kbps`;
+          const lineBreak = document.createElement("br");
+          audioFormatRadioInputGroup.appendChild(radioInput);
+          audioFormatRadioInputGroup.appendChild(label);
+          audioFormatRadioInputGroup.appendChild(lineBreak);
+        });
+        if (videoFormats.length === 0) {
+          alertMessage.innerText = "No video formats found";
+        }
+        if (audioFormats.length === 0) {
+          alertMessage.innerText = "No audio formats found";
+        }
+        if (videoFormats.length === 0 && audioFormats.length === 0) {
+          alertMessage.innerText = "No formats found";
+        }
+      });
+      videoFormatRadioInputGroup.addEventListener("change", (event) => {
+        if (
+          event.target &&
+          event.target.name &&
+          event.target.name === "videoFormat"
+        ) {
+          alertMessage.innerText = `Selected video format: ${event.target.value}`;
+        }
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <div>
+    <p id="alertMessage">No alerts</p>
+    <input id="videoUrlInput" />
+    <button id="fetchFormatsButton">Fetch formats</button>
+    <p>Video id: <span id="videoIdDisplay"></span></p>
+    <p id="videoFormatRadioInputGroup">Video formats:</p>
+    <p id="audioFormatRadioInputGroup">Audio formats:</p>
+  </div>
+</body>
+
 </html>
