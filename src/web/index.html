@@ -1,77 +1,80 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <script type="module">
-    document.addEventListener("DOMContentLoaded", () => {
-      const alertMessage = document.getElementById("alertMessage");
-      const videoUrlInput = document.getElementById("videoUrlInput");
-      const fetchFormatsButton =
-        document.getElementById("fetchFormatsButton");
-      const videoIdDisplay = document.getElementById("videoIdDisplay");
-      const videoFormatRadioInputGroup = document.getElementById(
-        "videoFormatRadioInputGroup",
-      );
-
-      fetchFormatsButton.addEventListener("click", async () => {
-        if (!videoUrlInput.value) {
-          alertMessage.innerText = "Please enter a URL";
-          return;
-        }
-        if (videoUrlInput.value.trim() === "") {
-          alertMessage.innerText = "Please enter a valid URL";
-          return;
-        }
-        const videoId = videoUrlInput.value.split("v=")[1];
-        if (!videoId || videoId.includes("&")) {
-          alertMessage.innerText = "Invalid URL";
-          return;
-        }
-        alertMessage.innerText = "Fetching formats...";
-        videoIdDisplay.innerText = videoId;
-        const formats = await fetch(
-          `http://localhost:3000/youtube/${videoId}/info/formats`,
+    <script type="module">
+      document.addEventListener("DOMContentLoaded", () => {
+        const alertMessage = document.getElementById("alertMessage");
+        const videoUrlInput = document.getElementById("videoUrlInput");
+        const fetchFormatsButton =
+          document.getElementById("fetchFormatsButton");
+        const videoIdDisplay = document.getElementById("videoIdDisplay");
+        const videoFormatRadioInputGroup = document.getElementById(
+          "videoFormatRadioInputGroup",
         );
-        const formatsData = await formats.json();
-        console.log(formatsData);
-        const videoFormats = formatsData
-          .filter(
-            (format) => format?.type?.includes("video") && format?.height > 720,
-          )
-          .sort((a, b) => b.bitrate - a.bitrate);
-        alertMessage.innerText = "Formats fetched successfully";
 
-        videoFormatRadioInputGroup.innerHTML = "";
-        videoFormats.forEach((format) => {
-          const radioInput = document.createElement("input");
-          radioInput.type = "radio";
-          radioInput.name = "videoFormat";
-          radioInput.value = format.url;
-          const label = document.createElement("label");
-          label.innerText = `${format.type} - ${format.height}p - ${(format.videoBitrate / 8 / 1024 / 1024).toFixed(2)} MBps`;
-          const lineBreak = document.createElement("br");
-          videoFormatRadioInputGroup.appendChild(radioInput);
-          videoFormatRadioInputGroup.appendChild(label);
-          videoFormatRadioInputGroup.appendChild(lineBreak);
+        fetchFormatsButton.addEventListener("click", async () => {
+          if (!videoUrlInput.value) {
+            alertMessage.innerText = "Please enter a URL";
+            return;
+          }
+          if (videoUrlInput.value.trim() === "") {
+            alertMessage.innerText = "Please enter a valid URL";
+            return;
+          }
+          const videoId = videoUrlInput.value.split("v=")[1];
+          if (!videoId || videoId.includes("&")) {
+            alertMessage.innerText = "Invalid URL";
+            return;
+          }
+          alertMessage.innerText = "Fetching formats...";
+          videoIdDisplay.innerText = videoId;
+          const formats = await fetch(
+            `http://localhost:3000/youtube/${videoId}/info/formats`,
+          );
+          const formatsData = await formats.json();
+          console.log(formatsData);
+          const videoFormats = formatsData
+            .filter(
+              (format) =>
+                format?.type?.includes("video") && format?.height > 720,
+            )
+            .reduce((uniqueFormats, format) => {
+              if (!uniqueFormats.some((f) => f.itag === format.itag)) {
+                uniqueFormats.push(format);
+              }
+              return uniqueFormats;
+            }, [])
+            .sort((a, b) => b.bitrate - a.bitrate);
+          alertMessage.innerText = "Formats fetched successfully";
+
+          videoFormatRadioInputGroup.innerHTML = "";
+          videoFormats.forEach((format) => {
+            const radioInput = document.createElement("input");
+            radioInput.type = "radio";
+            radioInput.name = "videoFormat";
+            radioInput.value = format.url;
+            const label = document.createElement("label");
+            label.innerText = `${format.type} - ${format.height}p - ${(format.videoBitrate / 8 / 1024 / 1024).toFixed(2)} MBps`;
+            const lineBreak = document.createElement("br");
+            videoFormatRadioInputGroup.appendChild(radioInput);
+            videoFormatRadioInputGroup.appendChild(label);
+            videoFormatRadioInputGroup.appendChild(lineBreak);
+          });
         });
       });
-    });
-  </script>
-</head>
+    </script>
+  </head>
 
-<body>
-  <div>
-    <p id="alertMessage">No alerts</p>
-    <input id="videoUrlInput" />
-    <button id="fetchFormatsButton">Fetch formats</button>
-    <p>Video id: <span id="videoIdDisplay"></span></p>
-    <p id="videoFormatRadioInputGroup">
-      Video formats:
-    </p>
-  </div>
-</body>
-
+  <body>
+    <div>
+      <p id="alertMessage">No alerts</p>
+      <input id="videoUrlInput" />
+      <button id="fetchFormatsButton">Fetch formats</button>
+      <p>Video id: <span id="videoIdDisplay"></span></p>
+      <p id="videoFormatRadioInputGroup">Video formats:</p>
+    </div>
+  </body>
 </html>
