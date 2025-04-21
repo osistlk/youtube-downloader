@@ -15,6 +15,9 @@
       const videoFormatRadioInputGroup = document.getElementById(
         "videoFormatRadioInputGroup",
       );
+      const audioFormatRadioInputGroup = document.getElementById(
+        "audioFormatRadioInputGroup",
+      );
 
       fetchFormatsButton.addEventListener("click", async () => {
         if (!videoUrlInput.value) {
@@ -102,12 +105,15 @@
         if (event.target && event.target.name === "videoFormat") {
           alertMessage.innerText = `Selected video format: ${event.target.value}`;
           const selectedFormat = videoFormats.find(
-            (format) => format.itag === event.target.value
+            (format) => format.itag === event.target.value,
           );
           if (selectedFormat) {
             const matchingAudioFormats = audioFormats.filter((format) => {
               const typeParts = format.type.split("/");
-              return typeParts.length > 1 && typeParts[1] === selectedFormat.type.split("/")[1];
+              return (
+                typeParts.length > 1 &&
+                typeParts[1] === selectedFormat.type.split("/")[1]
+              );
             });
             if (matchingAudioFormats.length > 0) {
               alertMessage.innerText += ` | Matching audio formats: ${matchingAudioFormats
