@@ -35,11 +35,22 @@
             `http://localhost:3000/youtube/${videoId}/info/formats`,
           );
           const formatsData = await formats.json();
-          console.log(formatsData);
           const videoFormats = formatsData
             .filter(
               (format) =>
                 format?.type?.includes("video") && format?.height > 720,
+            )
+            .reduce((uniqueFormats, format) => {
+              if (!uniqueFormats.some((f) => f.itag === format.itag)) {
+                uniqueFormats.push(format);
+              }
+              return uniqueFormats;
+            }, [])
+            .sort((a, b) => b.bitrate - a.bitrate);
+          const audioFormats = formatsData
+            .filter(
+              (format) =>
+                format?.type?.includes("audio") && format?.audioBitrate > 39,
             )
             .reduce((uniqueFormats, format) => {
               if (!uniqueFormats.some((f) => f.itag === format.itag)) {
@@ -63,6 +74,28 @@
             videoFormatRadioInputGroup.appendChild(label);
             videoFormatRadioInputGroup.appendChild(lineBreak);
           });
+          audioFormatRadioInputGroup.innerHTML = "";
+          audioFormats.forEach((format) => {
+            const radioInput = document.createElement("input");
+            radioInput.type = "radio";
+            radioInput.name = "audioFormat";
+            radioInput.value = format.url;
+            const label = document.createElement("label");
+            label.innerText = `${format.type} - ${(format.audioBitrate / 1000).toFixed(2)} kbps`;
+            const lineBreak = document.createElement("br");
+            audioFormatRadioInputGroup.appendChild(radioInput);
+            audioFormatRadioInputGroup.appendChild(label);
+            audioFormatRadioInputGroup.appendChild(lineBreak);
+          });
+          if (videoFormats.length === 0) {
+            alertMessage.innerText = "No video formats found";
+          }
+          if (audioFormats.length === 0) {
+            alertMessage.innerText = "No audio formats found";
+          }
+          if (videoFormats.length === 0 && audioFormats.length === 0) {
+            alertMessage.innerText = "No formats found";
+          }
         });
       });
     </script>
@@ -75,6 +108,7 @@
       <button id="fetchFormatsButton">Fetch formats</button>
       <p>Video id: <span id="videoIdDisplay"></span></p>
       <p id="videoFormatRadioInputGroup">Video formats:</p>
+      <p id="audioFormatRadioInputGroup">Audio formats:</p>
     </div>
   </body>
 </html>
