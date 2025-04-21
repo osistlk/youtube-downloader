@@ -37,9 +37,11 @@
         );
         const formatsData = await formats.json();
         console.log(formatsData);
-        const videoFormats = formatsData.filter(
-          (format) => format?.type?.includes("video") && format?.height > 720,
-        );
+        const videoFormats = formatsData
+          .filter(
+            (format) => format?.type?.includes("video") && format?.height > 720,
+          )
+          .sort((a, b) => b.bitrate - a.bitrate);
         alertMessage.innerText = "Formats fetched successfully";
 
         videoFormatRadioInputGroup.innerHTML = "";
@@ -49,7 +51,7 @@
           radioInput.name = "videoFormat";
           radioInput.value = format.url;
           const label = document.createElement("label");
-          label.innerText = `${format.type} - ${format.height}`;
+          label.innerText = `${format.type} - ${format.height}p - ${(format.videoBitrate / 8 / 1024 / 1024).toFixed(2)} MBps`;
           const lineBreak = document.createElement("br");
           videoFormatRadioInputGroup.appendChild(radioInput);
           videoFormatRadioInputGroup.appendChild(label);
