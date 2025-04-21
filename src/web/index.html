@@ -1,21 +1,44 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module">
+      document.addEventListener("DOMContentLoaded", () => {
+        const alertMessage = document.getElementById("alertMessage");
+        const videoUrlInput = document.getElementById("videoUrlInput");
+        const fetchFormatsButton =
+          document.getElementById("fetchFormatsButton");
+        const videoIdDisplay = document.getElementById("videoIdDisplay");
 
-  <script type="module">
-    document.addEventListener('DOMContentLoaded', () => {
-    });
-  </script>
-</head>
+        fetchFormatsButton.addEventListener("click", async () => {
+          if (!videoUrlInput.value) {
+            alertMessage.innerText = "Please enter a URL";
+            return;
+          }
+          if (videoUrlInput.value.trim() === "") {
+            alertMessage.innerText = "Please enter a valid URL";
+            return;
+          }
+          const videoId = videoUrlInput.value.split("v=")[1];
+          if (!videoId || videoId.includes("&")) {
+            alertMessage.innerText = "Invalid URL";
+            return;
+          }
+          alertMessage.innerText = "Fetching formats...";
+          videoIdDisplay.innerText = videoId;
+        });
+      });
+    </script>
+  </head>
 
-<body>
-  <div>
-    <input />
-    <button>Fetch formats</button>
-  </div>
-</body>
-
+  <body>
+    <div>
+      <p id="alertMessage">No alerts</p>
+      <input id="videoUrlInput" />
+      <button id="fetchFormatsButton">Fetch formats</button>
+      <p>Video id: <span id="videoIdDisplay"></span></p>
+    </div>
+  </body>
 </html>
