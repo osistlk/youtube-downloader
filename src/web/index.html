@@ -17,6 +17,65 @@
         const audioFormatRadioInputGroup = document.getElementById(
           "audioFormatRadioInputGroup",
         );
+        const downloadButton = document.getElementById("downloadButton");
+
+        downloadButton.addEventListener("click", async () => {
+          const selectedVideoFormat = document.querySelector(
+            'input[name="videoFormat"]:checked',
+          );
+          const selectedAudioFormat = document.querySelector(
+            'input[name="audioFormat"]:checked',
+          );
+          if (!selectedVideoFormat || !selectedAudioFormat) {
+            alertMessage.innerText =
+              "Please select both video and audio formats";
+            return;
+          }
+          const videoIdMatch = videoUrlInput.value.match(
+            /(?:v=|\/)([0-9A-Za-z_-]{11})/,
+          );
+          const videoId = videoIdMatch ? videoIdMatch[1] : null;
+          if (!videoId) {
+            alertMessage.innerText = "Invalid URL";
+            return;
+          }
+          alertMessage.innerText = "Downloading...";
+          const videoResponse = await fetch(
+            "http://localhost:3000/youtube/pending",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                videoId,
+                itag: selectedVideoFormat.value,
+              }),
+            },
+          );
+
+          const audioResponse = await fetch(
+            "http://localhost:3000/youtube/pending",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                videoId,
+                itag: selectedAudioFormat.value,
+              }),
+            },
+          );
+
+          if (videoResponse.ok && audioResponse.ok) {
+            const videoData = await videoResponse.json();
+            const audioData = await audioResponse.json();
+            alertMessage.innerText = `Tasks added to pending queue. Video Task ID: ${videoData.id}, Audio Task ID: ${audioData.id}`;
+          } else {
+            alertMessage.innerText = "Failed to add tasks to pending queue";
+          }
+        });
 
         videoFormatRadioInputGroup.addEventListener("change", (event) => {
           if (
@@ -133,6 +192,7 @@
       <p>Video id: <span id="videoIdDisplay"></span></p>
       <p id="videoFormatRadioInputGroup">Video formats:</p>
       <p id="audioFormatRadioInputGroup">Audio formats:</p>
+      <button id="downloadButton">Download</button>
     </div>
   </body>
 </html>
