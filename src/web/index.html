@@ -164,37 +164,13 @@
             `http://localhost:3000/youtube/${videoId}/info/formats`,
           );
           const formatsData = await formats.json();
-          const videoFormats = formatsData
-            .filter(
-              (format) =>
-                format &&
-                format.type &&
-                format.type.includes("video") &&
-                format.height &&
-                format.height > 720,
-            )
-            .reduce((uniqueFormats, format) => {
-              if (!uniqueFormats.some((f) => f.itag === format.itag)) {
-                uniqueFormats.push(format);
-              }
-              return uniqueFormats;
-            }, [])
-            .sort((a, b) => b.bitrate - a.bitrate);
-          const audioFormats = formatsData
-            .filter(
-              (format) =>
-                format &&
-                typeof format.type === "string" &&
-                format.type.includes("audio") &&
-                typeof format.audioBitrate === "number" &&
-                format.audioBitrate > 39,
-            )
-            .reduce((uniqueFormats, format) => {
-              if (!uniqueFormats.some((f) => f.itag === format.itag)) {
-                uniqueFormats.push(format);
-              }
-              return uniqueFormats;
-            }, []);
+          const videoFormats = formatsData.filter(
+            (format) => format.type.includes("video") && format.height > 720,
+          );
+          const audioFormats = formatsData.filter(
+            (format) =>
+              format.type.includes("audio") && format.audioBitrate > 39,
+          );
           audioFormatRadioInputGroup.textContent = "";
           alertMessage.innerText = "Formats fetched successfully";
 
