@@ -139,6 +139,29 @@
           event.target.name === "videoFormat"
         ) {
           alertMessage.innerText = `Selected video format: ${event.target.value}`;
+          const selectedVideoFormat = document.querySelector(
+            'input[name="videoFormat"]:checked'
+          );
+          if (selectedVideoFormat) {
+            const selectedType = selectedVideoFormat.nextSibling.innerText
+              .split(" - ")[1]
+              .split("/")[1]
+              .split(";")[0] // Extract container type from video format
+            const audioOptions = audioFormatRadioInputGroup.querySelectorAll(
+              'input[name="audioFormat"]'
+            );
+            audioOptions.forEach((audioOption) => {
+              const audioType = audioOption.nextSibling.innerText
+                .split(" - ")[1]
+                .split("/")[1]
+                .split(";")[0] // Extract container type from audio format
+              if (audioType !== selectedType) {
+                audioOption.disabled = true; // Disable mismatched audio formats
+              } else {
+                audioOption.disabled = false; // Enable matching audio formats
+              }
+            });
+          }
         }
       });
 
