@@ -121,7 +121,9 @@
               const ul = document.createElement("ul");
               seenTasks.forEach((task) => {
                 const li = document.createElement("li");
-                li.innerText = `Task ID: ${task.id}, Video ID: ${task.videoId}, Itag: ${task.itag}`;
+                const videoId = task.split("-")[0];
+                const itag = task.split("-")[1];
+                li.innerText = `Video ID: ${task.videoId}, Itag: ${task.itag}`;
                 ul.appendChild(li);
               });
               seenList.appendChild(ul);
