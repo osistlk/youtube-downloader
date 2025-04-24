@@ -3,7 +3,83 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        background-color: #000;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
 
+      input,
+      button {
+        background-color: #333;
+        color: #fff;
+        border: 1px solid #555;
+        padding: 8px 12px;
+        margin: 5px 0;
+        border-radius: 4px;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #444;
+      }
+
+      button:active {
+        background-color: #555;
+      }
+
+      #alertMessage {
+        background-color: #222;
+        padding: 10px;
+        border-left: 4px solid #555;
+        margin-bottom: 15px;
+      }
+
+      #videoIdDisplay {
+        font-weight: bold;
+        color: #ccc;
+      }
+
+      ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+
+      li {
+        background-color: #111;
+        padding: 8px;
+        margin: 4px 0;
+        border-left: 3px solid #333;
+      }
+
+      input[type="radio"] {
+        margin-right: 5px;
+      }
+
+      input[type="radio"]:disabled + label {
+        color: #666;
+      }
+
+      #videoFormatRadioInputGroup,
+      #audioFormatRadioInputGroup {
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #111;
+        border-radius: 4px;
+      }
+
+      #pending,
+      #seen,
+      #history {
+        margin-bottom: 20px;
+      }
+    </style>
     <script type="module">
       document.addEventListener("DOMContentLoaded", () => {
         const alertMessage = document.getElementById("alertMessage");
