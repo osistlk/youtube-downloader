@@ -21,6 +21,7 @@
       padding: 8px 12px;
       margin: 5px 0;
       border-radius: 4px;
+      width: 100%;
     }
 
     button {
@@ -335,12 +336,12 @@
 <body>
   <div>
     <p id="alertMessage">No alerts</p>
-    <input id="videoUrlInput" style="width: 100%; box-sizing: border-box;" />
-    <button id="fetchFormatsButton" style="width: 100%; box-sizing: border-box;">Fetch formats</button>
+    <input id="videoUrlInput" />
+    <button id="fetchFormatsButton">Fetch formats</button>
     <p>Video id: <span id="videoIdDisplay"></span></p>
     <p id="videoFormatRadioInputGroup">Video formats:</p>
     <p id="audioFormatRadioInputGroup">Audio formats:</p>
-    <button id="downloadButton" style="width: 100%; box-sizing: border-box;">Download</button>
+    <button id="downloadButton">Download</button>
     <p>Pending tasks:</p>
     <div id="pending"></div>
     <p>Seen tasks:</p>
