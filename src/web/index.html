@@ -1,384 +1,382 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        background-color: #000;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      background-color: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
+      input,
+      button {
+        background-color: #333;
+        color: #fff;
+        border: 1px solid #555;
+        padding: 8px 12px;
+        margin: 5px 0;
+        border-radius: 4px;
+        width: 100%;
+      }
 
-    input,
-    button {
-      background-color: #333;
-      color: #fff;
-      border: 1px solid #555;
-      padding: 8px 12px;
-      margin: 5px 0;
-      border-radius: 4px;
-      width: 100%;
-    }
+      button {
+        cursor: pointer;
+      }
 
-    button {
-      cursor: pointer;
-    }
+      button:hover {
+        background-color: #444;
+      }
 
-    button:hover {
-      background-color: #444;
-    }
+      button:active {
+        background-color: #555;
+      }
 
-    button:active {
-      background-color: #555;
-    }
+      #alertMessage {
+        background-color: #222;
+        padding: 10px;
+        border-left: 4px solid #555;
+        margin-bottom: 15px;
+      }
 
-    #alertMessage {
-      background-color: #222;
-      padding: 10px;
-      border-left: 4px solid #555;
-      margin-bottom: 15px;
-    }
+      #videoIdDisplay {
+        font-weight: bold;
+        color: #ccc;
+      }
 
-    #videoIdDisplay {
-      font-weight: bold;
-      color: #ccc;
-    }
+      ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
 
-    ul {
-      list-style-type: none;
-      padding-left: 0;
-    }
+      li {
+        background-color: #111;
+        padding: 8px;
+        margin: 4px 0;
+        border-left: 3px solid #333;
+      }
 
-    li {
-      background-color: #111;
-      padding: 8px;
-      margin: 4px 0;
-      border-left: 3px solid #333;
-    }
+      input[type="radio"] {
+        margin-right: 5px;
+      }
 
-    input[type="radio"] {
-      margin-right: 5px;
-    }
+      input[type="radio"]:disabled + label {
+        color: #666;
+      }
 
-    input[type="radio"]:disabled+label {
-      color: #666;
-    }
+      #videoFormatRadioInputGroup,
+      #audioFormatRadioInputGroup {
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #111;
+        border-radius: 4px;
+      }
 
-    #videoFormatRadioInputGroup,
-    #audioFormatRadioInputGroup {
-      margin-bottom: 15px;
-      padding: 10px;
-      background-color: #111;
-      border-radius: 4px;
-    }
+      #pending,
+      #seen,
+      #history {
+        margin-bottom: 20px;
+      }
+    </style>
+    <script type="module">
+      document.addEventListener("DOMContentLoaded", () => {
+        const alertMessage = document.getElementById("alertMessage");
+        const videoUrlInput = document.getElementById("videoUrlInput");
+        const fetchFormatsButton =
+          document.getElementById("fetchFormatsButton");
+        const videoIdDisplay = document.getElementById("videoIdDisplay");
+        const videoFormatRadioInputGroup = document.getElementById(
+          "videoFormatRadioInputGroup",
+        );
+        const audioFormatRadioInputGroup = document.getElementById(
+          "audioFormatRadioInputGroup",
+        );
+        const downloadButton = document.getElementById("downloadButton");
+        const pendingList = document.getElementById("pending");
+        const seenList = document.getElementById("seen");
+        const historyList = document.getElementById("history");
 
-    #pending,
-    #seen,
-    #history {
-      margin-bottom: 20px;
-    }
-  </style>
-  <script type="module">
-    document.addEventListener("DOMContentLoaded", () => {
-      const alertMessage = document.getElementById("alertMessage");
-      const videoUrlInput = document.getElementById("videoUrlInput");
-      const fetchFormatsButton =
-        document.getElementById("fetchFormatsButton");
-      const videoIdDisplay = document.getElementById("videoIdDisplay");
-      const videoFormatRadioInputGroup = document.getElementById(
-        "videoFormatRadioInputGroup",
-      );
-      const audioFormatRadioInputGroup = document.getElementById(
-        "audioFormatRadioInputGroup",
-      );
-      const downloadButton = document.getElementById("downloadButton");
-      const pendingList = document.getElementById("pending");
-      const seenList = document.getElementById("seen");
-      const historyList = document.getElementById("history");
+        setInterval(async () => {
+          try {
+            const response = await fetch("http://localhost:3000/pending");
+            if (response.ok) {
+              const pendingTasks = await response.json();
+              pendingList.innerHTML = ""; // Clear the current list
+              const ul = document.createElement("ul");
+              pendingTasks.forEach((task) => {
+                const li = document.createElement("li");
+                li.innerText = `Task ID: ${task.id}, Video ID: ${task.videoId}, Itag: ${task.itag}`;
+                ul.appendChild(li);
+              });
+              pendingList.appendChild(ul);
+            } else {
+              console.error("Failed to fetch pending tasks");
+            }
+            const seenResponse = await fetch("http://localhost:3000/seen");
+            if (seenResponse.ok) {
+              const seenTasks = await seenResponse.json();
+              seenList.innerHTML = ""; // Clear the current list
+              const ul = document.createElement("ul");
+              seenTasks.forEach((task) => {
+                const li = document.createElement("li");
+                const videoId = task.split("-")[0];
+                const itag = task.split("-")[1];
+                li.innerText = `Video ID: ${videoId}, Itag: ${itag}`;
+                ul.appendChild(li);
+              });
+              seenList.appendChild(ul);
+            } else {
+              console.error("Failed to fetch seen tasks");
+            }
+            const historyResponse = await fetch(
+              "http://localhost:3000/history",
+            );
+            if (historyResponse.ok) {
+              const historyTasks = await historyResponse.json();
+              historyList.innerHTML = ""; // Clear the current list
+              const ul = document.createElement("ul");
+              historyTasks.forEach((task) => {
+                const li = document.createElement("li");
 
-      setInterval(async () => {
-        try {
-          const response = await fetch("http://localhost:3000/pending");
-          if (response.ok) {
-            const pendingTasks = await response.json();
-            pendingList.innerHTML = ""; // Clear the current list
-            const ul = document.createElement("ul");
-            pendingTasks.forEach((task) => {
-              const li = document.createElement("li");
-              li.innerText = `Task ID: ${task.id}, Video ID: ${task.videoId}, Itag: ${task.itag}`;
-              ul.appendChild(li);
-            });
-            pendingList.appendChild(ul);
-          } else {
-            console.error("Failed to fetch pending tasks");
+                // Create checkbox
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.id = `history-task-${task.id}`;
+                checkbox.className = "history-task-checkbox";
+                checkbox.style.width = "auto";
+                checkbox.style.marginRight = "8px";
+
+                // Create label with task information
+                const label = document.createElement("label");
+                label.htmlFor = `history-task-${task.id}`;
+                label.innerText = `Task ID: ${task.id}, Video ID: ${task.videoId}, Itag: ${task.itag}`;
+
+                li.appendChild(checkbox);
+                li.appendChild(label);
+                ul.appendChild(li);
+              });
+              historyList.appendChild(ul);
+            } else {
+              console.error("Failed to fetch history tasks");
+            }
+          } catch (error) {
+            console.error("Error fetching tasks:", error);
           }
-          const seenResponse = await fetch("http://localhost:3000/seen");
-          if (seenResponse.ok) {
-            const seenTasks = await seenResponse.json();
-            seenList.innerHTML = ""; // Clear the current list
-            const ul = document.createElement("ul");
-            seenTasks.forEach((task) => {
-              const li = document.createElement("li");
-              const videoId = task.split("-")[0];
-              const itag = task.split("-")[1];
-              li.innerText = `Video ID: ${videoId}, Itag: ${itag}`;
-              ul.appendChild(li);
-            });
-            seenList.appendChild(ul);
-          } else {
-            console.error("Failed to fetch seen tasks");
-          }
-          const historyResponse = await fetch(
-            "http://localhost:3000/history",
-          );
-          if (historyResponse.ok) {
-            const historyTasks = await historyResponse.json();
-            historyList.innerHTML = ""; // Clear the current list
-            const ul = document.createElement("ul");
-            historyTasks.forEach((task) => {
-              const li = document.createElement("li");
+        }, 1000);
 
-              // Create checkbox
-              const checkbox = document.createElement("input");
-              checkbox.type = "checkbox";
-              checkbox.id = `history-task-${task.id}`;
-              checkbox.className = "history-task-checkbox";
-              checkbox.style.width = "auto";
-              checkbox.style.marginRight = "8px";
-
-              // Create label with task information
-              const label = document.createElement("label");
-              label.htmlFor = `history-task-${task.id}`;
-              label.innerText = `Task ID: ${task.id}, Video ID: ${task.videoId}, Itag: ${task.itag}`;
-
-              li.appendChild(checkbox);
-              li.appendChild(label);
-              ul.appendChild(li);
-            });
-            historyList.appendChild(ul);
-          } else {
-            console.error("Failed to fetch history tasks");
-          }
-        } catch (error) {
-          console.error("Error fetching tasks:", error);
-        }
-      }, 1000);
-
-      downloadButton.addEventListener("click", async () => {
-        const selectedVideoFormat = document.querySelector(
-          'input[name="videoFormat"]:checked',
-        );
-        const selectedAudioFormat = document.querySelector(
-          'input[name="audioFormat"]:checked',
-        );
-        if (!selectedVideoFormat || !selectedAudioFormat) {
-          alertMessage.innerText =
-            "Please select both video and audio formats";
-          return;
-        }
-        const videoIdMatch = videoUrlInput.value.match(
-          /(?:v=|\/)([0-9A-Za-z_-]{11})/,
-        );
-        const videoId = videoIdMatch ? videoIdMatch[1] : null;
-        if (!videoId) {
-          alertMessage.innerText = "Invalid URL";
-          return;
-        }
-        alertMessage.innerText = "Downloading...";
-        const videoResponse = await fetch(
-          "http://localhost:3000/youtube/pending",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              videoId,
-              itag: selectedVideoFormat.value,
-            }),
-          },
-        );
-
-        const audioResponse = await fetch(
-          "http://localhost:3000/youtube/pending",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              videoId,
-              itag: selectedAudioFormat.value,
-            }),
-          },
-        );
-
-        if (videoResponse.ok && audioResponse.ok) {
-          const videoData = await videoResponse.json();
-          const audioData = await audioResponse.json();
-          alertMessage.innerText = `Tasks added to pending queue:\nVideo Task ID: ${videoData.id}\nAudio Task ID: ${audioData.id}`;
-        } else {
-          alertMessage.innerText = "Failed to add tasks to pending queue";
-        }
-      });
-
-      videoFormatRadioInputGroup.addEventListener("change", (event) => {
-        if (
-          event.target &&
-          event.target.name &&
-          event.target.name === "videoFormat"
-        ) {
-          alertMessage.innerText = `Selected video format: ${event.target.value}`;
+        downloadButton.addEventListener("click", async () => {
           const selectedVideoFormat = document.querySelector(
             'input[name="videoFormat"]:checked',
           );
-          if (selectedVideoFormat) {
-            const selectedType = selectedVideoFormat.nextSibling.innerText
-              .split(" - ")[1]
-              .split("/")[1]
-              .split(";")[0]; // Extract container type from video format
-            const audioOptions = audioFormatRadioInputGroup.querySelectorAll(
-              'input[name="audioFormat"]',
+          const selectedAudioFormat = document.querySelector(
+            'input[name="audioFormat"]:checked',
+          );
+          if (!selectedVideoFormat || !selectedAudioFormat) {
+            alertMessage.innerText =
+              "Please select both video and audio formats";
+            return;
+          }
+          const videoIdMatch = videoUrlInput.value.match(
+            /(?:v=|\/)([0-9A-Za-z_-]{11})/,
+          );
+          const videoId = videoIdMatch ? videoIdMatch[1] : null;
+          if (!videoId) {
+            alertMessage.innerText = "Invalid URL";
+            return;
+          }
+          alertMessage.innerText = "Downloading...";
+          const videoResponse = await fetch(
+            "http://localhost:3000/youtube/pending",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                videoId,
+                itag: selectedVideoFormat.value,
+              }),
+            },
+          );
+
+          const audioResponse = await fetch(
+            "http://localhost:3000/youtube/pending",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                videoId,
+                itag: selectedAudioFormat.value,
+              }),
+            },
+          );
+
+          if (videoResponse.ok && audioResponse.ok) {
+            const videoData = await videoResponse.json();
+            const audioData = await audioResponse.json();
+            alertMessage.innerText = `Tasks added to pending queue:\nVideo Task ID: ${videoData.id}\nAudio Task ID: ${audioData.id}`;
+          } else {
+            alertMessage.innerText = "Failed to add tasks to pending queue";
+          }
+        });
+
+        videoFormatRadioInputGroup.addEventListener("change", (event) => {
+          if (
+            event.target &&
+            event.target.name &&
+            event.target.name === "videoFormat"
+          ) {
+            alertMessage.innerText = `Selected video format: ${event.target.value}`;
+            const selectedVideoFormat = document.querySelector(
+              'input[name="videoFormat"]:checked',
             );
-            audioOptions.forEach((audioOption) => {
-              const audioType = audioOption.nextSibling.innerText
+            if (selectedVideoFormat) {
+              const selectedType = selectedVideoFormat.nextSibling.innerText
                 .split(" - ")[1]
                 .split("/")[1]
-                .split(";")[0]; // Extract container type from audio format
-              if (audioType !== selectedType) {
-                audioOption.disabled = true; // Disable mismatched audio formats
-              } else {
-                audioOption.disabled = false; // Enable matching audio formats
-              }
-            });
+                .split(";")[0]; // Extract container type from video format
+              const audioOptions = audioFormatRadioInputGroup.querySelectorAll(
+                'input[name="audioFormat"]',
+              );
+              audioOptions.forEach((audioOption) => {
+                const audioType = audioOption.nextSibling.innerText
+                  .split(" - ")[1]
+                  .split("/")[1]
+                  .split(";")[0]; // Extract container type from audio format
+                if (audioType !== selectedType) {
+                  audioOption.disabled = true; // Disable mismatched audio formats
+                } else {
+                  audioOption.disabled = false; // Enable matching audio formats
+                }
+              });
+            }
           }
-        }
+        });
+
+        fetchFormatsButton.addEventListener("click", async () => {
+          if (!videoUrlInput.value) {
+            alertMessage.innerText = "Please enter a URL";
+            return;
+          }
+          if (videoUrlInput.value.trim() === "") {
+            alertMessage.innerText = "Please enter a valid URL";
+            return;
+          }
+          const videoIdMatch = videoUrlInput.value.match(
+            /(?:v=|\/)([0-9A-Za-z_-]{11})/,
+          );
+          const videoId = videoIdMatch ? videoIdMatch[1] : null;
+          if (!videoId || videoId.includes("&")) {
+            alertMessage.innerText = "Invalid URL";
+            return;
+          }
+          alertMessage.innerText = "Fetching formats...";
+          videoIdDisplay.innerText = videoId;
+          const formats = await fetch(
+            `http://localhost:3000/youtube/${videoId}/info/formats`,
+          );
+          const formatsData = await formats.json();
+          const uniqueItags = new Set();
+          const videoFormats = formatsData.filter((format) => {
+            if (
+              format.type.includes("video") &&
+              format.height > 720 &&
+              !uniqueItags.has(format.itag)
+            ) {
+              uniqueItags.add(format.itag);
+              return true;
+            }
+            return false;
+          });
+          const audioFormats = formatsData.filter((format) => {
+            if (
+              format.type.includes("audio") &&
+              format.audioBitrate > 39 &&
+              !uniqueItags.has(format.itag)
+            ) {
+              uniqueItags.add(format.itag);
+              return true;
+            }
+            return false;
+          });
+          audioFormatRadioInputGroup.textContent = "";
+          alertMessage.innerText = "Formats fetched successfully";
+
+          videoFormatRadioInputGroup.innerHTML = "";
+          videoFormats.forEach((format) => {
+            const radioInput = document.createElement("input");
+            radioInput.type = "radio";
+            radioInput.name = "videoFormat";
+            radioInput.value = format.itag;
+            radioInput.id = `video-format-${format.itag}`;
+            radioInput.style.width = "auto";
+
+            const label = document.createElement("label");
+            label.htmlFor = `video-format-${format.itag}`;
+            label.innerText = `${format.itag} - ${format.type} - ${format.height}p - ${(format.videoBitrate / 8 / 1024 / 1024).toFixed(2)} MBps`;
+
+            const wrapper = document.createElement("div");
+            wrapper.style.display = "flex";
+            wrapper.style.alignItems = "center";
+            wrapper.appendChild(radioInput);
+            wrapper.appendChild(label);
+            videoFormatRadioInputGroup.appendChild(wrapper);
+          });
+
+          audioFormatRadioInputGroup.innerHTML = "";
+          audioFormats.forEach((format) => {
+            const radioInput = document.createElement("input");
+            radioInput.type = "radio";
+            radioInput.name = "audioFormat";
+            radioInput.value = format.itag;
+            radioInput.id = `audio-format-${format.itag}`;
+            radioInput.style.width = "auto";
+
+            const label = document.createElement("label");
+            label.htmlFor = `audio-format-${format.itag}`;
+            label.innerText = `${format.itag} - ${format.type} - ${format.audioBitrate ? (format.audioBitrate / 1000).toFixed(2) : "N/A"} kbps`;
+
+            const wrapper = document.createElement("div");
+            wrapper.style.display = "flex";
+            wrapper.style.alignItems = "center";
+            wrapper.appendChild(radioInput);
+            wrapper.appendChild(label);
+            audioFormatRadioInputGroup.appendChild(wrapper);
+          });
+          if (videoFormats.length === 0) {
+            alertMessage.innerText = "No video formats found";
+          }
+          if (audioFormats.length === 0) {
+            alertMessage.innerText = "No audio formats found";
+          }
+          if (videoFormats.length === 0 && audioFormats.length === 0) {
+            alertMessage.innerText = "No formats found";
+          }
+        });
       });
+    </script>
+  </head>
 
-      fetchFormatsButton.addEventListener("click", async () => {
-        if (!videoUrlInput.value) {
-          alertMessage.innerText = "Please enter a URL";
-          return;
-        }
-        if (videoUrlInput.value.trim() === "") {
-          alertMessage.innerText = "Please enter a valid URL";
-          return;
-        }
-        const videoIdMatch = videoUrlInput.value.match(
-          /(?:v=|\/)([0-9A-Za-z_-]{11})/,
-        );
-        const videoId = videoIdMatch ? videoIdMatch[1] : null;
-        if (!videoId || videoId.includes("&")) {
-          alertMessage.innerText = "Invalid URL";
-          return;
-        }
-        alertMessage.innerText = "Fetching formats...";
-        videoIdDisplay.innerText = videoId;
-        const formats = await fetch(
-          `http://localhost:3000/youtube/${videoId}/info/formats`,
-        );
-        const formatsData = await formats.json();
-        const uniqueItags = new Set();
-        const videoFormats = formatsData.filter((format) => {
-          if (
-            format.type.includes("video") &&
-            format.height > 720 &&
-            !uniqueItags.has(format.itag)
-          ) {
-            uniqueItags.add(format.itag);
-            return true;
-          }
-          return false;
-        });
-        const audioFormats = formatsData.filter((format) => {
-          if (
-            format.type.includes("audio") &&
-            format.audioBitrate > 39 &&
-            !uniqueItags.has(format.itag)
-          ) {
-            uniqueItags.add(format.itag);
-            return true;
-          }
-          return false;
-        });
-        audioFormatRadioInputGroup.textContent = "";
-        alertMessage.innerText = "Formats fetched successfully";
-
-        videoFormatRadioInputGroup.innerHTML = "";
-        videoFormats.forEach((format) => {
-          const radioInput = document.createElement("input");
-          radioInput.type = "radio";
-          radioInput.name = "videoFormat";
-          radioInput.value = format.itag;
-          radioInput.id = `video-format-${format.itag}`;
-          radioInput.style.width = "auto";
-
-          const label = document.createElement("label");
-          label.htmlFor = `video-format-${format.itag}`;
-          label.innerText = `${format.itag} - ${format.type} - ${format.height}p - ${(format.videoBitrate / 8 / 1024 / 1024).toFixed(2)} MBps`;
-
-          const wrapper = document.createElement("div");
-          wrapper.style.display = "flex";
-          wrapper.style.alignItems = "center";
-          wrapper.appendChild(radioInput);
-          wrapper.appendChild(label);
-          videoFormatRadioInputGroup.appendChild(wrapper);
-        });
-
-        audioFormatRadioInputGroup.innerHTML = "";
-        audioFormats.forEach((format) => {
-          const radioInput = document.createElement("input");
-          radioInput.type = "radio";
-          radioInput.name = "audioFormat";
-          radioInput.value = format.itag;
-          radioInput.id = `audio-format-${format.itag}`;
-          radioInput.style.width = "auto";
-
-          const label = document.createElement("label");
-          label.htmlFor = `audio-format-${format.itag}`;
-          label.innerText = `${format.itag} - ${format.type} - ${format.audioBitrate ? (format.audioBitrate / 1000).toFixed(2) : "N/A"} kbps`;
-
-          const wrapper = document.createElement("div");
-          wrapper.style.display = "flex";
-          wrapper.style.alignItems = "center";
-          wrapper.appendChild(radioInput);
-          wrapper.appendChild(label);
-          audioFormatRadioInputGroup.appendChild(wrapper);
-        });
-        if (videoFormats.length === 0) {
-          alertMessage.innerText = "No video formats found";
-        }
-        if (audioFormats.length === 0) {
-          alertMessage.innerText = "No audio formats found";
-        }
-        if (videoFormats.length === 0 && audioFormats.length === 0) {
-          alertMessage.innerText = "No formats found";
-        }
-      });
-    });
-  </script>
-</head>
-
-<body>
-  <div>
-    <p id="alertMessage">No alerts</p>
-    <input id="videoUrlInput" />
-    <button id="fetchFormatsButton">Fetch formats</button>
-    <p>Video id: <span id="videoIdDisplay"></span></p>
-    <p id="videoFormatRadioInputGroup">Video formats:</p>
-    <p id="audioFormatRadioInputGroup">Audio formats:</p>
-    <button id="downloadButton">Download</button>
-    <p>Pending tasks:</p>
-    <div id="pending"></div>
-    <p>Seen tasks:</p>
-    <div id="seen"></div>
-    <p>History tasks:</p>
-    <div id="history"></div>
-  </div>
-</body>
-
+  <body>
+    <div>
+      <p id="alertMessage">No alerts</p>
+      <input id="videoUrlInput" />
+      <button id="fetchFormatsButton">Fetch formats</button>
+      <p>Video id: <span id="videoIdDisplay"></span></p>
+      <p id="videoFormatRadioInputGroup">Video formats:</p>
+      <p id="audioFormatRadioInputGroup">Audio formats:</p>
+      <button id="downloadButton">Download</button>
+      <p>Pending tasks:</p>
+      <div id="pending"></div>
+      <p>Seen tasks:</p>
+      <div id="seen"></div>
+      <p>History tasks:</p>
+      <div id="history"></div>
+    </div>
+  </body>
 </html>
