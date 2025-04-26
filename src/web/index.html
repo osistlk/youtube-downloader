@@ -300,14 +300,17 @@
           radioInput.name = "videoFormat";
           radioInput.value = format.itag;
           radioInput.id = `video-format-${format.itag}`;
+
           const label = document.createElement("label");
           label.htmlFor = `video-format-${format.itag}`;
           label.innerText = `${format.itag} - ${format.type} - ${format.height}p - ${(format.videoBitrate / 8 / 1024 / 1024).toFixed(2)} MBps`;
-          const lineBreak = document.createElement("br");
-          videoFormatRadioInputGroup.appendChild(radioInput);
-          videoFormatRadioInputGroup.appendChild(label);
-          videoFormatRadioInputGroup.appendChild(lineBreak);
+
+          const wrapper = document.createElement("div");
+          wrapper.appendChild(radioInput);
+          wrapper.appendChild(label);
+          videoFormatRadioInputGroup.appendChild(wrapper);
         });
+
         audioFormatRadioInputGroup.innerHTML = "";
         audioFormats.forEach((format) => {
           const radioInput = document.createElement("input");
@@ -315,13 +318,15 @@
           radioInput.name = "audioFormat";
           radioInput.value = format.itag;
           radioInput.id = `audio-format-${format.itag}`;
+
           const label = document.createElement("label");
           label.htmlFor = `audio-format-${format.itag}`;
           label.innerText = `${format.itag} - ${format.type} - ${format.audioBitrate ? (format.audioBitrate / 1000).toFixed(2) : "N/A"} kbps`;
-          const lineBreak = document.createElement("br");
-          audioFormatRadioInputGroup.appendChild(radioInput);
-          audioFormatRadioInputGroup.appendChild(label);
-          audioFormatRadioInputGroup.appendChild(lineBreak);
+
+          const wrapper = document.createElement("div");
+          wrapper.appendChild(radioInput);
+          wrapper.appendChild(label);
+          audioFormatRadioInputGroup.appendChild(wrapper);
         });
         if (videoFormats.length === 0) {
           alertMessage.innerText = "No video formats found";
