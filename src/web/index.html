@@ -155,6 +155,9 @@
                 if (currentItems.length < 2) {
                   const mergeableItem = document.createElement("li");
                   mergeableItem.innerText = `Task ID: ${task.id}, Video ID: ${task.videoId}, Itag: ${task.itag}`;
+                  mergeableItem.addEventListener("click", () => {
+                    mergeableList.removeChild(mergeableItem); // Remove item from the list
+                  });
                   mergeableList.appendChild(mergeableItem);
                 } else {
                   alert("You can only add up to 2 items to the mergeable list.");
