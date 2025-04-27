@@ -142,6 +142,17 @@
             historyTasks.forEach((task) => {
               const li = document.createElement("li");
               li.innerText = `Task ID: ${task.id}, Video ID: ${task.videoId}, Itag: ${task.itag}`;
+              li.addEventListener("click", () => {
+                const mergeableList = document.getElementById("mergeable");
+                const currentItems = mergeableList.querySelectorAll("li");
+                if (currentItems.length < 2) {
+                  const mergeableItem = document.createElement("li");
+                  mergeableItem.innerText = `Task ID: ${task.id}, Video ID: ${task.videoId}, Itag: ${task.itag}`;
+                  mergeableList.appendChild(mergeableItem);
+                } else {
+                  alert("You can only add up to 2 items to the mergeable list.");
+                }
+              });
               ul.appendChild(li);
             });
             historyList.appendChild(ul);
