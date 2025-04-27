@@ -154,7 +154,7 @@
                   (item) => item.innerText === `Task ID: ${task.id}, Video ID: ${task.videoId}, Itag: ${task.itag}`
                 );
                 if (isAlreadyAdded) {
-                  alert("This task is already in the mergeable list.");
+                  alertMessage.innerText = "This task is already in the mergeable list.";
                   return;
                 }
                 if (currentItems.length < 2) {
@@ -167,7 +167,7 @@
                   mergeableList.appendChild(mergeableItem);
                   mergeButton.disabled = mergeableList.querySelectorAll("li").length < 2;
                 } else {
-                  alert("You can only add up to 2 items to the mergeable list.");
+                  alertMessage.innerText = "You can only add up to 2 items to the mergeable list.";
                 }
               });
               ul.appendChild(li);
