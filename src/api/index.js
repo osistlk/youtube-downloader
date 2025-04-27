@@ -17,6 +17,7 @@ const history = [];
 
 // routes
 router.put("/ffmeg/pending", async (ctx) => {
+  ctx.status = 201;
   ctx.body = { message: "ffmeg pending route" };
 });
 
