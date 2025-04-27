@@ -145,6 +145,13 @@
               li.addEventListener("click", () => {
                 const mergeableList = document.getElementById("mergeable");
                 const currentItems = mergeableList.querySelectorAll("li");
+                const isAlreadyAdded = Array.from(currentItems).some(
+                  (item) => item.innerText === `Task ID: ${task.id}, Video ID: ${task.videoId}, Itag: ${task.itag}`
+                );
+                if (isAlreadyAdded) {
+                  alert("This task is already in the mergeable list.");
+                  return;
+                }
                 if (currentItems.length < 2) {
                   const mergeableItem = document.createElement("li");
                   mergeableItem.innerText = `Task ID: ${task.id}, Video ID: ${task.videoId}, Itag: ${task.itag}`;
