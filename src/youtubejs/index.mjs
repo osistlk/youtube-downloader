@@ -1,7 +1,9 @@
 import { Innertube } from 'youtubei.js';
 
-const youtubeVideoUrl = 'https://www.youtube.com/watch?v=i_X48Sw9dqI';
+const youtubeVideoUrl = 'https://www.youtube.com/watch?v=XanoreTMPco';
 const videoId = youtubeVideoUrl.split('v=')[1].split('&')[0];
+
+console.log('Video ID:', videoId);
 
 try {
     const innertube = await Innertube.create();
