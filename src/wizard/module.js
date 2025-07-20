@@ -64,16 +64,24 @@ async function handleURL(youtubeVideoUrl) {
     .filter((video) => !!video)
     .sort();
 
-  const audios = audioFormats.map((format) => {
-    return {
-      itag: format.itag,
-      audioBitrate: format.audioBitrate,
-      container: format.container,
-      audioCodec: format.audioCodec,
-      sampleRate: format.audioSampleRate,
-      size: format.contentLength,
-    };
-  });
+  const audios = audioFormats
+    .filter(
+      (format) =>
+        format.hasAudio &&
+        !format.hasVideo &&
+        (format.audioTrack?.displayName?.toLowerCase().includes("english") ||
+          format.audioTrack?.displayName?.toLowerCase().includes("original")),
+    )
+    .map((format) => {
+      return {
+        itag: format.itag,
+        audioBitrate: format.audioBitrate,
+        container: format.container,
+        audioCodec: format.audioCodec,
+        sampleRate: format.audioSampleRate,
+        size: format.contentLength,
+      };
+    });
 
   const audioItags = new Set(audios.map((audio) => audio.itag));
   const uniqueAudios = Array.from(audioItags)
@@ -120,26 +128,24 @@ async function handleURL(youtubeVideoUrl) {
   const videoAnswer = await videoPrompt.run();
   const audioAnswer = await audioPrompt.run();
 
+  const selectedVideoFormat = videos.find(
+    (video) => video.itag === videoAnswer,
+  );
+  const selectedAudioFormat = audios.find(
+    (audio) => audio.itag === audioAnswer,
+  );
+
   const videoFilePath = sanitize(
-    `${title}_video.${videos.find((video) => video.itag === videoAnswer).container}`,
+    `${title}_video.${selectedVideoFormat.container}`,
   );
   const audioFilePath = sanitize(
-    `${title}_audio.${audios.find((audio) => audio.itag === audioAnswer).container}`,
+    `${title}_audio.${selectedAudioFormat.container}`,
   );
-  const outputFilePath = sanitize(
-    `${title}.${videos.find((video) => video.itag === videoAnswer).container}`,
-  );
+  const outputFilePath = sanitize(`${title}.${selectedVideoFormat.container}`);
 
   const videoOutput = path.join(TEMP_DIR, videoFilePath);
   const audioOutput = path.join(TEMP_DIR, audioFilePath);
   const finalOutput = path.join(OUTPUT_DIR, outputFilePath);
-
-  let videoFormat = ytdl.chooseFormat(videoFormats, {
-    itag: videoAnswer,
-  });
-  let audioFormat = ytdl.chooseFormat(audioFormats, {
-    itag: audioAnswer,
-  });
 
   const clockEmojis = [
     "🕛",
@@ -158,9 +164,12 @@ async function handleURL(youtubeVideoUrl) {
   let clockIndex = 0;
   let videoDownloaded = 0;
   let audioDownloaded = 0;
-  let videoContentLength = videoFormat.contentLength;
-  let audioContentLength = audioFormat.contentLength;
-  const videoStream = ytdl(youtubeVideoUrl, { quality: videoAnswer })
+  let videoContentLength = selectedVideoFormat.size;
+  let audioContentLength = selectedAudioFormat.size;
+  const videoStream = ytdl
+    .downloadFromInfo(info, {
+      format: videoFormats.find((f) => f.itag === videoAnswer),
+    })
     .on("progress", (_, downloaded, total) => {
       videoDownloaded = downloaded;
       videoContentLength = total;
@@ -183,7 +192,10 @@ async function handleURL(youtubeVideoUrl) {
       console.error("Error downloading video stream.");
     })
     .pipe(fs.createWriteStream(videoOutput));
-  const audioStream = ytdl(youtubeVideoUrl, { quality: audioAnswer })
+  const audioStream = ytdl
+    .downloadFromInfo(info, {
+      format: audioFormats.find((f) => f.itag === audioAnswer),
+    })
     .on("progress", (_, downloaded, total) => {
       audioDownloaded = downloaded;
       audioContentLength = total;
