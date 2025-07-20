@@ -17,6 +17,16 @@ async function handleURL(youtubeVideoUrl) {
     console.error("Invalid YouTube URL. Please try again.");
     process.exit(1);
   }
+
+  const useHardwareAccelerationPrompt = new Confirm({
+    name: "hw",
+    message:
+      "Enable hardware acceleration for FFmpeg (only supports CUDA & mp4)?",
+  });
+
+  const useHardwareAccelerationAnswer =
+    await useHardwareAccelerationPrompt.run();
+
   const info = await ytdl.getInfo(id);
   const title = info.videoDetails.title;
 
@@ -46,16 +56,8 @@ async function handleURL(youtubeVideoUrl) {
     };
   });
 
-  const useHardwareAccelerationPrompt = new Confirm({
-    name: "hw",
-    message:
-      "Enable hardware acceleration for FFmpeg (only supports CUDA & mp4)?",
-  });
-
-  const useHardwareAccelerationAnswer =
-    await useHardwareAccelerationPrompt.run();
-
   const videoItags = new Set(videos.map((video) => video.itag));
+
   const uniqueVideos = Array.from(videoItags)
     .map((itag) =>
       videos.find((video) => {
@@ -123,6 +125,7 @@ async function handleURL(youtubeVideoUrl) {
         name: audio.itag,
       };
     });
+
   const audioPrompt = new Select({
     name: "audio container",
     message: "Select a audio format",
