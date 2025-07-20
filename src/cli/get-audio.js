@@ -23,7 +23,11 @@
   const id = ytdl.getURLVideoID(url);
   const info = await ytdl.getInfo(id);
   const format = info.formats.find(
-    (format) => format.itag == itag && format.mimeType.includes("audio"),
+    (format) =>
+      format.itag == itag &&
+      format.mimeType.includes("audio") &&
+      (format?.audioTrack.displayName.toLowerCase().includes("english") ||
+        format?.audioTrack.displayName.toLowerCase().includes("original")),
   );
   if (!format) {
     console.error("No audio format found for the provided itag.");
@@ -35,7 +39,7 @@
   const output = `./${filename}`;
 
   console.log(`Downloading audio from ${title}...`);
-  const stream = ytdl(url, { quality: itag });
+  const stream = ytdl(url, { quality: itag, lang: "en" });
 
   let downloaded = 0;
   const total = format.contentLength;
