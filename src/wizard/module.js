@@ -30,6 +30,28 @@ async function handleURL(youtubeVideoUrl) {
   const info = await ytdl.getInfo(id);
   const title = info.videoDetails.title;
 
+  // Get English subtitles if available
+  let subtitleFilePath = null;
+  const captions =
+    info.player_response?.captions?.playerCaptionsTracklistRenderer
+      ?.captionTracks;
+  if (captions) {
+    const englishCaption = captions.find(
+      (caption) =>
+        caption.languageCode === "en" || caption.languageCode.startsWith("en-"),
+    );
+
+    if (englishCaption) {
+      console.log("Downloading English subtitles...");
+      const subtitleFileName = sanitize(`${title}_subtitles.ttml`);
+      subtitleFilePath = path.join(TEMP_DIR, subtitleFileName);
+
+      const response = await fetch(englishCaption.baseUrl);
+      const subtitleData = await response.text();
+      fs.writeFileSync(subtitleFilePath, subtitleData);
+    }
+  }
+
   const formats = info.formats.filter(
     (format) => format.hasAudio || format.hasVideo,
   );
@@ -260,7 +282,13 @@ async function handleURL(youtubeVideoUrl) {
       )
       .videoCodec("h264_nvenc")
       .input(audioOutput)
-      .audioCodec("aac")
+      .audioCodec("aac");
+
+    if (subtitleFilePath) {
+      ffmpegCommand.input(subtitleFilePath).outputOptions("-c:s", "mov_text");
+    }
+
+    ffmpegCommand
       .output(finalOutput)
       .on("progress", (progress) => {
         const percent = Math.floor(Number(progress.percent));
@@ -276,6 +304,9 @@ async function handleURL(youtubeVideoUrl) {
         ffmpegCommand.on("end", () => {
           fs.unlinkSync(videoOutput);
           fs.unlinkSync(audioOutput);
+          if (subtitleFilePath && fs.existsSync(subtitleFilePath)) {
+            fs.unlinkSync(subtitleFilePath);
+          }
           resolve();
         });
       },
@@ -284,6 +315,9 @@ async function handleURL(youtubeVideoUrl) {
           console.error("Error with FFmpeg command.");
           fs.unlinkSync(videoOutput);
           fs.unlinkSync(audioOutput);
+          if (subtitleFilePath && fs.existsSync(subtitleFilePath)) {
+            fs.unlinkSync(subtitleFilePath);
+          }
           reject();
         });
       },
@@ -293,7 +327,13 @@ async function handleURL(youtubeVideoUrl) {
       .input(videoOutput)
       .input(audioOutput)
       .videoCodec("copy")
-      .audioCodec("copy")
+      .audioCodec("copy");
+
+    if (subtitleFilePath) {
+      ffmpegCommand.input(subtitleFilePath).outputOptions("-c:s", "mov_text");
+    }
+
+    ffmpegCommand
       .output(finalOutput)
       .on("progress", (progress) => {
         const percent = Math.floor(Number(progress.percent));
@@ -309,6 +349,9 @@ async function handleURL(youtubeVideoUrl) {
         ffmpegCommand.on("end", () => {
           fs.unlinkSync(videoOutput);
           fs.unlinkSync(audioOutput);
+          if (subtitleFilePath && fs.existsSync(subtitleFilePath)) {
+            fs.unlinkSync(subtitleFilePath);
+          }
           resolve();
         });
       },
@@ -317,6 +360,9 @@ async function handleURL(youtubeVideoUrl) {
           console.error("Error with FFmpeg command.");
           fs.unlinkSync(videoOutput);
           fs.unlinkSync(audioOutput);
+          if (subtitleFilePath && fs.existsSync(subtitleFilePath)) {
+            fs.unlinkSync(subtitleFilePath);
+          }
           reject();
         });
       },
