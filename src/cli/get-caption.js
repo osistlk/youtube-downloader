@@ -18,6 +18,11 @@ const sanitize = require("sanitize-filename");
       (caption) => caption.languageCode == languageCode,
     );
 
+  if (!caption) {
+    console.error(`No caption found for language code: ${languageCode}`);
+    process.exit(1);
+  }
+
   const title = info.videoDetails.title;
   const sanitizedTitle = sanitize(title);
   const filename = `${sanitizedTitle}.caption${caption.vssId}.ttml`; // TimedText XML
