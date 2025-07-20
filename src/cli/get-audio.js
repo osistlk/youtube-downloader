@@ -39,7 +39,9 @@
   const output = `./${filename}`;
 
   console.log(`Downloading audio from ${title}...`);
-  const stream = ytdl(url, { quality: itag, lang: "en" });
+  const stream = ytdl.downloadFromInfo(info, {
+    format: format,
+  });
 
   let downloaded = 0;
   const total = format.contentLength;
