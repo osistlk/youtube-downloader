@@ -25,14 +25,26 @@ const sanitize = require("sanitize-filename");
 
   const title = info.videoDetails.title;
   const sanitizedTitle = sanitize(title);
-  const filename = `${sanitizedTitle}.caption${caption.vssId}.ttml`; // TimedText XML
+  const filename = `${sanitizedTitle}.caption${caption.vssId}.json`; // TimedText JSON
   const output = `./${filename}`;
 
   console.log(`Downloading ${title}...`);
   const captionUrl = caption.baseUrl;
 
-  const response = await fetch(captionUrl);
+  const response = await fetch(captionUrl, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+  if (!response.ok) {
+    console.error(`Failed to fetch: ${response.status} ${response.statusText}`);
+    process.exit(1);
+  }
   const vttData = await response.text();
+  if (!vttData || vttData.trim().length === 0) {
+    console.error("Downloaded caption file is empty.");
+    process.exit(1);
+  }
 
   if (
     !vttData ||
