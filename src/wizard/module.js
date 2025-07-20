@@ -30,24 +30,27 @@ async function handleURL(youtubeVideoUrl) {
   const info = await ytdl.getInfo(id);
   const title = info.videoDetails.title;
 
-  const caption =
-    info.player_response.captions.playerCaptionsTracklistRenderer.captionTracks.find(
-      (caption) => caption.languageCode == "en",
-    );
-  const sanitizedTitle = sanitize(title);
-  const filename = `${sanitizedTitle}.caption${caption.vssId}.json`; // TimedText JSON
-  const output = `./${filename}`;
-
-  console.log(`Downloading ${title}...`);
-  const captionUrl = caption.baseUrl;
-
-  const response = await fetch(captionUrl);
-  const vttData = await response.text();
-
   let subtitleFilePath = null;
-  if (vttData && vttData.trim().length > 0) {
-    fs.writeFileSync(output, vttData);
-    subtitleFilePath = output;
+  const captionsList =
+    info.player_response?.captions?.playerCaptionsTracklistRenderer
+      ?.captionTracks;
+  const caption = captionsList?.find((caption) => caption.languageCode == "en");
+
+  if (caption) {
+    const sanitizedTitle = sanitize(title);
+    const filename = `${sanitizedTitle}.caption${caption.vssId}.json`; // TimedText JSON
+    const output = `./${filename}`;
+
+    console.log(`Downloading captions for ${title}...`);
+    const captionUrl = caption.baseUrl;
+
+    const response = await fetch(captionUrl);
+    const vttData = await response.text();
+
+    if (vttData && vttData.trim().length > 0) {
+      fs.writeFileSync(output, vttData);
+      subtitleFilePath = output;
+    }
   }
 
   const formats = info.formats.filter(
