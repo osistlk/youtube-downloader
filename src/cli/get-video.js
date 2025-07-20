@@ -29,7 +29,9 @@
   const output = `./${filename}`;
 
   console.log(`Downloading ${title}...`);
-  const stream = ytdl(url, { quality: itag });
+  const stream = ytdl.downloadFromInfo(info, {
+    format: format,
+  });
 
   let downloaded = 0;
   const total = format.contentLength;
