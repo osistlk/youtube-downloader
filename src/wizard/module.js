@@ -27,7 +27,11 @@ async function handleURL(youtubeVideoUrl) {
     (format) => !format.hasAudio && format.hasVideo,
   );
   const audioFormats = formats.filter(
-    (format) => format.hasAudio && !format.hasVideo,
+    (format) =>
+      format.hasAudio &&
+      !format.hasVideo &&
+      (format.audioTrack?.displayName?.toLowerCase().includes("english") ||
+        format.audioTrack?.displayName?.toLowerCase().includes("original")),
   );
 
   const videos = videoFormats.map((format) => {
