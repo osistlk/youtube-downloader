@@ -29,6 +29,15 @@ const sanitize = require("sanitize-filename");
   const response = await fetch(captionUrl);
   const vttData = await response.text();
 
+  if (
+    !vttData ||
+    vttData.trim().length === 0 ||
+    vttData.includes("<Error>") ||
+    vttData.toLowerCase().includes("malformed")
+  ) {
+    console.error("Downloaded caption file is empty or malformed.");
+    process.exit(1);
+  }
   fs.writeFileSync(output, vttData);
   console.log(`Downloaded to ${output}`);
 })();
