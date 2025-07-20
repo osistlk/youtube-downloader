@@ -17,6 +17,7 @@ const sanitize = require("sanitize-filename");
     info.player_response.captions.playerCaptionsTracklistRenderer.captionTracks.find(
       (caption) => caption.languageCode == languageCode,
     );
+
   const title = info.videoDetails.title;
   const sanitizedTitle = sanitize(title);
   const filename = `${sanitizedTitle}.caption${caption.vssId}.ttml`; // TimedText XML
