@@ -12,9 +12,13 @@
   const id = ytdl.getURLVideoID(url);
   const info = await ytdl.getInfo(id);
 
-  const audioFormats = info.formats.filter(
-    (format) => format.hasAudio && !format.hasVideo,
-  );
+  const audioFormats = info.formats
+    .filter((format) => format.hasAudio && !format.hasVideo)
+    .filter(
+      (format) =>
+        format.audioTrack.displayName.toLowerCase().includes("english") ||
+        format.audioTrack.displayName.toLowerCase().includes("original"),
+    );
   const videoFormats = info.formats.filter(
     (format) => format.hasVideo && !format.hasAudio,
   );
