@@ -35,7 +35,7 @@ async function handleURL(youtubeVideoUrl) {
       (caption) => caption.languageCode == "en",
     );
   const sanitizedTitle = sanitize(title);
-  const filename = `${sanitizedTitle}.caption${caption.vssId}.ttml`; // TimedText XML
+  const filename = `${sanitizedTitle}.caption${caption.vssId}.json`; // TimedText JSON
   const output = `./${filename}`;
 
   console.log(`Downloading ${title}...`);
@@ -44,7 +44,11 @@ async function handleURL(youtubeVideoUrl) {
   const response = await fetch(captionUrl);
   const vttData = await response.text();
 
-  fs.writeFileSync(output, vttData);
+  let subtitleFilePath = null;
+  if (vttData && vttData.trim().length > 0) {
+    fs.writeFileSync(output, vttData);
+    subtitleFilePath = output;
+  }
 
   const formats = info.formats.filter(
     (format) => format.hasAudio || format.hasVideo,
