@@ -30,27 +30,21 @@ async function handleURL(youtubeVideoUrl) {
   const info = await ytdl.getInfo(id);
   const title = info.videoDetails.title;
 
-  // Get English subtitles if available
-  let subtitleFilePath = null;
-  const captions =
-    info.player_response?.captions?.playerCaptionsTracklistRenderer
-      ?.captionTracks;
-  if (captions) {
-    const englishCaption = captions.find(
-      (caption) =>
-        caption.languageCode === "en" || caption.languageCode.startsWith("en-"),
+  const caption =
+    info.player_response.captions.playerCaptionsTracklistRenderer.captionTracks.find(
+      (caption) => caption.languageCode == "en",
     );
+  const sanitizedTitle = sanitize(title);
+  const filename = `${sanitizedTitle}.caption${caption.vssId}.ttml`; // TimedText XML
+  const output = `./${filename}`;
 
-    if (englishCaption) {
-      console.log("Downloading English subtitles...");
-      const subtitleFileName = sanitize(`${title}_subtitles.ttml`);
-      subtitleFilePath = path.join(TEMP_DIR, subtitleFileName);
+  console.log(`Downloading ${title}...`);
+  const captionUrl = caption.baseUrl;
 
-      const response = await fetch(englishCaption.baseUrl);
-      const subtitleData = await response.text();
-      fs.writeFileSync(subtitleFilePath, subtitleData);
-    }
-  }
+  const response = await fetch(captionUrl);
+  const vttData = await response.text();
+
+  fs.writeFileSync(output, vttData);
 
   const formats = info.formats.filter(
     (format) => format.hasAudio || format.hasVideo,
