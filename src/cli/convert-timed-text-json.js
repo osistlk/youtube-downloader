@@ -41,7 +41,7 @@ function extractTextFromSegments(segs) {
 
   return segs
     .filter((seg) => seg.utf8 && seg.utf8.trim() !== "\n")
-    .map((seg) => seg.utf8.trim())
+    .map((seg) => seg.utf8)
     .join("")
     .trim();
 }
