@@ -16,8 +16,10 @@
     .filter((format) => format.hasAudio && !format.hasVideo)
     .filter(
       (format) =>
-        format.audioTrack.displayName.toLowerCase().includes("english") ||
-        format.audioTrack.displayName.toLowerCase().includes("original"),
+        !format.audioTrack ||
+        (format.audioTrack.displayName &&
+          (format.audioTrack.displayName.toLowerCase().includes("english") ||
+            format.audioTrack.displayName.toLowerCase().includes("original"))),
     );
   const videoFormats = info.formats.filter(
     (format) => format.hasVideo && !format.hasAudio,
