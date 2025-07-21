@@ -26,8 +26,10 @@
     (format) =>
       format.itag == itag &&
       format.mimeType.includes("audio") &&
-      (format?.audioTrack.displayName.toLowerCase().includes("english") ||
-        format?.audioTrack.displayName.toLowerCase().includes("original")),
+      (!format.audioTrack ||
+        (format.audioTrack.displayName &&
+          (format.audioTrack.displayName.toLowerCase().includes("english") ||
+            format.audioTrack.displayName.toLowerCase().includes("original")))),
   );
   if (!format) {
     console.error("No audio format found for the provided itag.");
