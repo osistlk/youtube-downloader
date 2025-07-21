@@ -63,8 +63,9 @@ async function handleURL(youtubeVideoUrl) {
     (format) =>
       format.hasAudio &&
       !format.hasVideo &&
-      (format.audioTrack?.displayName?.toLowerCase().includes("english") ||
-        format.audioTrack?.displayName?.toLowerCase().includes("original")),
+      (!format.audioTrack ||
+        format.audioTrack.displayName?.toLowerCase().includes("english") ||
+        format.audioTrack.displayName?.toLowerCase().includes("original")),
   );
 
   const videos = videoFormats.map((format) => {
@@ -98,8 +99,9 @@ async function handleURL(youtubeVideoUrl) {
       (format) =>
         format.hasAudio &&
         !format.hasVideo &&
-        (format.audioTrack?.displayName?.toLowerCase().includes("english") ||
-          format.audioTrack?.displayName?.toLowerCase().includes("original")),
+        (!format.audioTrack ||
+          format.audioTrack.displayName?.toLowerCase().includes("english") ||
+          format.audioTrack.displayName?.toLowerCase().includes("original")),
     )
     .map((format) => {
       return {
@@ -132,6 +134,10 @@ async function handleURL(youtubeVideoUrl) {
     };
   });
 
+  if (videoChoices.length === 0) {
+    console.error("No video formats available for this video.");
+    process.exit(1);
+  }
   const videoPrompt = new Select({
     name: "video container",
     message: "Select a video format",
@@ -149,6 +155,10 @@ async function handleURL(youtubeVideoUrl) {
       };
     });
 
+  if (audioChoices.length === 0) {
+    console.error("No audio formats available for this video.");
+    process.exit(1);
+  }
   const audioPrompt = new Select({
     name: "audio container",
     message: "Select a audio format",
