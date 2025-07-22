@@ -27,7 +27,15 @@ async function handleURL(youtubeVideoUrl) {
   const useHardwareAccelerationAnswer =
     await useHardwareAccelerationPrompt.run();
 
-  const info = await ytdl.getInfo(id);
+  let info;
+  try {
+    info = await ytdl.getInfo(id);
+  } catch (error) {
+    console.error("Error fetching video information. Please check the URL.");
+    console.error(error.message);
+    console.log("Also YouTube may be blocking you for a bit, try again later.");
+    process.exit(1);
+  }
   const title = info.videoDetails.title;
 
   let subtitleFilePath = null;
