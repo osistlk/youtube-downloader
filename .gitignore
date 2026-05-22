@@ -12,5 +12,5 @@ timedtext
 *.xml
 
 .DS_Store
-
+.github
 *~
